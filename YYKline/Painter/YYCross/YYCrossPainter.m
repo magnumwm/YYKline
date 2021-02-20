@@ -12,19 +12,25 @@
 
 @implementation YYCrossPainter
 
-+ (void)drawToLayer:(CALayer *)layer point:(CGPoint)point area:(CGRect)area models:(NSArray<YYKlineModel *> *)models idx:(NSUInteger)idx leftText:(NSAttributedString *)leftText rightText:(NSAttributedString *)rightText{
-    if(!models) {
-        return;
++ (YYMinMaxModel *)getMinMaxValue:(YYKlineModel *)data {
+    if(!data) {
+        return [YYMinMaxModel new];
     }
+    CGFloat minAssert = data.Low.floatValue;
+    CGFloat maxAssert = data.High.floatValue;
+    return [YYMinMaxModel modelWithMin:minAssert max:maxAssert];
+}
+
++ (void)drawToLayer:(CALayer *)layer
+              point:(CGPoint)point
+               area:(CGRect)area
+           leftText:(NSAttributedString *)leftText
+          rightText:(NSAttributedString *)rightText{
     CGFloat maxW = CGRectGetWidth(area);
     CGFloat maxH = CGRectGetHeight(area);
 
     YYCrossPainter *sublayer = [[YYCrossPainter alloc] init];
     sublayer.frame = area;
-
-//    CGFloat w = [YYKlineGlobalVariable kLineWidth];
-//    CGFloat x = idx * (w + [YYKlineGlobalVariable kLineGap]);
-//    CGFloat centerX = x+w/2.f-[YYKlineGlobalVariable kLineGap]/2.f;
 
     // 画 vertical line
     {

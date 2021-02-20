@@ -45,6 +45,11 @@
         CGFloat h = fabsf(m.Open.floatValue - m.Close.floatValue) * unitValue;
         CGFloat y =  maxH - (MAX(m.Open.floatValue, m.Close.floatValue) - minMaxModel.min) * unitValue;
         UIBezierPath *path = [UIBezierPath bezierPathWithRect:CGRectMake(x, y, w - [YYKlineGlobalVariable kLineGap], h)];
+
+        // YYKlineModel 赋值
+        m.lowPoint = lowPoint;
+        m.highPoint = highPoint;
+        m.y = maxH - (m.Close.floatValue - minMaxModel.min) * unitValue;;
         
         [path moveToPoint:lowPoint];
         [path addLineToPoint:CGPointMake(centerX, y+h)];

@@ -270,25 +270,15 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
         // vertical line start x
         CGFloat offsetX = idx * ([YYKlineGlobalVariable kLineWidth] + [YYKlineGlobalVariable kLineGap]) + [YYKlineGlobalVariable kLineWidth]/2.f - self.scrollView.contentOffset.x;
 
-        CGRect mainArea = CGRectMake(0, 0, CGRectGetWidth(self.painterView.bounds), CGRectGetHeight(self.painterView.bounds) * self.mainViewRatio-40);
+        CGRect mainArea = CGRectMake(0, 20, CGRectGetWidth(self.painterView.bounds), CGRectGetHeight(self.painterView.bounds) * self.mainViewRatio-40);
 
-        // horizontal line start y, 固定在
-        CGFloat maxH = CGRectGetHeight(mainArea);
-        YYMinMaxModel *minMaxModel = [YYMinMaxModel new];
-        minMaxModel.min = 9999999999999.f;
-        [minMaxModel combine:[self.linePainter getMinMaxValue:self.rootModel.models]];
-        if (self.indicator1Painter) {
-            [minMaxModel combine:[self.indicator1Painter getMinMaxValue:self.rootModel.models]];
-        }
-        CGFloat unitValue = maxH/minMaxModel.distance;
-        CGFloat offsetY = (model.Low.floatValue - minMaxModel.min)*unitValue;
+        // offsetY设为当前model的close price位置
+        CGFloat offsetY = model.y;
 
         NSDictionary *attributes = @{NSForegroundColorAttributeName: UIColor.whiteColor, NSFontAttributeName: [UIFont systemFontOfSize:12]};
         [self.crossPainter drawToLayer:self.topView.layer
                                  point:CGPointMake(offsetX, offsetY)
                                   area:mainArea
-                                models:self.rootModel.models
-                                   idx:idx
                               leftText:[[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@"%.0f", model.Volume.floatValue] attributes:attributes]
                              rightText:[[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@"%@", model.changePercent] attributes:attributes]];
     }

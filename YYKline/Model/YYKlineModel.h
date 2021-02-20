@@ -6,6 +6,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import <CoreGraphics/CoreGraphics.h>
 #import "YYIndicatorModel.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -46,6 +47,11 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, copy) NSAttributedString *V_KDJ;
 @property (nonatomic, copy) NSAttributedString *V_WR;
 @property (nonatomic, copy) NSAttributedString *V_RSI;
+
+// Drawable
+@property (nonatomic, assign) CGPoint highPoint;
+@property (nonatomic, assign) CGPoint lowPoint;
+@property (nonatomic, assign) CGFloat y;
 
 @end
 

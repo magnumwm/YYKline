@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 51;
+	objectVersion = 50;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -325,12 +325,12 @@
 			isa = PBXGroup;
 			children = (
 				4081AD8A254866D80039DE0F /* YYKlineRootModel.h */,
+				4081AD8E254866D80039DE0F /* YYKlineRootModel.m */,
 				4081AD8B254866D80039DE0F /* YYIndicatorModel.h */,
+				4081AD90254866D80039DE0F /* YYIndicatorModel.m */,
+				4081AD8F254866D80039DE0F /* YYKlineModel.h */,
 				4081AD8C254866D80039DE0F /* YYKlineModel.m */,
 				4081AD8D254866D80039DE0F /* YYMinMaxModel.h */,
-				4081AD8E254866D80039DE0F /* YYKlineRootModel.m */,
-				4081AD8F254866D80039DE0F /* YYKlineModel.h */,
-				4081AD90254866D80039DE0F /* YYIndicatorModel.m */,
 				4081AD91254866D80039DE0F /* YYMinMaxModel.m */,
 			);
 			path = Model;

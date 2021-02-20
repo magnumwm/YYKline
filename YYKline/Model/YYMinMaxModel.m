@@ -17,7 +17,7 @@
 }
 
 - (CGFloat)distance {
-    return self.max - self.min;
+    return (self.max - self.min != 0)?(self.max - self.min):1;
 }
 
 
