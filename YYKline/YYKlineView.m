@@ -23,15 +23,17 @@
 //#import "YYEMAPainter.h"
 //#import "YYBOLLPainter.h"
 #import "YYTimelinePainter.h"
+#import "YYCrossPainter.h"
 
 @interface YYKlineView() <UIScrollViewDelegate>
 @property (nonatomic, strong) UIScrollView *scrollView;
 @property (nonatomic, strong) UIView *painterView;
+@property (nonatomic, strong) UIView *topView; // 长按后在这个view上显示十字交叉线
 @property (nonatomic, strong) UIView *rightView;
 @property (nonatomic, strong) UILabel *topLabel;
 @property (nonatomic, strong) UILabel *middleLabel;
 @property (nonatomic, strong) UILabel *bottomLabel;
-@property (nonatomic, strong) UIView *verticalView; // 长按后显示的View
+//@property (nonatomic, strong) UIView *verticalView; // 长按后显示的View
 
 @property (nonatomic, assign) CGFloat oldExactOffset; // 旧的scrollview准确位移
 @property (nonatomic, assign) CGFloat pinchCenterX;
@@ -61,6 +63,7 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
         self.volumeViewRatio = [YYKlineGlobalVariable kLineVolumeViewRadio];
         self.indicator1Painter = YYMAPainter.class;
         self.indicator2Painter = YYMACDPainter.class;
+        self.crossPainter = YYCrossPainter.class;
         [self initUI];
     }
     return self;
@@ -73,7 +76,6 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
     [self initPainterView];
     [self initRightView];
     [self initLabel];
-    [self initVerticalView];
     
     //缩放
     UIPinchGestureRecognizer *pinchGesture = [[UIPinchGestureRecognizer alloc]initWithTarget:self action:@selector(event_pichMethod:)];
@@ -118,18 +120,13 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
     }];
 }
 
-- (void)initVerticalView {
-    self.verticalView = [UIView new];
-    self.verticalView.clipsToBounds = YES;
-    [self.scrollView addSubview:self.verticalView];
-    self.verticalView.backgroundColor = [UIColor longPressLineColor];
-    [self.verticalView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.equalTo(self).offset(15);
-        make.width.equalTo(@(YYKlineLongPressVerticalViewWidth));
-        make.height.equalTo(self.scrollView.mas_height);
-        make.left.equalTo(@(-10));
+- (void)initTopView {
+    self.topView = [UIView new];
+    self.topView.backgroundColor = [UIColor clearColor];
+    [self.scrollView insertSubview:self.topView aboveSubview:self.painterView];
+    [self.topView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.edges.equalTo(self.painterView);
     }];
-    self.verticalView.hidden = YES;
 }
 
 - (void)initLabel {
@@ -260,16 +257,47 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
         oldPositionX = location.x;
         NSInteger idx = ABS(floor(location.x / ([YYKlineGlobalVariable kLineWidth] + [YYKlineGlobalVariable kLineGap])));
         idx = MIN(idx, self.rootModel.models.count - 1);
-        [self updateLabelText: self.rootModel.models[idx]];
-        [self.verticalView mas_updateConstraints:^(MASConstraintMaker *make) {
-            make.left.equalTo(@(idx * ([YYKlineGlobalVariable kLineWidth] + [YYKlineGlobalVariable kLineGap]) + [YYKlineGlobalVariable kLineWidth]/2.f));
-        }];
-        [self.verticalView layoutIfNeeded];
-        self.verticalView.hidden = NO;
+
+        YYKlineModel *model =  self.rootModel.models[idx];
+
+        [self updateLabelText:model];
+
+        // 绘制十字交叉线
+        if (longPress.state == UIGestureRecognizerStateBegan) {
+            [self initTopView];
+        }
+        self.topView.layer.sublayers = nil;
+        // vertical line start x
+        CGFloat offsetX = idx * ([YYKlineGlobalVariable kLineWidth] + [YYKlineGlobalVariable kLineGap]) + [YYKlineGlobalVariable kLineWidth]/2.f - self.scrollView.contentOffset.x;
+
+        CGRect mainArea = CGRectMake(0, 0, CGRectGetWidth(self.painterView.bounds), CGRectGetHeight(self.painterView.bounds) * self.mainViewRatio-40);
+
+        // horizontal line start y, 固定在
+        CGFloat maxH = CGRectGetHeight(mainArea);
+        YYMinMaxModel *minMaxModel = [YYMinMaxModel new];
+        minMaxModel.min = 9999999999999.f;
+        [minMaxModel combine:[self.linePainter getMinMaxValue:self.rootModel.models]];
+        if (self.indicator1Painter) {
+            [minMaxModel combine:[self.indicator1Painter getMinMaxValue:self.rootModel.models]];
+        }
+        CGFloat unitValue = maxH/minMaxModel.distance;
+        CGFloat offsetY = (model.Low.floatValue - minMaxModel.min)*unitValue;
+
+        NSDictionary *attributes = @{NSForegroundColorAttributeName: UIColor.whiteColor, NSFontAttributeName: [UIFont systemFontOfSize:12]};
+        [self.crossPainter drawToLayer:self.topView.layer
+                                 point:CGPointMake(offsetX, offsetY)
+                                  area:mainArea
+                                models:self.rootModel.models
+                                   idx:idx
+                              leftText:[[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@"%.0f", model.Volume.floatValue] attributes:attributes]
+                             rightText:[[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@"%@", model.changePercent] attributes:attributes]];
     }
     
-    if(longPress.state == UIGestureRecognizerStateEnded) {
-        self.verticalView.hidden = YES; // 取消竖线
+    if(longPress.state == UIGestureRecognizerStateEnded ||
+       longPress.state == UIGestureRecognizerStateCancelled) {
+        // 取消crossLine
+        self.topView.layer.sublayers = nil;
+        self.topView = nil;
         oldPositionX = 0;
         // 恢复scrollView的滑动
         self.scrollView.scrollEnabled = YES;

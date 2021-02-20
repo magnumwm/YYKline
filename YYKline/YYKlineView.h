@@ -18,6 +18,7 @@
 @property (nonatomic) Class <YYPainterProtocol> linePainter;
 @property (nonatomic) Class <YYPainterProtocol> indicator1Painter;
 @property (nonatomic) Class <YYPainterProtocol> indicator2Painter;
+@property (nonatomic) Class <YYCrossLinePainterProtocol> crossPainter;
 
 - (void)reDraw; // 重绘
 @end

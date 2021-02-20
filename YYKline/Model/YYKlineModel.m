@@ -211,5 +211,10 @@
     return self.Close.floatValue > self.Open.floatValue;
 }
 
+- (NSString *)changePercent {
+    CGFloat change = (self.Close.floatValue - self.PrevModel.Close.floatValue)/self.PrevModel.Close.floatValue*100;
+    return [NSString stringWithFormat:@"%.2f%%", change];
+}
+
 @end
 

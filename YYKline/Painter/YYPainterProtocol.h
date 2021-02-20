@@ -31,4 +31,19 @@
 + (void)drawToLayer:(CALayer *)layer area:(CGRect)area minMax: (YYMinMaxModel *)minMaxModel;
 @end
 
+@protocol YYCrossLinePainterProtocol <NSObject>
+
++ (void)drawToLayer:(CALayer *)layer
+              point:(CGPoint)point
+               area:(CGRect)area
+             models:(NSArray <YYKlineModel *> *)models
+                idx:(NSUInteger)idx
+           leftText:(NSAttributedString *)leftText
+          rightText:(NSAttributedString *)rightText;
+
+@optional
+// 获取边界值
++ (YYMinMaxModel *)getMinMaxValue:(NSArray <YYKlineModel *> *)data;
+@end
+
 #endif /* YYPainter_h */
