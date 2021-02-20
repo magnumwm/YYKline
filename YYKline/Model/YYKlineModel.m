@@ -6,7 +6,7 @@
 //
 
 #import "YYKlineModel.h"
-#import "UIColor+YYKline.h"
+#import "YYKlineStyleConfig.h"
 
 @implementation YYKlineModel
 
@@ -43,17 +43,18 @@
 
 - (NSAttributedString *)V_MA {
     if (!_V_MA) {
+        YYKlineStyleConfig *config = YYKlineStyleConfig.config;
         NSAttributedString *str1 = [[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@" %@  开：%.3f  高：%.3f 低：%.3f  收：%.3f ", self.V_Date, self.Open.floatValue, self.High.floatValue, self.Low.floatValue, self.Close.floatValue] attributes:@{
             NSForegroundColorAttributeName: [UIColor grayColor],
         }];
         NSAttributedString *str2 = [[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@" MA10：%.3f ",self.MA.MA1.floatValue] attributes:@{
-            NSForegroundColorAttributeName: [UIColor line1Color],
+            NSForegroundColorAttributeName: config.line1Color,
         }];
         NSAttributedString *str3 = [[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@" MA30：%.3f ",self.MA.MA2.floatValue] attributes:@{
-            NSForegroundColorAttributeName: [UIColor line2Color],
+            NSForegroundColorAttributeName: config.line2Color,
         }];
         NSAttributedString *str4 = [[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@" MA60：%.3f ",self.MA.MA3.floatValue] attributes:@{
-            NSForegroundColorAttributeName: [UIColor line3Color],
+            NSForegroundColorAttributeName: config.line3Color,
         }];
         NSMutableAttributedString *mStr = [[NSMutableAttributedString alloc] initWithAttributedString:str1];
         [mStr appendAttributedString:str2];
@@ -66,14 +67,15 @@
 
 - (NSAttributedString *)V_EMA {
     if (!_V_EMA) {
+        YYKlineStyleConfig *config = YYKlineStyleConfig.config;
         NSAttributedString *str1 = [[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@" %@  开：%.3f  高：%.3f 低：%.3f  收：%.3f ", self.V_Date, self.Open.floatValue, self.High.floatValue, self.Low.floatValue, self.Close.floatValue] attributes:@{
             NSForegroundColorAttributeName: [UIColor grayColor],
         }];
         NSAttributedString *str2 = [[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@" EMA7：%.3f ",self.EMA.EMA1.floatValue] attributes:@{
-            NSForegroundColorAttributeName: [UIColor line1Color],
+            NSForegroundColorAttributeName: config.line1Color,
         }];
         NSAttributedString *str3 = [[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@" EMA30：%.3f ",self.EMA.EMA2.floatValue] attributes:@{
-            NSForegroundColorAttributeName: [UIColor line2Color],
+            NSForegroundColorAttributeName: config.line2Color,
         }];
         NSMutableAttributedString *mStr = [[NSMutableAttributedString alloc] initWithAttributedString:str1];
         [mStr appendAttributedString:str2];
@@ -85,17 +87,18 @@
 
 - (NSAttributedString *)V_BOLL {
     if (!_V_BOLL) {
+        YYKlineStyleConfig *config = YYKlineStyleConfig.config;
         NSAttributedString *str1 = [[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@" %@  开：%.3f  高：%.3f 低：%.3f  收：%.3f ", self.V_Date, self.Open.floatValue, self.High.floatValue, self.Low.floatValue, self.Close.floatValue] attributes:@{
             NSForegroundColorAttributeName: [UIColor grayColor],
         }];
         NSAttributedString *str2 = [[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@" UP：%.3f ",self.BOLL.UP.floatValue] attributes:@{
-            NSForegroundColorAttributeName: [UIColor line1Color],
+            NSForegroundColorAttributeName: config.line1Color,
         }];
         NSAttributedString *str3 = [[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@" MID：%.3f ",self.BOLL.MID.floatValue] attributes:@{
-            NSForegroundColorAttributeName: [UIColor line2Color],
+            NSForegroundColorAttributeName: config.line2Color,
         }];
         NSAttributedString *str4 = [[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@" LOW：%.3f ",self.BOLL.LOW.floatValue] attributes:@{
-            NSForegroundColorAttributeName: [UIColor line3Color],
+            NSForegroundColorAttributeName: config.line3Color,
         }];
         NSMutableAttributedString *mStr = [[NSMutableAttributedString alloc] initWithAttributedString:str1];
         [mStr appendAttributedString:str2];
@@ -117,17 +120,18 @@
 
 - (NSAttributedString *)V_MACD {
     if (!_V_MACD) {
+        YYKlineStyleConfig *config = YYKlineStyleConfig.config;
         NSAttributedString *str1 = [[NSAttributedString alloc] initWithString:@" MACD(12,26,9)：" attributes:@{
             NSForegroundColorAttributeName: [UIColor grayColor],
         }];
         NSAttributedString *str2 = [[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@" DIFF：%.4f ",self.MACD.DIFF.floatValue] attributes:@{
-            NSForegroundColorAttributeName: [UIColor line1Color],
+            NSForegroundColorAttributeName: config.line1Color,
         }];
         NSAttributedString *str3 = [[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@" DEA：%.4f ",self.MACD.DEA.floatValue] attributes:@{
-            NSForegroundColorAttributeName: [UIColor line2Color],
+            NSForegroundColorAttributeName: config.line2Color,
         }];
         NSAttributedString *str4 = [[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@" MACD：%.4f ",self.MACD.MACD.floatValue] attributes:@{
-            NSForegroundColorAttributeName: self.MACD.MACD.floatValue < 0 ? UIColor.upColor : UIColor.downColor,
+            NSForegroundColorAttributeName: self.MACD.MACD.floatValue < 0 ? config.upColor : config.downColor,
         }];
         
         NSMutableAttributedString *mStr = [[NSMutableAttributedString alloc] initWithAttributedString:str1];
@@ -141,17 +145,18 @@
 
 - (NSAttributedString *)V_KDJ {
     if (!_V_KDJ) {
+        YYKlineStyleConfig *config = YYKlineStyleConfig.config;
         NSAttributedString *str1 = [[NSAttributedString alloc] initWithString:@" KDJ(9,3,3)：" attributes:@{
             NSForegroundColorAttributeName: [UIColor grayColor],
         }];
         NSAttributedString *str2 = [[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@" K：%.3f ",self.KDJ.K.floatValue] attributes:@{
-            NSForegroundColorAttributeName: UIColor.line1Color,
+            NSForegroundColorAttributeName: config.line1Color,
         }];
         NSAttributedString *str3 = [[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@" D：%.3f ",self.KDJ.D.floatValue] attributes:@{
-            NSForegroundColorAttributeName: UIColor.line2Color,
+            NSForegroundColorAttributeName: config.line2Color,
         }];
         NSAttributedString *str4 = [[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@" J：%.3f ",self.KDJ.J.floatValue] attributes:@{
-            NSForegroundColorAttributeName: UIColor.line3Color,
+            NSForegroundColorAttributeName: config.line3Color,
         }];
         NSMutableAttributedString *mStr = [[NSMutableAttributedString alloc] initWithAttributedString:str1];
         [mStr appendAttributedString:str2];
@@ -164,17 +169,18 @@
 
 - (NSAttributedString *)V_RSI {
     if (!_V_RSI) {
+        YYKlineStyleConfig *config = YYKlineStyleConfig.config;
         NSAttributedString *str1 = [[NSAttributedString alloc] initWithString:@" RSI(6,12,24)：" attributes:@{
             NSForegroundColorAttributeName: [UIColor grayColor],
         }];
         NSAttributedString *str2 = [[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@" RSI6：%.3f ",self.RSI.RSI1.floatValue] attributes:@{
-            NSForegroundColorAttributeName: UIColor.line1Color,
+            NSForegroundColorAttributeName: config.line1Color,
         }];
         NSAttributedString *str3 = [[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@" RSI12：%.3f ",self.RSI.RSI2.floatValue] attributes:@{
-            NSForegroundColorAttributeName: UIColor.line2Color,
+            NSForegroundColorAttributeName: config.line2Color,
         }];
         NSAttributedString *str4 = [[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@" RSI24：%.3f ",self.RSI.RSI3.floatValue] attributes:@{
-            NSForegroundColorAttributeName: UIColor.line3Color,
+            NSForegroundColorAttributeName: config.line3Color,
         }];
         NSMutableAttributedString *mStr = [[NSMutableAttributedString alloc] initWithAttributedString:str1];
         [mStr appendAttributedString:str2];
@@ -187,14 +193,15 @@
 
 - (NSAttributedString *)V_WR {
     if (!_V_WR) {
+        YYKlineStyleConfig *config = YYKlineStyleConfig.config;
         NSAttributedString *str1 = [[NSAttributedString alloc] initWithString:@" WR(6,10)：" attributes:@{
             NSForegroundColorAttributeName: [UIColor grayColor],
         }];
         NSAttributedString *str2 = [[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@" WR6：%.3f ",self.WR.WR1.floatValue] attributes:@{
-            NSForegroundColorAttributeName: UIColor.line1Color,
+            NSForegroundColorAttributeName: config.line1Color,
         }];
         NSAttributedString *str3 = [[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@" WR10：%.3f ",self.WR.WR2.floatValue] attributes:@{
-            NSForegroundColorAttributeName: UIColor.line2Color,
+            NSForegroundColorAttributeName: config.line2Color,
         }];
         NSMutableAttributedString *mStr = [[NSMutableAttributedString alloc] initWithAttributedString:str1];
         [mStr appendAttributedString:str2];

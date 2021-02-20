@@ -7,8 +7,6 @@
 
 #import "YYKlineView.h"
 #import "Masonry.h"
-#import "UIColor+YYKline.h"
-#import "YYKlineGlobalVariable.h"
 #import "YYKlineStyleConfig.h"
 #import "YYKlineRootModel.h"
 #import "YYPainterProtocol.h"
@@ -79,7 +77,7 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
     [self initLabel];
     
     //缩放
-    UIPinchGestureRecognizer *pinchGesture = [[UIPinchGestureRecognizer alloc]initWithTarget:self action:@selector(event_pichMethod:)];
+    UIPinchGestureRecognizer *pinchGesture = [[UIPinchGestureRecognizer alloc]initWithTarget:self action:@selector(event_pinchMethod:)];
     [_scrollView addGestureRecognizer:pinchGesture];
     
     //长按
@@ -167,8 +165,9 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
 
 #pragma mark 重绘
 - (void)reDraw {
+    YYKlineStyleConfig *config = YYKlineStyleConfig.config;
     dispatch_main_async_safe(^{
-        CGFloat kLineViewWidth = self.rootModel.models.count * [YYKlineGlobalVariable kLineWidth] + (self.rootModel.models.count + 1) * [YYKlineGlobalVariable kLineGap] + 10;
+        CGFloat kLineViewWidth = self.rootModel.models.count * config.kLineWidth + (self.rootModel.models.count + 1) * config.kLineGap + 10;
         [self updateScrollViewContentSize];
         CGFloat offset = kLineViewWidth - self.scrollView.frame.size.width;
         self.scrollView.contentOffset = CGPointMake(MAX(offset, 0), 0);
@@ -179,8 +178,9 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
 }
 
 - (void)calculateNeedDrawModels {
-    CGFloat lineGap = [YYKlineGlobalVariable kLineGap];
-    CGFloat lineWidth = [YYKlineGlobalVariable kLineWidth];
+    YYKlineStyleConfig *config = YYKlineStyleConfig.config;
+    CGFloat lineGap = config.kLineGap;
+    CGFloat lineWidth = config.kLineWidth;
     
     //数组个数
     NSInteger needDrawKlineCount = ceil((CGRectGetWidth(self.scrollView.frame))/(lineGap+lineWidth)) + 1;
@@ -216,8 +216,9 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
     // 移除旧layer
     self.painterView.layer.sublayers = nil;
     self.rightView.layer.sublayers = nil;
-    
-    CGFloat offsetX = models.firstObject.index * (YYKlineGlobalVariable.kLineWidth + YYKlineGlobalVariable.kLineGap) - self.scrollView.contentOffset.x;
+
+    YYKlineStyleConfig *config = YYKlineStyleConfig.config;
+    CGFloat offsetX = models.firstObject.index * (config.kLineWidth + config.kLineGap) - self.scrollView.contentOffset.x;
     CGRect mainArea = CGRectMake(offsetX, 20, CGRectGetWidth(self.painterView.bounds), CGRectGetHeight(self.painterView.bounds) * self.mainViewRatio-40);
     CGRect secondArea = CGRectMake(offsetX, CGRectGetMaxY(mainArea) + 20, CGRectGetWidth(mainArea), CGRectGetHeight(self.painterView.bounds) * self.volumeViewRatio);
     CGRect thirdArea = CGRectMake(offsetX, CGRectGetMaxY(secondArea) + 20, CGRectGetWidth(mainArea), CGRectGetHeight(self.painterView.bounds) * (1 - self.mainViewRatio - self.volumeViewRatio) - 20);
@@ -248,15 +249,16 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
 #pragma mark 长按手势执行方法
 - (void)event_longPressMethod:(UILongPressGestureRecognizer *)longPress {
     static CGFloat oldPositionX = 0;
+    YYKlineStyleConfig *config = YYKlineStyleConfig.config;
     if(UIGestureRecognizerStateChanged == longPress.state || UIGestureRecognizerStateBegan == longPress.state) {
         CGPoint location = [longPress locationInView:self.scrollView];
-        if(ABS(oldPositionX - location.x) < ([YYKlineGlobalVariable kLineWidth] + [YYKlineGlobalVariable kLineGap])/2) {
+        if(ABS(oldPositionX - location.x) < (config.kLineWidth + config.kLineGap)/2) {
             return;
         }
         // 暂停滑动
         self.scrollView.scrollEnabled = NO;
         oldPositionX = location.x;
-        NSInteger idx = ABS(floor(location.x / ([YYKlineGlobalVariable kLineWidth] + [YYKlineGlobalVariable kLineGap])));
+        NSInteger idx = ABS(floor(location.x / (config.kLineWidth + config.kLineGap)));
         idx = MIN(idx, self.rootModel.models.count - 1);
 
         YYKlineModel *model =  self.rootModel.models[idx];
@@ -269,7 +271,7 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
         }
         self.topView.layer.sublayers = nil;
         // vertical line start x
-        CGFloat offsetX = idx * ([YYKlineGlobalVariable kLineWidth] + [YYKlineGlobalVariable kLineGap]) + [YYKlineGlobalVariable kLineWidth]/2.f - self.scrollView.contentOffset.x;
+        CGFloat offsetX = idx * (config.kLineWidth + config.kLineGap) + config.kLineWidth/2.f - self.scrollView.contentOffset.x;
 
         CGRect mainArea = CGRectMake(0, 20, CGRectGetWidth(self.painterView.bounds), CGRectGetHeight(self.painterView.bounds) * self.mainViewRatio-40);
 
@@ -297,13 +299,15 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
 }
 
 #pragma mark 缩放执行方法
-- (void)event_pichMethod:(UIPinchGestureRecognizer *)pinch {
+- (void)event_pinchMethod:(UIPinchGestureRecognizer *)pinch {
+    YYKlineStyleConfig *config = YYKlineStyleConfig.config;
+
     if (pinch.state == UIGestureRecognizerStateBegan) {
         self.scrollView.scrollEnabled = NO;
         CGPoint p1 = [pinch locationOfTouch:0 inView:self.painterView];
         CGPoint p2 = [pinch locationOfTouch:1 inView:self.painterView];
         self.pinchCenterX = (p1.x+p2.x)/2;
-        self.pinchIndex = ABS(floor((self.pinchCenterX + self.scrollView.contentOffset.x) / ([YYKlineGlobalVariable kLineWidth] + [YYKlineGlobalVariable kLineGap])));
+        self.pinchIndex = ABS(floor((self.pinchCenterX + self.scrollView.contentOffset.x) / (config.kLineWidth + config.kLineGap)));
     }
     
     if (pinch.state == UIGestureRecognizerStateEnded) {
@@ -312,34 +316,34 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
     static CGFloat oldScale = 1.0f;
     CGFloat difValue = pinch.scale - oldScale;
     if(ABS(difValue) > YYKlineScaleBound) {
-        CGFloat oldKlineWidth = [YYKlineGlobalVariable kLineWidth];
+        CGFloat oldKlineWidth = config.kLineWidth;
         CGFloat newKlineWidth = oldKlineWidth * (difValue > 0 ? (1 + YYKlineScaleFactor) : (1 - YYKlineScaleFactor));
         if (oldKlineWidth == YYKlineLineMinWidth && difValue <= 0) {
             return;
         }
         
         // 右侧已经没有更多数据时，从右侧开始缩放
-        if (((CGRectGetWidth(self.scrollView.bounds) - self.pinchCenterX) / (newKlineWidth + [YYKlineGlobalVariable kLineGap])) > self.rootModel.models.count - self.pinchIndex) {
+        if (((CGRectGetWidth(self.scrollView.bounds) - self.pinchCenterX) / (newKlineWidth + config.kLineGap)) > self.rootModel.models.count - self.pinchIndex) {
             self.pinchIndex = self.rootModel.models.count -1;
             self.pinchCenterX = CGRectGetWidth(self.scrollView.bounds);
         }
         
         // 左侧已经没有更多数据时，从左侧开始缩放
-        if (self.pinchIndex * (newKlineWidth + [YYKlineGlobalVariable kLineGap]) < self.pinchCenterX) {
+        if (self.pinchIndex * (newKlineWidth + config.kLineGap) < self.pinchCenterX) {
             self.pinchIndex = 0;
             self.pinchCenterX = 0;
         }
         
         // 数量很少，少于一屏时，从左侧开始缩放
-        if ((CGRectGetWidth(self.scrollView.bounds) / (newKlineWidth + [YYKlineGlobalVariable kLineGap])) > self.rootModel.models.count) {
+        if ((CGRectGetWidth(self.scrollView.bounds) / (newKlineWidth + config.kLineGap)) > self.rootModel.models.count) {
             self.pinchIndex = 0;
             self.pinchCenterX = 0;
         }
-        
-        [YYKlineGlobalVariable setkLineWith: newKlineWidth];
+
+        config.kLineWidth = newKlineWidth;
         oldScale = pinch.scale;
-        NSInteger idx = self.pinchIndex - floor(self.pinchCenterX / ([YYKlineGlobalVariable kLineGap] + [YYKlineGlobalVariable kLineWidth]));
-        CGFloat offset = idx * ([YYKlineGlobalVariable kLineGap] + [YYKlineGlobalVariable kLineWidth]);
+        NSInteger idx = self.pinchIndex - floor(self.pinchCenterX / (config.kLineGap + config.kLineWidth));
+        CGFloat offset = idx * (config.kLineGap + config.kLineWidth);
         [self.rootModel calculateNeedDrawTimeModel];
         [self updateScrollViewContentSize];
         self.scrollView.contentOffset = CGPointMake(offset, 0);
@@ -361,7 +365,8 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
 }
 
 - (void)updateScrollViewContentSize {
-    CGFloat contentSizeW = self.rootModel.models.count * [YYKlineGlobalVariable kLineWidth] + (self.rootModel.models.count -1) * [YYKlineGlobalVariable kLineGap];
+    YYKlineStyleConfig *config = YYKlineStyleConfig.config;
+    CGFloat contentSizeW = self.rootModel.models.count * config.kLineWidth + (self.rootModel.models.count -1) * config.kLineGap;
     self.scrollView.contentSize = CGSizeMake(contentSizeW, self.scrollView.contentSize.height);
 }
 

@@ -62,7 +62,7 @@
         l.path = path.CGPath;
         l.lineWidth = config.kLineLineWidth;        
         l.strokeColor = m.isUp ? config.upColor.CGColor : config.downColor.CGColor;
-        l.fillColor =   m.isUp ? config.upColor.CGColor : [UIColor clearColor].CGColor;
+        l.fillColor =   m.isUp ? config.upColor.CGColor : config.downColor.CGColor;
         [sublayer addSublayer:l];
     }];
     [layer addSublayer:sublayer];

@@ -6,8 +6,7 @@
 //
 
 #import "YYVerticalTextPainter.h"
-#import "YYKlineGlobalVariable.h"
-#import "UIColor+YYKline.h"
+#import "YYKlineStyleConfig.h"
 
 @implementation YYVerticalTextPainter
 + (void)drawToLayer:(CALayer *)layer area:(CGRect)area minMax: (YYMinMaxModel *)minMaxModel {
@@ -17,6 +16,7 @@
     }
 
     YYVerticalTextPainter *sublayer = [[YYVerticalTextPainter alloc] init];
+//    YYKlineStyleConfig *config = YYKlineStyleConfig.config;
     sublayer.frame = area;
     [layer addSublayer:sublayer];
     

@@ -6,7 +6,7 @@
 //
 
 #import "YYKlineRootModel.h"
-#import "YYKlineGlobalVariable.h"
+#import "YYKlineStyleConfig.h"
 
 @implementation YYKlineRootModel
 + (instancetype) objectWithArray:(NSArray *)arr {
@@ -41,7 +41,8 @@
 }
 
 - (void)calculateNeedDrawTimeModel {
-    NSInteger gap = 50 / [YYKlineGlobalVariable kLineWidth] + [YYKlineGlobalVariable kLineGap];
+    YYKlineStyleConfig *config = YYKlineStyleConfig.config;
+    NSInteger gap = 50 / config.kLineWidth + config.kLineGap;
     for (int i = 1; i < self.models.count; i++) {
         self.models[i].isDrawTime = i % gap == 0;
     }

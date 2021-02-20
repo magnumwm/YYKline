@@ -67,7 +67,10 @@
 
         CAShapeLayer *l = [CAShapeLayer layer];
         l.path = circlePath.CGPath;
-        l.strokeColor = config.crossLineCenterColor.CGColor;
+//        l.lineWidth = config.kLineCrossCenterRadius;
+//        l.strokeColor = UIColor.whiteColor.CGColor;
+//        l.shadowRadius = 4;
+//        l.shadowColor = [UIColor.redColor colorWithAlphaComponent:0.6].CGColor;
         l.fillColor =   config.crossLineCenterColor.CGColor;
         [sublayer addSublayer:l];
     }

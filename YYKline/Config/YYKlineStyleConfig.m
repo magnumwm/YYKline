@@ -24,8 +24,8 @@
 
 - (void)loadDefault {
     // 颜色
-    self.backgroundColor = [UIColor whiteColor];
-    self.assistBackgroundColor = [UIColor whiteColor];
+    self.backgroundColor = [UIColor backgroundColor];
+    self.assistBackgroundColor = [UIColor assistBackgroundColor];
     self.upColor = [UIColor upColor];
     self.downColor = [UIColor downColor];
     self.mainTextColor = [UIColor mainTextColor];
