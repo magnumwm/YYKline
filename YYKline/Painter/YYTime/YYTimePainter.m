@@ -6,8 +6,7 @@
 //
 
 #import "YYTimePainter.h"
-#import "YYKlineGlobalVariable.h"
-#import "UIColor+YYKline.h"
+#import "YYKlineStyleConfig.h"
 
 @implementation YYTimePainter
 
@@ -18,16 +17,17 @@
     }
     
     YYTimePainter *sublayer = [[YYTimePainter alloc] init];
-    sublayer.backgroundColor = UIColor.assistBackgroundColor.CGColor;
+    YYKlineStyleConfig *config = YYKlineStyleConfig.config;
+    sublayer.backgroundColor = config.assistBackgroundColor.CGColor;
     sublayer.frame = area;
     [layer addSublayer:sublayer];
     
-    CGFloat w = [YYKlineGlobalVariable kLineWidth];
+    CGFloat w = config.kLineWidth;
     [models enumerateObjectsUsingBlock:^(YYKlineModel * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
         if (!obj.isDrawTime) {
             return;
         }
-        CGFloat x = idx * (w + [YYKlineGlobalVariable kLineGap]);
+        CGFloat x = idx * (w + config.kLineGap);
         CGFloat y = (maxH - [UIFont systemFontOfSize:12.f].lineHeight)/2.f;
         CATextLayer *textLayer = [CATextLayer layer];
         textLayer.string = obj.V_HHMM;

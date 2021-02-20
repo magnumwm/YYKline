@@ -9,6 +9,7 @@
 #import "Masonry.h"
 #import "UIColor+YYKline.h"
 #import "YYKlineGlobalVariable.h"
+#import "YYKlineStyleConfig.h"
 #import "YYKlineRootModel.h"
 #import "YYPainterProtocol.h"
 //#import "YYCandlePainter.h"
@@ -23,7 +24,7 @@
 //#import "YYEMAPainter.h"
 //#import "YYBOLLPainter.h"
 #import "YYTimelinePainter.h"
-#import "YYCrossPainter.h"
+#import "YYCrossLinePainter.h"
 
 @interface YYKlineView() <UIScrollViewDelegate>
 @property (nonatomic, strong) UIScrollView *scrollView;
@@ -59,18 +60,18 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
 - (instancetype)initWithFrame:(CGRect)frame {
     self = [super initWithFrame:frame];
     if(self) {
-        self.mainViewRatio = [YYKlineGlobalVariable kLineMainViewRadio];
-        self.volumeViewRatio = [YYKlineGlobalVariable kLineVolumeViewRadio];
+        self.mainViewRatio = YYKlineStyleConfig.config.kLineMainViewRadio;
+        self.volumeViewRatio = YYKlineStyleConfig.config.kLineVolumeViewRadio;
         self.indicator1Painter = YYMAPainter.class;
         self.indicator2Painter = YYMACDPainter.class;
-        self.crossPainter = YYCrossPainter.class;
+        self.crossPainter = YYCrossLinePainter.class;
         [self initUI];
     }
     return self;
 }
 
 - (void)initUI {
-    self.backgroundColor = UIColor.backgroundColor;
+    self.backgroundColor = YYKlineStyleConfig.config.backgroundColor;
     // 主图
     [self initScrollView];
     [self initPainterView];
@@ -112,7 +113,7 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
 
 - (void)initRightView {
     self.rightView = [[UIView alloc] init];
-    self.rightView.backgroundColor = UIColor.assistBackgroundColor;
+    self.rightView.backgroundColor = YYKlineStyleConfig.config.assistBackgroundColor;
     [self addSubview:self.rightView];
     [self.rightView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.top.right.bottom.equalTo(self);

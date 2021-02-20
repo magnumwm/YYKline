@@ -6,8 +6,7 @@
 //
 
 #import "YYRSIPainter.h"
-#import "YYKlineGlobalVariable.h"
-#import "UIColor+YYKline.h"
+#import "YYKlineStyleConfig.h"
 
 @implementation YYRSIPainter
 
@@ -32,13 +31,14 @@
     CGFloat unitValue = maxH/minMaxModel.distance;
     
     YYRSIPainter *sublayer = [[YYRSIPainter alloc] init];
+    YYKlineStyleConfig *config = YYKlineStyleConfig.config;
     sublayer.frame = area;
     UIBezierPath *path1 = [UIBezierPath bezierPath];
     UIBezierPath *path2 = [UIBezierPath bezierPath];
     UIBezierPath *path3 = [UIBezierPath bezierPath];
     [models enumerateObjectsUsingBlock:^(YYKlineModel * _Nonnull m, NSUInteger idx, BOOL * _Nonnull stop) {
-        CGFloat w = [YYKlineGlobalVariable kLineWidth];
-        CGFloat x = idx * (w + [YYKlineGlobalVariable kLineGap]);
+        CGFloat w = config.kLineWidth;
+        CGFloat x = idx * (w + config.kLineGap);
         CGPoint point1 = CGPointMake(x+w/2, maxH - (m.RSI.RSI1.floatValue - minMaxModel.min)*unitValue);
         CGPoint point2 = CGPointMake(x+w/2, maxH - (m.RSI.RSI2.floatValue - minMaxModel.min)*unitValue);
         CGPoint point3 = CGPointMake(x+w/2, maxH - (m.RSI.RSI3.floatValue - minMaxModel.min)*unitValue);
@@ -56,24 +56,24 @@
     {
         CAShapeLayer *l = [CAShapeLayer layer];
         l.path = path1.CGPath;
-        l.lineWidth = YYKlineLineWidth;
-        l.strokeColor = UIColor.line1Color.CGColor;
+        l.lineWidth = config.kLineLineWidth;
+        l.strokeColor = config.line1Color.CGColor;
         l.fillColor =   [UIColor clearColor].CGColor;
         [sublayer addSublayer:l];
     }
     {
         CAShapeLayer *l = [CAShapeLayer layer];
         l.path = path2.CGPath;
-        l.lineWidth = YYKlineLineWidth;
-        l.strokeColor = UIColor.line2Color.CGColor;
+        l.lineWidth = config.kLineLineWidth;
+        l.strokeColor = config.line2Color.CGColor;
         l.fillColor =   [UIColor clearColor].CGColor;
         [sublayer addSublayer:l];
     }
     {
         CAShapeLayer *l = [CAShapeLayer layer];
         l.path = path3.CGPath;
-        l.lineWidth = YYKlineLineWidth;
-        l.strokeColor = UIColor.line3Color.CGColor;
+        l.lineWidth = config.kLineLineWidth;
+        l.strokeColor = config.line3Color.CGColor;
         l.fillColor =   [UIColor clearColor].CGColor;
         [sublayer addSublayer:l];
     }

@@ -6,8 +6,7 @@
 //
 
 #import "YYVolPainter.h"
-#import "YYKlineGlobalVariable.h"
-#import "UIColor+YYKline.h"
+#import "YYKlineStyleConfig.h"
 
 @implementation YYVolPainter
 + (YYMinMaxModel *)getMinMaxValue:(NSArray <YYKlineModel *> *)data {
@@ -30,17 +29,18 @@
     CGFloat unitValue = maxH/minMaxModel.distance;
 
     YYVolPainter *sublayer = [[YYVolPainter alloc] init];
+    YYKlineStyleConfig *config = YYKlineStyleConfig.config;
     sublayer.frame = area;
     [models enumerateObjectsUsingBlock:^(YYKlineModel * _Nonnull m, NSUInteger idx, BOOL * _Nonnull stop) {
-        CGFloat w = [YYKlineGlobalVariable kLineWidth];
-        CGFloat x = idx * (w + [YYKlineGlobalVariable kLineGap]);
+        CGFloat w = config.kLineWidth;
+        CGFloat x = idx * (w + config.kLineGap);
         CGFloat h = fabs(m.Volume.floatValue - minMaxModel.min) * unitValue;
-        UIBezierPath *path = [UIBezierPath bezierPathWithRect:CGRectMake(x, maxH - h, w - [YYKlineGlobalVariable kLineGap], h)];
+        UIBezierPath *path = [UIBezierPath bezierPathWithRect:CGRectMake(x, maxH - h, w - config.kLineGap, h)];
         CAShapeLayer *l = [CAShapeLayer layer];
         l.path = path.CGPath;
-        l.lineWidth = YYKlineLineWidth;
-        l.strokeColor = m.isUp ? [UIColor upColor].CGColor : [UIColor downColor].CGColor;
-        l.fillColor = m.isUp ? [UIColor upColor].CGColor : [UIColor downColor].CGColor;
+        l.lineWidth = config.kLineLineWidth;
+        l.strokeColor = m.isUp ? config.upColor.CGColor : config.downColor.CGColor;
+        l.fillColor = m.isUp ? config.upColor.CGColor : config.downColor.CGColor;
         [sublayer addSublayer:l];
     }];
     [layer addSublayer:sublayer];

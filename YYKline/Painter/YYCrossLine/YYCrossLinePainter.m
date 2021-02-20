@@ -6,11 +6,10 @@
 //  Copyright © 2021 WillkYang. All rights reserved.
 //
 
-#import "YYCrossPainter.h"
-#import "YYKlineGlobalVariable.h"
-#import "UIColor+YYKline.h"
+#import "YYCrossLinePainter.h"
+#import "YYKlineStyleConfig.h"
 
-@implementation YYCrossPainter
+@implementation YYCrossLinePainter
 
 + (YYMinMaxModel *)getMinMaxValue:(YYKlineModel *)data {
     if(!data) {
@@ -29,7 +28,8 @@
     CGFloat maxW = CGRectGetWidth(area);
     CGFloat maxH = CGRectGetHeight(area);
 
-    YYCrossPainter *sublayer = [[YYCrossPainter alloc] init];
+    YYCrossLinePainter *sublayer = [[YYCrossLinePainter alloc] init];
+    YYKlineStyleConfig *config = YYKlineStyleConfig.config;
     sublayer.frame = area;
 
     // 画 vertical line
@@ -40,8 +40,8 @@
 
         CAShapeLayer *l = [CAShapeLayer layer];
         l.path = verticalPath.CGPath;
-        l.lineWidth = YYKlineLineWidth/[UIScreen mainScreen].scale;
-        l.strokeColor = UIColor.timeLineLineColor.CGColor;
+        l.lineWidth = config.kLineCrosslineWidth;
+        l.strokeColor = config.crossLineColor.CGColor;
         l.fillColor =   [UIColor clearColor].CGColor;
         [sublayer addSublayer:l];
     }
@@ -54,8 +54,8 @@
 
         CAShapeLayer *l = [CAShapeLayer layer];
         l.path = horizontalPath.CGPath;
-        l.lineWidth = YYKlineLineWidth/[UIScreen mainScreen].scale;
-        l.strokeColor = UIColor.timeLineLineColor.CGColor;
+        l.lineWidth = config.kLineCrosslineWidth;
+        l.strokeColor = config.crossLineColor.CGColor;
         l.fillColor =   [UIColor clearColor].CGColor;
         [sublayer addSublayer:l];
     }
@@ -63,13 +63,12 @@
     // 画中点
     {
         UIBezierPath *circlePath = [UIBezierPath bezierPath];
-        [circlePath addArcWithCenter:point radius:4.0 startAngle:0 endAngle:2*M_PI clockwise:YES];
+        [circlePath addArcWithCenter:point radius:config.kLineCrossCenterRadius startAngle:0 endAngle:2*M_PI clockwise:YES];
 
         CAShapeLayer *l = [CAShapeLayer layer];
         l.path = circlePath.CGPath;
-        //        l.lineWidth = YYKlineLineWidth/[UIScreen mainScreen].scale;
-        l.strokeColor = UIColor.redColor.CGColor;
-        l.fillColor =   [UIColor redColor].CGColor;
+        l.strokeColor = config.crossLineCenterColor.CGColor;
+        l.fillColor =   config.crossLineCenterColor.CGColor;
         [sublayer addSublayer:l];
     }
 
@@ -78,9 +77,9 @@
         CATextLayer *textLayer = [CATextLayer layer];
         textLayer.string = leftText;
         textLayer.alignmentMode = kCAAlignmentCenter;
-        textLayer.fontSize = 12.f;
-        textLayer.foregroundColor = UIColor.whiteColor.CGColor;
-        textLayer.backgroundColor = UIColor.grayColor.CGColor;
+        textLayer.fontSize = config.crosslineLabelFont.pointSize;
+        textLayer.foregroundColor = config.crossLineLabelColor.CGColor;
+        textLayer.backgroundColor = config.crossLineLabelBackgroundColor.CGColor;
         textLayer.frame = CGRectMake(20, point.y-10, 100, 20);
         textLayer.contentsScale = UIScreen.mainScreen.scale;
         [sublayer addSublayer:textLayer];
@@ -92,9 +91,9 @@
         CATextLayer *textLayer = [CATextLayer layer];
         textLayer.string = rightText;
         textLayer.alignmentMode = kCAAlignmentCenter;
-        textLayer.fontSize = 12.f;
-        textLayer.foregroundColor = UIColor.whiteColor.CGColor;
-        textLayer.backgroundColor = UIColor.grayColor.CGColor;
+        textLayer.fontSize = config.crosslineLabelFont.pointSize;
+        textLayer.foregroundColor = config.crossLineLabelColor.CGColor;
+        textLayer.backgroundColor = config.crossLineLabelBackgroundColor.CGColor;
         textLayer.frame = CGRectMake(maxW-50-20, point.y-10, 100, 20);
         textLayer.contentsScale = UIScreen.mainScreen.scale;
         [sublayer addSublayer:textLayer];

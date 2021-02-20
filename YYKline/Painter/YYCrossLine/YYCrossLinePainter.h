@@ -11,7 +11,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface YYCrossPainter : CALayer <YYCrossLinePainterProtocol>
+@interface YYCrossLinePainter : CALayer <YYCrossLinePainterProtocol>
 
 @end
 

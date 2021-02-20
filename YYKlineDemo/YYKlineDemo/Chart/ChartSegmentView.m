@@ -37,7 +37,7 @@ static NSInteger const ChartSegmentStartTag = 2000;
     self = [super initWithFrame:frame];
     if(self) {
         self.clipsToBounds = YES;
-        self.backgroundColor = [UIColor assistBackgroundColor];
+        self.backgroundColor = YYKlineStyleConfig.config.assistBackgroundColor;
     }
     return self;
 }
@@ -45,7 +45,7 @@ static NSInteger const ChartSegmentStartTag = 2000;
 - (UIView *)indicatorView {
     if(!_indicatorView) {
         _indicatorView = [UIView new];
-        _indicatorView.backgroundColor = [UIColor assistBackgroundColor];
+        _indicatorView.backgroundColor = YYKlineStyleConfig.config.assistBackgroundColor;
         NSArray *titleArr = @[@"MA",@"EMA",@"BOLL",@"关闭",@"MACD",@"KDJ",@"RSI",@"WR"];
         __block UIButton *preBtn;
         [titleArr enumerateObjectsUsingBlock:^(NSString*  _Nonnull title, NSUInteger idx, BOOL * _Nonnull stop) {

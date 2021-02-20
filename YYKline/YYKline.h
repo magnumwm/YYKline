@@ -12,6 +12,7 @@
 #import "YYKlineConstant.h"
 #import "UIColor+YYKline.h"
 #import "YYKlineGlobalVariable.h"
+#import "YYKlineStyleConfig.h"
 #import "YYIndicatorModel.h"
 #import "YYKlineModel.h"
 #import "YYKlineRootModel.h"

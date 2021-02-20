@@ -6,8 +6,7 @@
 //
 
 #import "YYTimelinePainter.h"
-#import "YYKlineGlobalVariable.h"
-#import "UIColor+YYKline.h"
+#import "YYKlineStyleConfig.h"
 
 @implementation YYTimelinePainter
 
@@ -33,11 +32,12 @@
     
     __block CGPoint pointStart, pointEnd;
     YYTimelinePainter *sublayer = [[YYTimelinePainter alloc] init];
+    YYKlineStyleConfig *config = YYKlineStyleConfig.config;
     sublayer.frame = area;
     UIBezierPath *path1 = [UIBezierPath bezierPath];
     [models enumerateObjectsUsingBlock:^(YYKlineModel * _Nonnull m, NSUInteger idx, BOOL * _Nonnull stop) {
-        CGFloat w = [YYKlineGlobalVariable kLineWidth];
-        CGFloat x = idx * (w + [YYKlineGlobalVariable kLineGap]);
+        CGFloat w = config.kLineWidth;
+        CGFloat x = idx * (w + config.kLineGap);
         CGPoint point1 = CGPointMake(x+w/2, maxH - (m.Close.floatValue - minMaxModel.min)*unitValue);
         if (idx == 0) {
             [path1 moveToPoint:point1];
@@ -54,8 +54,8 @@
     {
         CAShapeLayer *l = [CAShapeLayer layer];
         l.path = path1.CGPath;
-        l.lineWidth = YYKlineLineWidth;
-        l.strokeColor = UIColor.timeLineLineColor.CGColor;
+        l.lineWidth = config.kLineLineWidth;
+        l.strokeColor = config.timeLineLineColor.CGColor;
         l.fillColor =   [UIColor clearColor].CGColor;
         [sublayer addSublayer:l];
     }

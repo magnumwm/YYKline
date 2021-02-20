@@ -36,7 +36,8 @@
 		40B7E6A12422239D00F1F180 /* ChartView.m in Sources */ = {isa = PBXBuildFile; fileRef = 40B7E6512422239C00F1F180 /* ChartView.m */; };
 		40B7E6B22422239D00F1F180 /* ChartSegmentView.m in Sources */ = {isa = PBXBuildFile; fileRef = 40B7E6802422239D00F1F180 /* ChartSegmentView.m */; };
 		40B7E6B32422239D00F1F180 /* ChartViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 40B7E6822422239D00F1F180 /* ChartViewController.m */; };
-		AE4CBE1025DF9DF60072C18A /* YYCrossPainter.m in Sources */ = {isa = PBXBuildFile; fileRef = AE4CBE0F25DF9DF60072C18A /* YYCrossPainter.m */; };
+		AE4CBE1025DF9DF60072C18A /* YYCrossLinePainter.m in Sources */ = {isa = PBXBuildFile; fileRef = AE4CBE0F25DF9DF60072C18A /* YYCrossLinePainter.m */; };
+		AE4CBE1725E0C3E80072C18A /* YYKlineStyleConfig.m in Sources */ = {isa = PBXBuildFile; fileRef = AE4CBE1625E0C3E80072C18A /* YYKlineStyleConfig.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -112,8 +113,10 @@
 		40B7E6832422239D00F1F180 /* ChartViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChartViewController.h; sourceTree = "<group>"; };
 		64B7BCD00404C86897355B2D /* Pods-YYKline.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-YYKline.debug.xcconfig"; path = "Target Support Files/Pods-YYKline/Pods-YYKline.debug.xcconfig"; sourceTree = "<group>"; };
 		71DF2149479CE8CE94F7D652 /* libPods-YYKline.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-YYKline.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		AE4CBE0E25DF9DF60072C18A /* YYCrossPainter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = YYCrossPainter.h; sourceTree = "<group>"; };
-		AE4CBE0F25DF9DF60072C18A /* YYCrossPainter.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = YYCrossPainter.m; sourceTree = "<group>"; };
+		AE4CBE0E25DF9DF60072C18A /* YYCrossLinePainter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = YYCrossLinePainter.h; sourceTree = "<group>"; };
+		AE4CBE0F25DF9DF60072C18A /* YYCrossLinePainter.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = YYCrossLinePainter.m; sourceTree = "<group>"; };
+		AE4CBE1525E0C3E80072C18A /* YYKlineStyleConfig.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = YYKlineStyleConfig.h; sourceTree = "<group>"; };
+		AE4CBE1625E0C3E80072C18A /* YYKlineStyleConfig.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = YYKlineStyleConfig.m; sourceTree = "<group>"; };
 		B42D75EC3E4BDBA347BD9760 /* Pods-YYKline.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-YYKline.release.xcconfig"; path = "Target Support Files/Pods-YYKline/Pods-YYKline.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -159,7 +162,7 @@
 		4081AD59254866D80039DE0F /* Painter */ = {
 			isa = PBXGroup;
 			children = (
-				AE4CBE0D25DF9DCB0072C18A /* YYCross */,
+				AE4CBE0D25DF9DCB0072C18A /* YYCrossLine */,
 				4081AD5A254866D80039DE0F /* YYRSI */,
 				4081AD5D254866D80039DE0F /* YYBOLL */,
 				4081AD60254866D80039DE0F /* YYTimeline */,
@@ -291,6 +294,8 @@
 				4081AD81254866D80039DE0F /* Variable */,
 				4081AD84254866D80039DE0F /* Constant */,
 				4081AD86254866D80039DE0F /* Theme */,
+				AE4CBE1525E0C3E80072C18A /* YYKlineStyleConfig.h */,
+				AE4CBE1625E0C3E80072C18A /* YYKlineStyleConfig.m */,
 			);
 			path = Config;
 			sourceTree = "<group>";
@@ -298,8 +303,8 @@
 		4081AD81254866D80039DE0F /* Variable */ = {
 			isa = PBXGroup;
 			children = (
-				4081AD82254866D80039DE0F /* YYKlineGlobalVariable.m */,
 				4081AD83254866D80039DE0F /* YYKlineGlobalVariable.h */,
+				4081AD82254866D80039DE0F /* YYKlineGlobalVariable.m */,
 			);
 			path = Variable;
 			sourceTree = "<group>";
@@ -389,13 +394,13 @@
 			path = Pods;
 			sourceTree = "<group>";
 		};
-		AE4CBE0D25DF9DCB0072C18A /* YYCross */ = {
+		AE4CBE0D25DF9DCB0072C18A /* YYCrossLine */ = {
 			isa = PBXGroup;
 			children = (
-				AE4CBE0E25DF9DF60072C18A /* YYCrossPainter.h */,
-				AE4CBE0F25DF9DF60072C18A /* YYCrossPainter.m */,
+				AE4CBE0E25DF9DF60072C18A /* YYCrossLinePainter.h */,
+				AE4CBE0F25DF9DF60072C18A /* YYCrossLinePainter.m */,
 			);
-			path = YYCross;
+			path = YYCrossLine;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -499,7 +504,7 @@
 				4081ADA0254866D80039DE0F /* UIColor+YYKline.m in Sources */,
 				4081AD96254866D80039DE0F /* YYMAPainter.m in Sources */,
 				4081AD9D254866D80039DE0F /* YYKDJPainter.m in Sources */,
-				AE4CBE1025DF9DF60072C18A /* YYCrossPainter.m in Sources */,
+				AE4CBE1025DF9DF60072C18A /* YYCrossLinePainter.m in Sources */,
 				4081ADA5254866D80039DE0F /* YYKlineView.m in Sources */,
 				40B7E5F22422231700F1F180 /* ViewController.m in Sources */,
 				40B7E5EC2422231700F1F180 /* AppDelegate.m in Sources */,
@@ -516,6 +521,7 @@
 				4081AD98254866D80039DE0F /* YYEMAPainter.m in Sources */,
 				4081ADA3254866D80039DE0F /* YYIndicatorModel.m in Sources */,
 				40B7E6B32422239D00F1F180 /* ChartViewController.m in Sources */,
+				AE4CBE1725E0C3E80072C18A /* YYKlineStyleConfig.m in Sources */,
 				4081AD9F254866D80039DE0F /* YYKlineGlobalVariable.m in Sources */,
 				4081ADA2254866D80039DE0F /* YYKlineRootModel.m in Sources */,
 				40B7E6A12422239D00F1F180 /* ChartView.m in Sources */,
