@@ -318,7 +318,7 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
     if(ABS(difValue) > YYKlineScaleBound) {
         CGFloat oldKlineWidth = config.kLineWidth;
         CGFloat newKlineWidth = oldKlineWidth * (difValue > 0 ? (1 + YYKlineScaleFactor) : (1 - YYKlineScaleFactor));
-        if (oldKlineWidth == YYKlineLineMinWidth && difValue <= 0) {
+        if (oldKlineWidth <= YYKlineLineMinWidth && difValue <= 0) {
             return;
         }
         

@@ -55,4 +55,13 @@
     self.kLineCrossCenterRadius = 4;
 }
 
+- (void)setKLineWidth:(CGFloat)kLineWidth {
+    if (kLineWidth > YYKlineLineMaxWidth) {
+        kLineWidth = YYKlineLineMaxWidth;
+    }else if (kLineWidth < YYKlineLineMinWidth){
+        kLineWidth = YYKlineLineMinWidth;
+    }
+    _kLineWidth = kLineWidth;
+}
+
 @end
