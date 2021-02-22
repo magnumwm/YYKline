@@ -54,17 +54,22 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  *  cross line label的颜色
  */
-@property (nonatomic, strong) UIColor * crossLineLabelColor;
+@property (nonatomic, strong) UIColor * crossLineTextColor;
 
 /**
  *  cross line label背景颜色
  */
-@property (nonatomic, strong) UIColor * crossLineLabelBackgroundColor;
+@property (nonatomic, strong) UIColor * crossLineTextBackgroundColor;
 
 /**
  *  cross line 中心圆点颜色
  */
 @property (nonatomic, strong) UIColor * crossLineCenterColor;
+
+/**
+ *  cross line 中心阴影颜色
+ */
+@property (nonatomic, strong) UIColor * crossLineCenterShadowColor;
 
 /**
  *  辅助线颜色1
@@ -104,7 +109,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  *  Kline cross line label font
  */
-@property (nonatomic, strong) UIFont *crosslineLabelFont;
+@property (nonatomic, strong) UIFont *crosslineTextFont;
 
 // MARK: 布局
 /**
@@ -136,6 +141,18 @@ NS_ASSUME_NONNULL_BEGIN
  *  K线图的crossLine中点半径，默认4
  */
 @property (nonatomic, assign) CGFloat kLineCrossCenterRadius;
+/**
+ *  K线图的crossLine 文字最大宽度
+ */
+@property (nonatomic, assign) CGFloat kLineCrossTextMaxWidth;
+/**
+ *  K线图的crossLine 文字高度
+ */
+@property (nonatomic, assign) CGFloat kLineCrossTextHeight;
+/**
+ *  K线图的crossLine 文字EdgeInset
+ */
+@property (nonatomic, assign) UIEdgeInsets kLineCrossTextInset;
 @end
 
 NS_ASSUME_NONNULL_END

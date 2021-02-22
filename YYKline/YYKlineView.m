@@ -278,7 +278,7 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
         // offsetY设为当前model的close price位置
         CGFloat offsetY = model.y;
 
-        NSDictionary *attributes = @{NSForegroundColorAttributeName: UIColor.whiteColor, NSFontAttributeName: [UIFont systemFontOfSize:12]};
+        NSDictionary *attributes = @{NSForegroundColorAttributeName: config.crossLineTextColor, NSFontAttributeName: config.crosslineTextFont};
         [self.crossPainter drawToLayer:self.topView.layer
                                  point:CGPointMake(offsetX, offsetY)
                                   area:mainArea

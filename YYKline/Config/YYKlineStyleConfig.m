@@ -24,16 +24,17 @@
 
 - (void)loadDefault {
     // 颜色
-    self.backgroundColor = [UIColor backgroundColor];
-    self.assistBackgroundColor = [UIColor assistBackgroundColor];
+    self.backgroundColor = [UIColor whiteColor];
+    self.assistBackgroundColor = [UIColor whiteColor];
     self.upColor = [UIColor upColor];
     self.downColor = [UIColor downColor];
     self.mainTextColor = [UIColor mainTextColor];
     self.timeLineLineColor = [UIColor timeLineLineColor];
     self.crossLineColor = [UIColor longPressLineColor];
-    self.crossLineLabelColor = [UIColor whiteColor];
-    self.crossLineLabelBackgroundColor = [UIColor grayColor];
+    self.crossLineTextColor = [UIColor whiteColor];
+    self.crossLineTextBackgroundColor = [UIColor grayColor];
     self.crossLineCenterColor = [UIColor redColor];
+    self.crossLineCenterShadowColor = [UIColor redColor];
     self.line1Color = [UIColor line1Color];
     self.line2Color = [UIColor line2Color];
     self.line3Color = [UIColor line3Color];
@@ -41,7 +42,7 @@
     // 字体
     self.timelineFont = [UIFont systemFontOfSize:12];
     self.klineCategoryFont = [UIFont systemFontOfSize:14];
-    self.crosslineLabelFont = [UIFont systemFontOfSize:12];
+    self.crosslineTextFont = [UIFont systemFontOfSize:12];
     self.klinePropertyTextFont = [UIFont systemFontOfSize:12];
     self.klinePropertyValueFont = [UIFont systemFontOfSize:13];
 
@@ -53,6 +54,8 @@
     self.kLineVolumeViewRadio = [YYKlineGlobalVariable kLineVolumeViewRadio];
     self.kLineCrosslineWidth = YYKlineLineWidth;
     self.kLineCrossCenterRadius = 4;
+    self.kLineCrossTextHeight = 15;
+    self.kLineCrossTextInset = UIEdgeInsetsMake(4, 4, 4, 4);
 }
 
 - (void)setKLineWidth:(CGFloat)kLineWidth {

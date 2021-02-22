@@ -62,28 +62,46 @@
 
     // 画中点
     {
-        UIBezierPath *circlePath = [UIBezierPath bezierPath];
-        [circlePath addArcWithCenter:point radius:config.kLineCrossCenterRadius startAngle:0 endAngle:2*M_PI clockwise:YES];
+        UIBezierPath *outerCirclePath = [UIBezierPath bezierPathWithArcCenter:point radius:config.kLineCrossCenterRadius startAngle:0 endAngle:2*M_PI clockwise:YES];
 
+
+        CAShapeLayer *container = [CAShapeLayer layer];
+        container.path = outerCirclePath.CGPath;
+        container.lineWidth = config.kLineCrossCenterRadius/2;
+        container.strokeColor = UIColor.clearColor.CGColor;
+        container.fillColor = UIColor.clearColor.CGColor;
+        [sublayer addSublayer:container];
+
+        // 添加阴影
+        CAShapeLayer *shadow = [CAShapeLayer layer];
+        shadow.shadowColor = config.crossLineCenterShadowColor.CGColor;
+        shadow.shadowRadius = config.kLineCrossCenterRadius;
+        shadow.shadowOpacity = 1.0;
+        shadow.shadowPath = outerCirclePath.CGPath;
+        shadow.shadowOffset = CGSizeZero;
+        [container addSublayer:shadow];
+
+        // 添加中心点
         CAShapeLayer *l = [CAShapeLayer layer];
-        l.path = circlePath.CGPath;
-//        l.lineWidth = config.kLineCrossCenterRadius;
-//        l.strokeColor = UIColor.whiteColor.CGColor;
-//        l.shadowRadius = 4;
-//        l.shadowColor = [UIColor.redColor colorWithAlphaComponent:0.6].CGColor;
-        l.fillColor =   config.crossLineCenterColor.CGColor;
-        [sublayer addSublayer:l];
+        l.path = outerCirclePath.CGPath;
+        l.lineWidth = config.kLineCrossCenterRadius/2;
+        l.strokeColor = UIColor.whiteColor.CGColor;
+        l.fillColor = config.crossLineCenterColor.CGColor;
+        [container addSublayer:l];
     }
 
     // 画 horizontal left text
     {
         CATextLayer *textLayer = [CATextLayer layer];
         textLayer.string = leftText;
+        textLayer.wrapped = YES;
         textLayer.alignmentMode = kCAAlignmentCenter;
-        textLayer.fontSize = config.crosslineLabelFont.pointSize;
-        textLayer.foregroundColor = config.crossLineLabelColor.CGColor;
-        textLayer.backgroundColor = config.crossLineLabelBackgroundColor.CGColor;
-        textLayer.frame = CGRectMake(20, point.y-10, 100, 20);
+        textLayer.backgroundColor = config.crossLineTextBackgroundColor.CGColor;
+
+        // 计算文字frame
+        CGRect rect = [leftText boundingRectWithSize:CGSizeMake(config.kLineCrossTextMaxWidth, config.kLineCrossTextHeight) options:NSStringDrawingUsesFontLeading context:nil];
+        textLayer.frame = CGRectMake(0, point.y-config.kLineCrossTextHeight/2, rect.size.width+config.kLineCrossTextInset.left+config.kLineCrossTextInset.right, config.kLineCrossTextHeight);
+
         textLayer.contentsScale = UIScreen.mainScreen.scale;
         [sublayer addSublayer:textLayer];
         
@@ -94,10 +112,12 @@
         CATextLayer *textLayer = [CATextLayer layer];
         textLayer.string = rightText;
         textLayer.alignmentMode = kCAAlignmentCenter;
-        textLayer.fontSize = config.crosslineLabelFont.pointSize;
-        textLayer.foregroundColor = config.crossLineLabelColor.CGColor;
-        textLayer.backgroundColor = config.crossLineLabelBackgroundColor.CGColor;
-        textLayer.frame = CGRectMake(maxW-50-20, point.y-10, 100, 20);
+        textLayer.backgroundColor = config.crossLineTextBackgroundColor.CGColor;
+        // 计算文字frame
+        CGRect rect = [rightText boundingRectWithSize:CGSizeMake(config.kLineCrossTextMaxWidth, config.kLineCrossTextHeight) options:NSStringDrawingUsesFontLeading context:nil];
+        CGFloat width = rect.size.width+config.kLineCrossTextInset.left+config.kLineCrossTextInset.right;
+        textLayer.frame = CGRectMake(maxW-width, point.y-config.kLineCrossTextHeight/2, width, config.kLineCrossTextHeight);
+
         textLayer.contentsScale = UIScreen.mainScreen.scale;
         [sublayer addSublayer:textLayer];
     }
