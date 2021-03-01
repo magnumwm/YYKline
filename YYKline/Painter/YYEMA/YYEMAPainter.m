@@ -31,7 +31,7 @@
     CGFloat unitValue = maxH/minMaxModel.distance;
     
     YYEMAPainter *sublayer = [[YYEMAPainter alloc] init];
-    YYKlineStyleConfig *config = YYKlineStyleConfig.config;
+    YYKlineStyleConfig *config = YYKlineStyleConfig.sharedConfig;
     sublayer.frame = area;
     UIBezierPath *path1 = [UIBezierPath bezierPath];
     UIBezierPath *path2 = [UIBezierPath bezierPath];

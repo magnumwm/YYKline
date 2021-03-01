@@ -32,7 +32,7 @@
     
     __block CGPoint pointStart, pointEnd;
     YYTimelinePainter *sublayer = [[YYTimelinePainter alloc] init];
-    YYKlineStyleConfig *config = YYKlineStyleConfig.config;
+    YYKlineStyleConfig *config = YYKlineStyleConfig.sharedConfig;
     sublayer.frame = area;
     UIBezierPath *path1 = [UIBezierPath bezierPath];
     [models enumerateObjectsUsingBlock:^(YYKlineModel * _Nonnull m, NSUInteger idx, BOOL * _Nonnull stop) {

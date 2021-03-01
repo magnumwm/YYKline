@@ -43,7 +43,7 @@
 
 - (NSAttributedString *)V_MA {
     if (!_V_MA) {
-        YYKlineStyleConfig *config = YYKlineStyleConfig.config;
+        YYKlineStyleConfig *config = YYKlineStyleConfig.sharedConfig;
         NSAttributedString *str1 = [[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@" %@  开：%.3f  高：%.3f 低：%.3f  收：%.3f ", self.V_Date, self.Open.floatValue, self.High.floatValue, self.Low.floatValue, self.Close.floatValue] attributes:@{
             NSForegroundColorAttributeName: [UIColor grayColor],
         }];
@@ -67,7 +67,7 @@
 
 - (NSAttributedString *)V_EMA {
     if (!_V_EMA) {
-        YYKlineStyleConfig *config = YYKlineStyleConfig.config;
+        YYKlineStyleConfig *config = YYKlineStyleConfig.sharedConfig;
         NSAttributedString *str1 = [[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@" %@  开：%.3f  高：%.3f 低：%.3f  收：%.3f ", self.V_Date, self.Open.floatValue, self.High.floatValue, self.Low.floatValue, self.Close.floatValue] attributes:@{
             NSForegroundColorAttributeName: [UIColor grayColor],
         }];
@@ -87,7 +87,7 @@
 
 - (NSAttributedString *)V_BOLL {
     if (!_V_BOLL) {
-        YYKlineStyleConfig *config = YYKlineStyleConfig.config;
+        YYKlineStyleConfig *config = YYKlineStyleConfig.sharedConfig;
         NSAttributedString *str1 = [[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@" %@  开：%.3f  高：%.3f 低：%.3f  收：%.3f ", self.V_Date, self.Open.floatValue, self.High.floatValue, self.Low.floatValue, self.Close.floatValue] attributes:@{
             NSForegroundColorAttributeName: [UIColor grayColor],
         }];
@@ -120,7 +120,7 @@
 
 - (NSAttributedString *)V_MACD {
     if (!_V_MACD) {
-        YYKlineStyleConfig *config = YYKlineStyleConfig.config;
+        YYKlineStyleConfig *config = YYKlineStyleConfig.sharedConfig;
         NSAttributedString *str1 = [[NSAttributedString alloc] initWithString:@" MACD(12,26,9)：" attributes:@{
             NSForegroundColorAttributeName: [UIColor grayColor],
         }];
@@ -145,7 +145,7 @@
 
 - (NSAttributedString *)V_KDJ {
     if (!_V_KDJ) {
-        YYKlineStyleConfig *config = YYKlineStyleConfig.config;
+        YYKlineStyleConfig *config = YYKlineStyleConfig.sharedConfig;
         NSAttributedString *str1 = [[NSAttributedString alloc] initWithString:@" KDJ(9,3,3)：" attributes:@{
             NSForegroundColorAttributeName: [UIColor grayColor],
         }];
@@ -169,7 +169,7 @@
 
 - (NSAttributedString *)V_RSI {
     if (!_V_RSI) {
-        YYKlineStyleConfig *config = YYKlineStyleConfig.config;
+        YYKlineStyleConfig *config = YYKlineStyleConfig.sharedConfig;
         NSAttributedString *str1 = [[NSAttributedString alloc] initWithString:@" RSI(6,12,24)：" attributes:@{
             NSForegroundColorAttributeName: [UIColor grayColor],
         }];
@@ -193,7 +193,7 @@
 
 - (NSAttributedString *)V_WR {
     if (!_V_WR) {
-        YYKlineStyleConfig *config = YYKlineStyleConfig.config;
+        YYKlineStyleConfig *config = YYKlineStyleConfig.sharedConfig;
         NSAttributedString *str1 = [[NSAttributedString alloc] initWithString:@" WR(6,10)：" attributes:@{
             NSForegroundColorAttributeName: [UIColor grayColor],
         }];

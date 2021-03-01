@@ -28,7 +28,7 @@
     CGFloat unitValue = maxH/minMaxModel.distance;
     
     YYMACDPainter *sublayer = [[YYMACDPainter alloc] init];
-    YYKlineStyleConfig *config = YYKlineStyleConfig.config;
+    YYKlineStyleConfig *config = YYKlineStyleConfig.sharedConfig;
     sublayer.frame = area;
     [layer addSublayer:sublayer];
     

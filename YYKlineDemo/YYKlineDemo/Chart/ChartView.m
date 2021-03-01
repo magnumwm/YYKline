@@ -35,7 +35,7 @@
 - (instancetype)initWithItemModels: (NSArray *)itemModels {
     self = [super init];
     if (self) {
-        self.backgroundColor = YYKlineStyleConfig.config.backgroundColor;
+        self.backgroundColor = YYKlineStyleConfig.sharedConfig.backgroundColor;
         self.cacheKlineData = @{}.mutableCopy;
         [self initUI];
         self.itemModels = itemModels;

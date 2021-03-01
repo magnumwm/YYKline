@@ -31,7 +31,7 @@
     CGFloat unitValue = maxH/minMaxModel.distance;
 
     YYCandlePainter *sublayer = [[YYCandlePainter alloc] init];
-    YYKlineStyleConfig *config = YYKlineStyleConfig.config;
+    YYKlineStyleConfig *config = YYKlineStyleConfig.sharedConfig;
     sublayer.frame = area;
     sublayer.contentsScale = UIScreen.mainScreen.scale;
     [models enumerateObjectsUsingBlock:^(YYKlineModel * _Nonnull m, NSUInteger idx, BOOL * _Nonnull stop) {        

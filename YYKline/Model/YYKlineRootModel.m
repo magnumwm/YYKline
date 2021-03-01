@@ -41,7 +41,7 @@
 }
 
 - (void)calculateNeedDrawTimeModel {
-    YYKlineStyleConfig *config = YYKlineStyleConfig.config;
+    YYKlineStyleConfig *config = YYKlineStyleConfig.sharedConfig;
     NSInteger gap = 50 / config.kLineWidth + config.kLineGap;
     for (int i = 1; i < self.models.count; i++) {
         self.models[i].isDrawTime = i % gap == 0;

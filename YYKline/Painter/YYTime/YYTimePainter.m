@@ -17,7 +17,7 @@
     }
     
     YYTimePainter *sublayer = [[YYTimePainter alloc] init];
-    YYKlineStyleConfig *config = YYKlineStyleConfig.config;
+    YYKlineStyleConfig *config = YYKlineStyleConfig.sharedConfig;
     sublayer.backgroundColor = config.assistBackgroundColor.CGColor;
     sublayer.frame = area;
     [layer addSublayer:sublayer];

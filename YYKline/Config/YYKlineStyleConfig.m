@@ -12,7 +12,7 @@
 
 @implementation YYKlineStyleConfig
 
-+ (instancetype)config {
++ (instancetype)sharedConfig {
     static dispatch_once_t onceToken;
     static YYKlineStyleConfig *config;
     dispatch_once(&onceToken, ^{

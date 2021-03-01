@@ -31,7 +31,7 @@ static void blockCleanUp(__strong void(^*block)(void)) {
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    self.view.backgroundColor = YYKlineStyleConfig.config.backgroundColor;
+    self.view.backgroundColor = YYKlineStyleConfig.sharedConfig.backgroundColor;
     // 初始化K线View
     self.stockChartView = [[ChartView alloc] initWithItemModels:@[
         [ChartViewItemModel itemModelWithTitle:@"指标" type:YYKlineTypeIndicator],

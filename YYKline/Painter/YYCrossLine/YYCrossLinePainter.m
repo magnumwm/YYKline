@@ -29,7 +29,7 @@
     CGFloat maxH = CGRectGetHeight(area);
 
     YYCrossLinePainter *sublayer = [[YYCrossLinePainter alloc] init];
-    YYKlineStyleConfig *config = YYKlineStyleConfig.config;
+    YYKlineStyleConfig *config = YYKlineStyleConfig.sharedConfig;
     sublayer.frame = area;
 
     // 画 vertical line

@@ -58,8 +58,8 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
 - (instancetype)initWithFrame:(CGRect)frame {
     self = [super initWithFrame:frame];
     if(self) {
-        self.mainViewRatio = YYKlineStyleConfig.config.kLineMainViewRadio;
-        self.volumeViewRatio = YYKlineStyleConfig.config.kLineVolumeViewRadio;
+        self.mainViewRatio = YYKlineStyleConfig.sharedConfig.kLineMainViewRadio;
+        self.volumeViewRatio = YYKlineStyleConfig.sharedConfig.kLineVolumeViewRadio;
         self.indicator1Painter = YYMAPainter.class;
         self.indicator2Painter = YYMACDPainter.class;
         self.crossPainter = YYCrossLinePainter.class;
@@ -69,7 +69,7 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
 }
 
 - (void)initUI {
-    self.backgroundColor = YYKlineStyleConfig.config.backgroundColor;
+    self.backgroundColor = YYKlineStyleConfig.sharedConfig.backgroundColor;
     // 主图
     [self initScrollView];
     [self initPainterView];
@@ -111,7 +111,7 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
 
 - (void)initRightView {
     self.rightView = [[UIView alloc] init];
-    self.rightView.backgroundColor = YYKlineStyleConfig.config.assistBackgroundColor;
+    self.rightView.backgroundColor = YYKlineStyleConfig.sharedConfig.assistBackgroundColor;
     [self addSubview:self.rightView];
     [self.rightView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.top.right.bottom.equalTo(self);
@@ -165,7 +165,7 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
 
 #pragma mark 重绘
 - (void)reDraw {
-    YYKlineStyleConfig *config = YYKlineStyleConfig.config;
+    YYKlineStyleConfig *config = YYKlineStyleConfig.sharedConfig;
     dispatch_main_async_safe(^{
         CGFloat kLineViewWidth = self.rootModel.models.count * config.kLineWidth + (self.rootModel.models.count + 1) * config.kLineGap + 10;
         [self updateScrollViewContentSize];
@@ -178,7 +178,7 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
 }
 
 - (void)calculateNeedDrawModels {
-    YYKlineStyleConfig *config = YYKlineStyleConfig.config;
+    YYKlineStyleConfig *config = YYKlineStyleConfig.sharedConfig;
     CGFloat lineGap = config.kLineGap;
     CGFloat lineWidth = config.kLineWidth;
     
@@ -217,7 +217,7 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
     self.painterView.layer.sublayers = nil;
     self.rightView.layer.sublayers = nil;
 
-    YYKlineStyleConfig *config = YYKlineStyleConfig.config;
+    YYKlineStyleConfig *config = YYKlineStyleConfig.sharedConfig;
     CGFloat offsetX = models.firstObject.index * (config.kLineWidth + config.kLineGap) - self.scrollView.contentOffset.x;
     CGRect mainArea = CGRectMake(offsetX, 20, CGRectGetWidth(self.painterView.bounds), CGRectGetHeight(self.painterView.bounds) * self.mainViewRatio-40);
     CGRect secondArea = CGRectMake(offsetX, CGRectGetMaxY(mainArea) + 20, CGRectGetWidth(mainArea), CGRectGetHeight(self.painterView.bounds) * self.volumeViewRatio);
@@ -249,7 +249,7 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
 #pragma mark 长按手势执行方法
 - (void)event_longPressMethod:(UILongPressGestureRecognizer *)longPress {
     static CGFloat oldPositionX = 0;
-    YYKlineStyleConfig *config = YYKlineStyleConfig.config;
+    YYKlineStyleConfig *config = YYKlineStyleConfig.sharedConfig;
     if(UIGestureRecognizerStateChanged == longPress.state || UIGestureRecognizerStateBegan == longPress.state) {
         CGPoint location = [longPress locationInView:self.scrollView];
         if(ABS(oldPositionX - location.x) < (config.kLineWidth + config.kLineGap)/2) {
@@ -300,7 +300,7 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
 
 #pragma mark 缩放执行方法
 - (void)event_pinchMethod:(UIPinchGestureRecognizer *)pinch {
-    YYKlineStyleConfig *config = YYKlineStyleConfig.config;
+    YYKlineStyleConfig *config = YYKlineStyleConfig.sharedConfig;
 
     if (pinch.state == UIGestureRecognizerStateBegan) {
         self.scrollView.scrollEnabled = NO;
@@ -365,7 +365,7 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
 }
 
 - (void)updateScrollViewContentSize {
-    YYKlineStyleConfig *config = YYKlineStyleConfig.config;
+    YYKlineStyleConfig *config = YYKlineStyleConfig.sharedConfig;
     CGFloat contentSizeW = self.rootModel.models.count * config.kLineWidth + (self.rootModel.models.count -1) * config.kLineGap;
     self.scrollView.contentSize = CGSizeMake(contentSizeW, self.scrollView.contentSize.height);
 }
