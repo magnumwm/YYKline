@@ -60,6 +60,7 @@
     self.kLineWidth = [YYKlineGlobalVariable kLineWidth];
     self.kLineGap = [YYKlineGlobalVariable kLineGap];
     self.kCandleRadius = 4.5;
+    self.kVolumeBarRadius = 1.0;
     self.kLineMainViewRadio = [YYKlineGlobalVariable kLineMainViewRadio];
     self.kLineVolumeViewRadio = [YYKlineGlobalVariable kLineVolumeViewRadio];
     self.kLineCrosslineWidth = YYKlineLineWidth;

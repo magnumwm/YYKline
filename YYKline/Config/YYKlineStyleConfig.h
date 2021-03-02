@@ -165,6 +165,10 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (nonatomic, assign) CGFloat kCandleRadius;
 /**
+ *  成交量bar圆角
+ */
+@property (nonatomic, assign) CGFloat kVolumeBarRadius;
+/**
  *  MainView的高度占比,默认为0.5
  */
 @property (nonatomic, assign) CGFloat kLineMainViewRadio;

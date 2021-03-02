@@ -35,7 +35,7 @@
         CGFloat w = config.kLineWidth;
         CGFloat x = idx * (w + config.kLineGap);
         CGFloat h = fabs(m.Volume.floatValue - minMaxModel.min) * unitValue;
-        UIBezierPath *path = [UIBezierPath bezierPathWithRect:CGRectMake(x, maxH - h, w - config.kLineGap, h)];
+        UIBezierPath *path = [UIBezierPath bezierPathWithRoundedRect:CGRectMake(x, maxH - h, w - config.kLineGap, h) cornerRadius:config.kVolumeBarRadius];
         CAShapeLayer *l = [CAShapeLayer layer];
         l.path = path.CGPath;
 //        l.lineWidth = config.kLineLineWidth;
