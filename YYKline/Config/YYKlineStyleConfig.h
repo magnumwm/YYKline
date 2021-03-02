@@ -91,6 +91,24 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (nonatomic, strong) UIColor * line3Color;
 
+/**
+ *  分时图渐变色start
+ */
+@property (nonatomic, strong) UIColor *timelineGradientStartColor;
+/**
+ *  分时图渐变色end
+ */
+@property (nonatomic, strong) UIColor *timelineGradientEndColor;
+
+/**
+ *  成交量柱状图up
+ */
+@property (nonatomic, strong) UIColor *volumeUpColor;
+/**
+ *  成交量柱状图down
+ */
+@property (nonatomic, strong) UIColor *volumeDownColor;
+
 // MARK: 字体
 /**
  *  时间轴字体
@@ -122,6 +140,10 @@ NS_ASSUME_NONNULL_BEGIN
  *  K线图线宽，默认1
  */
 @property (nonatomic, assign) CGFloat kLineLineWidth;
+/**
+ *  分时线线宽，默认2.4
+ */
+@property (nonatomic, assign) CGFloat kTimelineLineWidth;
 /**
  *  K线图的宽度，默认20
  */

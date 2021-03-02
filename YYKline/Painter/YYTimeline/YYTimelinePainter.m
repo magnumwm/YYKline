@@ -54,7 +54,7 @@
     {
         CAShapeLayer *l = [CAShapeLayer layer];
         l.path = path1.CGPath;
-        l.lineWidth = config.kLineLineWidth;
+        l.lineWidth = config.kTimelineLineWidth;
         l.strokeColor = config.timeLineLineColor.CGColor;
         l.fillColor =   [UIColor clearColor].CGColor;
         [sublayer addSublayer:l];
@@ -84,8 +84,8 @@
         maskLayer.path = path2.CGPath;
         CAGradientLayer *bgLayer = [CAGradientLayer layer];
         bgLayer.frame = area;
-        bgLayer.colors = @[(id)[UIColor colorWithRed:0.3 green:0.3 blue:0.7 alpha:0.5].CGColor, (id)UIColor.clearColor.CGColor];
-        bgLayer.locations = @[@0.3, @0.9];
+        bgLayer.colors = @[(id)config.timelineGradientStartColor.CGColor, (id)config.timelineGradientEndColor.CGColor];
+//        bgLayer.locations = @[@0.3, @0.9];
         bgLayer.mask = maskLayer;
         [layer addSublayer:bgLayer];
     }

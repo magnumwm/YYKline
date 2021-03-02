@@ -39,8 +39,8 @@
         CAShapeLayer *l = [CAShapeLayer layer];
         l.path = path.CGPath;
         l.lineWidth = config.kLineLineWidth;
-        l.strokeColor = m.isUp ? config.upColor.CGColor : config.downColor.CGColor;
-        l.fillColor = m.isUp ? config.upColor.CGColor : config.downColor.CGColor;
+        l.strokeColor = m.isUp ? config.volumeUpColor.CGColor : config.volumeDownColor.CGColor;
+        l.fillColor = m.isUp ? config.volumeUpColor.CGColor : config.volumeDownColor.CGColor;
         [sublayer addSublayer:l];
     }];
     [layer addSublayer:sublayer];

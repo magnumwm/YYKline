@@ -28,9 +28,13 @@
     self.assistBackgroundColor = [UIColor whiteColor];
     self.upColor = [UIColor upColor];
     self.downColor = [UIColor downColor];
+    self.volumeUpColor = [UIColor upColor];
+    self.volumeDownColor = [UIColor downColor];
     self.mainTextColor = [UIColor mainTextColor];
     self.timeLineColor = [UIColor grayColor];
-    self.timeLineLineColor = [UIColor timeLineLineColor];
+    self.timeLineLineColor = [UIColor colorWithRed:238/255.0 green:47/255.0 blue:121/255.0 alpha:1.0];
+    self.timelineGradientStartColor = [UIColor colorWithRed:238/255.0 green:47/255.0 blue:121/255.0 alpha:0.2];
+    self.timelineGradientEndColor = [UIColor colorWithRed:238/255.0 green:47/255.0 blue:121/255.0 alpha:0];
     self.crossLineColor = [UIColor longPressLineColor];
     self.crossLineTextColor = [UIColor whiteColor];
     self.crossLineTextBackgroundColor = [UIColor grayColor];
@@ -50,6 +54,7 @@
 
     // 布局
     self.kLineLineWidth = YYKlineLineWidth;
+    self.kTimelineLineWidth = 2.4;
     self.kLineWidth = [YYKlineGlobalVariable kLineWidth];
     self.kLineGap = [YYKlineGlobalVariable kLineGap];
     self.kLineMainViewRadio = [YYKlineGlobalVariable kLineMainViewRadio];
