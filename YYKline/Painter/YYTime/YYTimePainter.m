@@ -32,8 +32,9 @@
         CATextLayer *textLayer = [CATextLayer layer];
         textLayer.string = obj.V_HHMM;
         textLayer.alignmentMode = kCAAlignmentCenter;
-        textLayer.fontSize = 12.f;
-        textLayer.foregroundColor = UIColor.grayColor.CGColor;
+        textLayer.font = (__bridge CFTypeRef _Nullable)(config.timelineFontName);
+        textLayer.fontSize = config.timelineFont.pointSize;
+        textLayer.foregroundColor = config.timeLineColor.CGColor;
         textLayer.frame = CGRectMake(x-50, y, 100, maxH);
         textLayer.contentsScale = UIScreen.mainScreen.scale;
         [sublayer addSublayer:textLayer];

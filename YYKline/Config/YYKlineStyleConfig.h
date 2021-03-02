@@ -42,6 +42,11 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) UIColor * mainTextColor;
 
 /**
+ *  时间轴的颜色
+ */
+@property (nonatomic, strong) UIColor * timeLineColor;
+
+/**
  *  分时线的颜色
  */
 @property (nonatomic, strong) UIColor * timeLineLineColor;
@@ -90,6 +95,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  *  时间轴字体
  */
+@property (nonatomic, strong) NSString *timelineFontName;
 @property (nonatomic, strong) UIFont *timelineFont;
 
 /**

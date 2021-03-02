@@ -29,6 +29,7 @@
     self.upColor = [UIColor upColor];
     self.downColor = [UIColor downColor];
     self.mainTextColor = [UIColor mainTextColor];
+    self.timeLineColor = [UIColor grayColor];
     self.timeLineLineColor = [UIColor timeLineLineColor];
     self.crossLineColor = [UIColor longPressLineColor];
     self.crossLineTextColor = [UIColor whiteColor];
@@ -40,6 +41,7 @@
     self.line3Color = [UIColor line3Color];
 
     // 字体
+    self.timelineFontName = @"Helvetica";
     self.timelineFont = [UIFont systemFontOfSize:12];
     self.klineCategoryFont = [UIFont systemFontOfSize:14];
     self.crosslineTextFont = [UIFont systemFontOfSize:12];
