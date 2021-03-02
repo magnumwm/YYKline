@@ -23,7 +23,14 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) NSNumber *High;
 @property (nonatomic, strong) NSNumber *Low;
 @property (nonatomic, strong) NSNumber *Volume;
+/**
+ * 涨跌幅
+ */
 @property (nonatomic, strong) NSString *changePercent;
+/**
+ * 涨跌额
+ */
+@property (nonatomic, strong) NSString *changeAmount;
 
 @property (nonatomic, strong) YYMACDModel *MACD;
 @property (nonatomic, strong) YYKDJModel *KDJ;

@@ -247,7 +247,7 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
     // 副图指标
 //    [self.indicator2Painter drawToLayer: self.painterView.layer area:thirdArea models:models minMax:[self.indicator2Painter getMinMaxValue:models]];
     // 文字
-    [self updateLabelText: models.lastObject];
+//    [self updateLabelText: models.lastObject];
 }
 
 #pragma mark 长按手势执行方法

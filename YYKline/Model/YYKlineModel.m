@@ -223,5 +223,10 @@
     return [NSString stringWithFormat:@"%.2f%%", change];
 }
 
+- (NSString *)changeAmount {
+    CGFloat change = (self.Close.floatValue - self.PrevModel.Close.floatValue);
+    return [NSString stringWithFormat:@"%.2f", change];
+}
+
 @end
 
