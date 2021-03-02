@@ -141,6 +141,14 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (nonatomic, assign) CGFloat kLineLineWidth;
 /**
+ *  K线图最小线宽，默认1
+ */
+@property (nonatomic, assign) CGFloat klineLineMinWidth;
+/**
+ *  K线图最大线宽，默认20
+ */
+@property (nonatomic, assign) CGFloat klineLineMaxWidth;
+/**
  *  分时线线宽，默认2.4
  */
 @property (nonatomic, assign) CGFloat kTimelineLineWidth;
@@ -181,6 +189,26 @@ NS_ASSUME_NONNULL_BEGIN
  *  K线图的crossLine 文字EdgeInset
  */
 @property (nonatomic, assign) UIEdgeInsets kLineCrossTextInset;
+/**
+ *  K线图区域和时间轴区域间距
+ */
+@property (nonatomic, assign) CGFloat mainToTimelineGap;
+/**
+ *  时间轴区域和成交量间距
+ */
+@property (nonatomic, assign) CGFloat timelineToVolumeGap;
+/**
+ *  K线图区域高度
+ */
+@property (nonatomic, assign) CGFloat mainAreaHeight;
+/**
+ *  成交量区域高度
+ */
+@property (nonatomic, assign) CGFloat volumeAreaHeight;
+/**
+ *  时间轴区域高度
+ */
+@property (nonatomic, assign) CGFloat timelineAreaHeight;
 @end
 
 NS_ASSUME_NONNULL_END

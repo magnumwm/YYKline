@@ -53,6 +53,8 @@
     self.klinePropertyValueFont = [UIFont systemFontOfSize:13];
 
     // 布局
+    self.klineLineMinWidth = YYKlineLineMinWidth;
+    self.klineLineMaxWidth = YYKlineLineMaxWidth;
     self.kLineLineWidth = YYKlineLineWidth;
     self.kTimelineLineWidth = 2.4;
     self.kLineWidth = [YYKlineGlobalVariable kLineWidth];
@@ -63,13 +65,18 @@
     self.kLineCrossCenterRadius = 4;
     self.kLineCrossTextHeight = 15;
     self.kLineCrossTextInset = UIEdgeInsetsMake(4, 4, 4, 4);
+    self.mainToTimelineGap = 12;
+    self.mainAreaHeight = 187;
+    self.timelineAreaHeight = 12;
+    self.timelineToVolumeGap = 16;
+    self.volumeAreaHeight = 20;
 }
 
 - (void)setKLineWidth:(CGFloat)kLineWidth {
-    if (kLineWidth > YYKlineLineMaxWidth) {
-        kLineWidth = YYKlineLineMaxWidth;
-    }else if (kLineWidth < YYKlineLineMinWidth){
-        kLineWidth = YYKlineLineMinWidth;
+    if (kLineWidth > self.klineLineMaxWidth) {
+        kLineWidth = self.klineLineMaxWidth;
+    }else if (kLineWidth < self.klineLineMinWidth){
+        kLineWidth = self.klineLineMinWidth;
     }
     _kLineWidth = kLineWidth;
 }

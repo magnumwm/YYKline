@@ -38,8 +38,8 @@
         UIBezierPath *path = [UIBezierPath bezierPathWithRect:CGRectMake(x, maxH - h, w - config.kLineGap, h)];
         CAShapeLayer *l = [CAShapeLayer layer];
         l.path = path.CGPath;
-        l.lineWidth = config.kLineLineWidth;
-        l.strokeColor = m.isUp ? config.volumeUpColor.CGColor : config.volumeDownColor.CGColor;
+//        l.lineWidth = config.kLineLineWidth;
+//        l.strokeColor = m.isUp ? config.volumeUpColor.CGColor : config.volumeDownColor.CGColor;
         l.fillColor = m.isUp ? config.volumeUpColor.CGColor : config.volumeDownColor.CGColor;
         [sublayer addSublayer:l];
     }];

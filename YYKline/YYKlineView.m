@@ -28,10 +28,10 @@
 @property (nonatomic, strong) UIScrollView *scrollView;
 @property (nonatomic, strong) UIView *painterView;
 @property (nonatomic, strong) UIView *topView; // 长按后在这个view上显示十字交叉线
-@property (nonatomic, strong) UIView *rightView;
-@property (nonatomic, strong) UILabel *topLabel;
-@property (nonatomic, strong) UILabel *middleLabel;
-@property (nonatomic, strong) UILabel *bottomLabel;
+//@property (nonatomic, strong) UIView *rightView;
+//@property (nonatomic, strong) UILabel *topLabel;
+//@property (nonatomic, strong) UILabel *middleLabel;
+//@property (nonatomic, strong) UILabel *bottomLabel;
 //@property (nonatomic, strong) UIView *verticalView; // 长按后显示的View
 
 @property (nonatomic, assign) CGFloat oldExactOffset; // 旧的scrollview准确位移
@@ -60,8 +60,8 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
     if(self) {
         self.mainViewRatio = YYKlineStyleConfig.sharedConfig.kLineMainViewRadio;
         self.volumeViewRatio = YYKlineStyleConfig.sharedConfig.kLineVolumeViewRadio;
-        self.indicator1Painter = YYMAPainter.class;
-        self.indicator2Painter = YYMACDPainter.class;
+//        self.indicator1Painter = YYMAPainter.class;
+//        self.indicator2Painter = YYMACDPainter.class;
         self.crossPainter = YYCrossLinePainter.class;
         [self initUI];
     }
@@ -73,8 +73,8 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
     // 主图
     [self initScrollView];
     [self initPainterView];
-    [self initRightView];
-    [self initLabel];
+//    [self initRightView];
+//    [self initLabel];
     
     //缩放
     UIPinchGestureRecognizer *pinchGesture = [[UIPinchGestureRecognizer alloc]initWithTarget:self action:@selector(event_pinchMethod:)];
@@ -93,10 +93,7 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
 
     [self addSubview:_scrollView];
     [_scrollView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.equalTo(self);
-        make.right.equalTo(self).offset(-YYKlineLinePriceViewWidth);
-        make.left.equalTo(self.mas_left);
-        make.bottom.equalTo(self.mas_bottom);
+        make.edges.equalTo(self);
     }];
 }
 
@@ -109,15 +106,15 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
     }];
 }
 
-- (void)initRightView {
-    self.rightView = [[UIView alloc] init];
-    self.rightView.backgroundColor = YYKlineStyleConfig.sharedConfig.assistBackgroundColor;
-    [self addSubview:self.rightView];
-    [self.rightView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.right.bottom.equalTo(self);
-        make.width.equalTo(@YYKlineLinePriceViewWidth);
-    }];
-}
+//- (void)initRightView {
+//    self.rightView = [[UIView alloc] init];
+//    self.rightView.backgroundColor = YYKlineStyleConfig.sharedConfig.assistBackgroundColor;
+//    [self addSubview:self.rightView];
+//    [self.rightView mas_makeConstraints:^(MASConstraintMaker *make) {
+//        make.top.right.bottom.equalTo(self);
+//        make.width.equalTo(@YYKlineLinePriceViewWidth);
+//    }];
+//}
 
 - (void)initTopView {
     self.topView = [UIView new];
@@ -128,40 +125,40 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
     }];
 }
 
-- (void)initLabel {
-    UILabel *label1 = [UILabel new];
-    label1.font = [UIFont systemFontOfSize:10];
-    [self addSubview:label1];
-    [label1 mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.right.equalTo(self);
-        make.left.equalTo(self);
-        make.top.equalTo(self).offset(5);
-        make.height.equalTo(@10);
-    }];
-    self.topLabel = label1;
-    
-    UILabel *label2 = [UILabel new];
-    label2.font = [UIFont systemFontOfSize:10];
-    [self addSubview:label2];
-    [label2 mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.right.equalTo(self);
-        make.left.equalTo(self);
-        make.top.equalTo(self.mas_bottom).multipliedBy(self.mainViewRatio).offset(5);
-        make.height.equalTo(@10);
-    }];
-    self.middleLabel = label2;
-    
-    UILabel *label3 = [UILabel new];
-    label3.font = [UIFont systemFontOfSize:10];
-    [self addSubview:label3];
-    [label3 mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.right.equalTo(self);
-        make.left.equalTo(self);
-        make.top.equalTo(self.mas_bottom).multipliedBy(self.mainViewRatio + self.volumeViewRatio).offset(5);
-        make.height.equalTo(@10);
-    }];
-    self.bottomLabel = label3;
-}
+//- (void)initLabel {
+//    UILabel *label1 = [UILabel new];
+//    label1.font = [UIFont systemFontOfSize:10];
+//    [self addSubview:label1];
+//    [label1 mas_makeConstraints:^(MASConstraintMaker *make) {
+//        make.right.equalTo(self);
+//        make.left.equalTo(self);
+//        make.top.equalTo(self).offset(5);
+//        make.height.equalTo(@10);
+//    }];
+//    self.topLabel = label1;
+//
+//    UILabel *label2 = [UILabel new];
+//    label2.font = [UIFont systemFontOfSize:10];
+//    [self addSubview:label2];
+//    [label2 mas_makeConstraints:^(MASConstraintMaker *make) {
+//        make.right.equalTo(self);
+//        make.left.equalTo(self);
+//        make.top.equalTo(self.mas_bottom).multipliedBy(self.mainViewRatio).offset(5);
+//        make.height.equalTo(@10);
+//    }];
+//    self.middleLabel = label2;
+//
+//    UILabel *label3 = [UILabel new];
+//    label3.font = [UIFont systemFontOfSize:10];
+//    [self addSubview:label3];
+//    [label3 mas_makeConstraints:^(MASConstraintMaker *make) {
+//        make.right.equalTo(self);
+//        make.left.equalTo(self);
+//        make.top.equalTo(self.mas_bottom).multipliedBy(self.mainViewRatio + self.volumeViewRatio).offset(5);
+//        make.height.equalTo(@10);
+//    }];
+//    self.bottomLabel = label3;
+//}
 
 #pragma mark 重绘
 - (void)reDraw {
@@ -209,39 +206,46 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
     YYMinMaxModel *minMax = [YYMinMaxModel new];
     minMax.min = 9999999999999.f;
     [minMax combine:[self.linePainter getMinMaxValue: models]];
-    if (self.indicator1Painter) {
-        [minMax combine:[self.indicator1Painter getMinMaxValue: models]];
-    }
+//    if (self.indicator1Painter) {
+//        [minMax combine:[self.indicator1Painter getMinMaxValue: models]];
+//    }
 
     // 移除旧layer
     self.painterView.layer.sublayers = nil;
-    self.rightView.layer.sublayers = nil;
+//    self.rightView.layer.sublayers = nil;
 
     YYKlineStyleConfig *config = YYKlineStyleConfig.sharedConfig;
+
     CGFloat offsetX = models.firstObject.index * (config.kLineWidth + config.kLineGap) - self.scrollView.contentOffset.x;
-    CGRect mainArea = CGRectMake(offsetX, 20, CGRectGetWidth(self.painterView.bounds), CGRectGetHeight(self.painterView.bounds) * self.mainViewRatio-40);
-    CGRect secondArea = CGRectMake(offsetX, CGRectGetMaxY(mainArea) + 20, CGRectGetWidth(mainArea), CGRectGetHeight(self.painterView.bounds) * self.volumeViewRatio);
-    CGRect thirdArea = CGRectMake(offsetX, CGRectGetMaxY(secondArea) + 20, CGRectGetWidth(mainArea), CGRectGetHeight(self.painterView.bounds) * (1 - self.mainViewRatio - self.volumeViewRatio) - 20);
+
+    CGRect mainArea = CGRectMake(offsetX, 0, CGRectGetWidth(self.painterView.bounds), config.mainAreaHeight);
+
+    CGRect timelineArea = CGRectMake(offsetX, CGRectGetMaxY(mainArea)+config.mainToTimelineGap, CGRectGetWidth(mainArea), config.timelineAreaHeight);
+
+    CGRect secondArea = CGRectMake(offsetX, CGRectGetMaxY(timelineArea)+config.timelineToVolumeGap, CGRectGetWidth(mainArea), config.volumeAreaHeight);
+
+
+//    CGRect thirdArea = CGRectMake(offsetX, CGRectGetMaxY(secondArea) + 20, CGRectGetWidth(mainArea), CGRectGetHeight(self.painterView.bounds) * (1 - self.mainViewRatio - self.volumeViewRatio) - 20);
     
     // 时间轴
-    [YYTimePainter drawToLayer:self.painterView.layer area:CGRectMake(offsetX, CGRectGetMaxY(mainArea), CGRectGetWidth(mainArea)+20, 20) models:models minMax:minMax];
-    // 右侧价格轴
-    [YYVerticalTextPainter drawToLayer: self.rightView.layer area: CGRectMake(0, 20, YYKlineLinePriceViewWidth, CGRectGetHeight(mainArea)) minMax:minMax];
-    // 右侧成交量轴
-    [YYVerticalTextPainter drawToLayer: self.rightView.layer area: CGRectMake(0, CGRectGetMaxY(mainArea)+20, YYKlineLinePriceViewWidth, CGRectGetHeight(secondArea)) minMax:[YYVolPainter getMinMaxValue:models]];
-    // 右侧副图
-    [YYVerticalTextPainter drawToLayer: self.rightView.layer area: CGRectMake(0, thirdArea.origin.y, YYKlineLinePriceViewWidth, CGRectGetHeight(thirdArea)) minMax:[YYMACDPainter getMinMaxValue:models]];
+    [YYTimePainter drawToLayer:self.painterView.layer area:timelineArea models:models minMax:minMax];
+//    // 右侧价格轴
+//    [YYVerticalTextPainter drawToLayer: self.rightView.layer area: CGRectMake(0, 20, YYKlineLinePriceViewWidth, CGRectGetHeight(mainArea)) minMax:minMax];
+//    // 右侧成交量轴
+//    [YYVerticalTextPainter drawToLayer: self.rightView.layer area: CGRectMake(0, CGRectGetMaxY(mainArea)+20, YYKlineLinePriceViewWidth, CGRectGetHeight(secondArea)) minMax:[YYVolPainter getMinMaxValue:models]];
+//    // 右侧副图
+//    [YYVerticalTextPainter drawToLayer: self.rightView.layer area: CGRectMake(0, thirdArea.origin.y, YYKlineLinePriceViewWidth, CGRectGetHeight(thirdArea)) minMax:[YYMACDPainter getMinMaxValue:models]];
     
     // 主图
     [self.linePainter drawToLayer: self.painterView.layer area: mainArea models: models minMax: minMax];
     // 主图指标图
-    if (self.indicator1Painter) {
-        [self.indicator1Painter drawToLayer: self.painterView.layer area: mainArea models: models minMax: minMax];
-    }
+//    if (self.indicator1Painter) {
+//        [self.indicator1Painter drawToLayer: self.painterView.layer area: mainArea models: models minMax: minMax];
+//    }
     // 成交量图
     [YYVolPainter drawToLayer: self.painterView.layer area: secondArea models:models minMax:[YYVolPainter getMinMaxValue:models]];
     // 副图指标
-    [self.indicator2Painter drawToLayer: self.painterView.layer area:thirdArea models:models minMax:[self.indicator2Painter getMinMaxValue:models]];
+//    [self.indicator2Painter drawToLayer: self.painterView.layer area:thirdArea models:models minMax:[self.indicator2Painter getMinMaxValue:models]];
     // 文字
     [self updateLabelText: models.lastObject];
 }
@@ -271,9 +275,9 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
         }
         self.topView.layer.sublayers = nil;
         // vertical line start x
-        CGFloat offsetX = idx * (config.kLineWidth + config.kLineGap) + config.kLineWidth/2.f - self.scrollView.contentOffset.x;
+        CGFloat offsetX = idx * (config.kLineWidth + config.kLineGap) + (config.kLineWidth-config.kLineGap)/2.f - self.scrollView.contentOffset.x;
 
-        CGRect mainArea = CGRectMake(0, 20, CGRectGetWidth(self.painterView.bounds), CGRectGetHeight(self.painterView.bounds) * self.mainViewRatio-40);
+        CGRect mainArea = CGRectMake(0, 0, CGRectGetWidth(self.painterView.bounds), config.mainAreaHeight+config.mainToTimelineGap+config.timelineAreaHeight);
 
         // offsetY设为当前model的close price位置
         CGFloat offsetY = model.y;
@@ -318,7 +322,7 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
     if(ABS(difValue) > YYKlineScaleBound) {
         CGFloat oldKlineWidth = config.kLineWidth;
         CGFloat newKlineWidth = oldKlineWidth * (difValue > 0 ? (1 + YYKlineScaleFactor) : (1 - YYKlineScaleFactor));
-        if (oldKlineWidth <= YYKlineLineMinWidth && difValue <= 0) {
+        if (oldKlineWidth <= config.klineLineMinWidth && difValue <= 0) {
             return;
         }
         
@@ -355,13 +359,16 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
 }
 
 - (void)updateLabelText:(YYKlineModel *)m {
-    if (self.indicator1Painter) {
-        self.topLabel.attributedText = [self.indicator1Painter getText: m];
-    } else {
-        self.topLabel.attributedText = m.V_Price;
+    if (self.delegate && [self.delegate respondsToSelector:@selector(yyklineviewUpdateText:)]) {
+        [self.delegate yyklineviewUpdateText:m];
     }
-    self.middleLabel.attributedText = m.V_Volume;
-    self.bottomLabel.attributedText = [self.indicator2Painter getText: m];
+//    if (self.indicator1Painter) {
+//        self.topLabel.attributedText = [self.indicator1Painter getText: m];
+//    } else {
+//        self.topLabel.attributedText = m.V_Price;
+//    }
+//    self.middleLabel.attributedText = m.V_Volume;
+//    self.bottomLabel.attributedText = [self.indicator2Painter getText: m];
 }
 
 - (void)updateScrollViewContentSize {
