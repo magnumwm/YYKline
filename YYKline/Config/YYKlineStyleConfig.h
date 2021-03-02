@@ -161,6 +161,10 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (nonatomic, assign) CGFloat kLineGap;
 /**
+ *  K线图蜡烛圆角
+ */
+@property (nonatomic, assign) CGFloat kCandleRadius;
+/**
  *  MainView的高度占比,默认为0.5
  */
 @property (nonatomic, assign) CGFloat kLineMainViewRadio;

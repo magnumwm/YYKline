@@ -44,7 +44,7 @@
         // 开收
         CGFloat h = fabsf(m.Open.floatValue - m.Close.floatValue) * unitValue;
         CGFloat y =  maxH - (MAX(m.Open.floatValue, m.Close.floatValue) - minMaxModel.min) * unitValue;
-        UIBezierPath *path = [UIBezierPath bezierPathWithRect:CGRectMake(x, y, w - config.kLineGap, h)];
+        UIBezierPath *path = [UIBezierPath bezierPathWithRoundedRect:CGRectMake(x, y, w - config.kLineGap, h) cornerRadius:config.kCandleRadius];
 
         // YYKlineModel 赋值
         m.lowPoint = lowPoint;
@@ -60,7 +60,7 @@
         CAShapeLayer *l = [CAShapeLayer layer];
         l.contentsScale = UIScreen.mainScreen.scale;
         l.path = path.CGPath;
-        l.lineWidth = config.kLineLineWidth;        
+        l.lineWidth = config.kLineLineWidth;
         l.strokeColor = m.isUp ? config.upColor.CGColor : config.downColor.CGColor;
         l.fillColor =   m.isUp ? config.upColor.CGColor : config.downColor.CGColor;
         [sublayer addSublayer:l];
