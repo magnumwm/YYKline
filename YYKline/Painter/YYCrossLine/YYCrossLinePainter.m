@@ -24,7 +24,8 @@
               point:(CGPoint)point
                area:(CGRect)area
            leftText:(NSAttributedString *)leftText
-          rightText:(NSAttributedString *)rightText{
+          rightText:(NSAttributedString *)rightText
+           downText:(NSAttributedString *)downText {
     CGFloat maxW = CGRectGetWidth(area);
     CGFloat maxH = CGRectGetHeight(area);
 
@@ -117,6 +118,21 @@
         CGRect rect = [rightText boundingRectWithSize:CGSizeMake(config.kLineCrossTextMaxWidth, config.kLineCrossTextHeight) options:NSStringDrawingUsesFontLeading context:nil];
         CGFloat width = rect.size.width+config.kLineCrossTextInset.left+config.kLineCrossTextInset.right;
         textLayer.frame = CGRectMake(maxW-width, point.y-config.kLineCrossTextHeight/2, width, config.kLineCrossTextHeight);
+
+        textLayer.contentsScale = UIScreen.mainScreen.scale;
+        [sublayer addSublayer:textLayer];
+    }
+
+    // 画 down text
+    {
+        CATextLayer *textLayer = [CATextLayer layer];
+        textLayer.string = downText;
+        textLayer.alignmentMode = kCAAlignmentCenter;
+        textLayer.backgroundColor = config.crossLineTextBackgroundColor.CGColor;
+        // 计算文字frame
+        CGRect rect = [downText boundingRectWithSize:CGSizeMake(config.kLineCrossTextMaxWidth, config.kLineCrossTextHeight) options:NSStringDrawingUsesFontLeading context:nil];
+        CGFloat width = rect.size.width+config.kLineCrossTextInset.left+config.kLineCrossTextInset.right;
+        textLayer.frame = CGRectMake(point.x - width/2, CGRectGetMaxY(area)-config.kLineCrossTextHeight, width, config.kLineCrossTextHeight);
 
         textLayer.contentsScale = UIScreen.mainScreen.scale;
         [sublayer addSublayer:textLayer];

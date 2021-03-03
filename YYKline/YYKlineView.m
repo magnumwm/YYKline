@@ -292,7 +292,8 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
                                  point:crossLineCenterPoint
                                   area:mainArea
                               leftText:[[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@"%.0f", model.Volume.floatValue] attributes:attributes]
-                             rightText:[[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@"%@", model.changePercent] attributes:attributes]];
+                             rightText:[[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@"%@", model.changePercent] attributes:attributes]
+                              downText:[[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@"%@", model.V_Date] attributes:attributes]];
     }
     
     if(longPress.state == UIGestureRecognizerStateEnded ||

@@ -37,7 +37,8 @@
               point:(CGPoint)point
                area:(CGRect)area
            leftText:(NSAttributedString *)leftText
-          rightText:(NSAttributedString *)rightText;
+          rightText:(NSAttributedString *)rightText
+           downText:(NSAttributedString *)downText;
 
 @optional
 // 获取边界值
