@@ -30,7 +30,7 @@
         CGFloat x = idx * (w + config.kLineGap);
         CGFloat y = (maxH - [UIFont systemFontOfSize:12.f].lineHeight)/2.f;
         CATextLayer *textLayer = [CATextLayer layer];
-        textLayer.string = obj.V_HHMM;
+        textLayer.string = obj.V_Date;
         textLayer.alignmentMode = kCAAlignmentCenter;
         textLayer.font = (__bridge CFTypeRef _Nullable)(config.timelineFontName);
         textLayer.fontSize = config.timelineFont.pointSize;

@@ -10,7 +10,7 @@
 #import "YYKlineStyleConfig.h"
 #import "YYKlineRootModel.h"
 #import "YYPainterProtocol.h"
-//#import "YYCandlePainter.h"
+#import "YYCandlePainter.h"
 #import "YYMAPainter.h"
 #import "YYVolPainter.h"
 #import "YYMACDPainter.h"
@@ -274,17 +274,22 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
             [self initTopView];
         }
         self.topView.layer.sublayers = nil;
+
+        CGRect mainArea = CGRectMake(0, 0, CGRectGetWidth(self.painterView.bounds), config.mainAreaHeight+config.mainToTimelineGap+config.timelineAreaHeight+config.timelineToVolumeGap+config.volumeAreaHeight);
+
         // vertical line start x
         CGFloat offsetX = idx * (config.kLineWidth + config.kLineGap) + (config.kLineWidth-config.kLineGap)/2.f - self.scrollView.contentOffset.x;
-
-        CGRect mainArea = CGRectMake(0, 0, CGRectGetWidth(self.painterView.bounds), config.mainAreaHeight+config.mainToTimelineGap+config.timelineAreaHeight);
-
-        // offsetY设为当前model的close price位置
-        CGFloat offsetY = model.y;
-
+//        CGFloat offsetY = 0;
+        CGPoint crossLineCenterPoint = CGPointZero;
+        if ([self.linePainter.class isSubclassOfClass:YYCandlePainter.class]) {
+            crossLineCenterPoint = model.candleCrossLineCenterPoint;
+        } else if([self.linePainter.class isSubclassOfClass:YYTimelinePainter.class]) {
+            crossLineCenterPoint = model.timelineCrossLineCenterPoint;
+        }
+        crossLineCenterPoint.x = offsetX;
         NSDictionary *attributes = @{NSForegroundColorAttributeName: config.crossLineTextColor, NSFontAttributeName: config.crosslineTextFont};
         [self.crossPainter drawToLayer:self.topView.layer
-                                 point:CGPointMake(offsetX, offsetY)
+                                 point:crossLineCenterPoint
                                   area:mainArea
                               leftText:[[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@"%.0f", model.Volume.floatValue] attributes:attributes]
                              rightText:[[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@"%@", model.changePercent] attributes:attributes]];

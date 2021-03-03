@@ -47,9 +47,10 @@
         UIBezierPath *path = [UIBezierPath bezierPathWithRoundedRect:CGRectMake(x, y, w - config.kLineGap, h) cornerRadius:config.kCandleRadius];
 
         // YYKlineModel 赋值
-        m.lowPoint = lowPoint;
-        m.highPoint = highPoint;
-        m.y = maxH - (m.Close.floatValue - minMaxModel.min) * unitValue;;
+//        m.lowPoint = lowPoint;
+//        m.highPoint = highPoint;
+        CGFloat candleCenterY = maxH - (m.Close.floatValue - minMaxModel.min) * unitValue;
+        m.candleCrossLineCenterPoint = CGPointMake(centerX, candleCenterY);
         
         [path moveToPoint:lowPoint];
         [path addLineToPoint:CGPointMake(centerX, y+h)];

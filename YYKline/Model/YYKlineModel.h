@@ -55,11 +55,15 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, copy) NSAttributedString *V_WR;
 @property (nonatomic, copy) NSAttributedString *V_RSI;
 
-// Drawable
-@property (nonatomic, assign) CGPoint highPoint;
-@property (nonatomic, assign) CGPoint lowPoint;
-@property (nonatomic, assign) CGFloat y;
-
+// MARK: Drawable
+/**
+ * 分时图十字交叉线中点
+ */
+@property (nonatomic, assign) CGPoint timelineCrossLineCenterPoint;
+/**
+ * 蜡烛图十字交叉线中点
+ */
+@property (nonatomic, assign) CGPoint candleCrossLineCenterPoint;
 @end
 
 NS_ASSUME_NONNULL_END

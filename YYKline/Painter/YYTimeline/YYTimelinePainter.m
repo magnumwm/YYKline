@@ -45,6 +45,7 @@
         } else {
             [path1 addLineToPoint:point1];
         }
+        m.timelineCrossLineCenterPoint = point1;
         if (idx == models.count - 1) {
             pointEnd = point1;
         }
