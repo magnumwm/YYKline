@@ -28,5 +28,6 @@
 //@property (nonatomic) Class <YYPainterProtocol> indicator2Painter;
 @property (nonatomic) Class <YYCrossLinePainterProtocol> crossPainter;
 
+- (instancetype)initWithMainAreaHeight:(CGFloat)mainAreaHeight;
 - (void)reDraw; // 重绘
 @end

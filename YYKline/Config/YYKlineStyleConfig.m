@@ -17,9 +17,16 @@
     static YYKlineStyleConfig *config;
     dispatch_once(&onceToken, ^{
         config = [YYKlineStyleConfig new];
-        [config loadDefault];
     });
     return config;
+}
+
+- (instancetype)init {
+    self = [super init];
+    if (self) {
+        [self loadDefault];
+    }
+    return self;
 }
 
 - (void)loadDefault {

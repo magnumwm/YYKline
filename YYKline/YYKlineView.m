@@ -43,6 +43,8 @@
 @property (nonatomic, weak) MASConstraint *painterViewXConstraint;
 @property (nonatomic, assign) CGFloat mainViewRatio; // 第一个View的高所占比例
 @property (nonatomic, assign) CGFloat volumeViewRatio; // 第二个View(成交量)的高所占比例
+// 主视图高度
+@property (nonatomic, assign) CGFloat mainAreaHeight;
 @end
 
 @implementation YYKlineView
@@ -53,6 +55,19 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
     });
 }
 
+- (instancetype)initWithMainAreaHeight:(CGFloat)mainAreaHeight {
+    self = [super initWithFrame:CGRectZero];
+    if(self) {
+        self.mainAreaHeight = mainAreaHeight;
+        self.mainViewRatio = YYKlineStyleConfig.sharedConfig.kLineMainViewRadio;
+        self.volumeViewRatio = YYKlineStyleConfig.sharedConfig.kLineVolumeViewRadio;
+        //        self.indicator1Painter = YYMAPainter.class;
+        //        self.indicator2Painter = YYMACDPainter.class;
+        self.crossPainter = YYCrossLinePainter.class;
+        [self initUI];
+    }
+    return self;
+}
 
 //initWithFrame设置视图比例
 - (instancetype)initWithFrame:(CGRect)frame {
@@ -218,7 +233,7 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
 
     CGFloat offsetX = models.firstObject.index * (config.kLineWidth + config.kLineGap) - self.scrollView.contentOffset.x;
 
-    CGRect mainArea = CGRectMake(offsetX, 0, CGRectGetWidth(self.painterView.bounds), config.mainAreaHeight);
+    CGRect mainArea = CGRectMake(offsetX, 0, CGRectGetWidth(self.painterView.bounds), self.mainAreaHeight);
 
     CGRect timelineArea = CGRectMake(offsetX, CGRectGetMaxY(mainArea)+config.mainToTimelineGap, CGRectGetWidth(mainArea), config.timelineAreaHeight);
 
@@ -275,7 +290,7 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
         }
         self.topView.layer.sublayers = nil;
 
-        CGRect mainArea = CGRectMake(0, 0, CGRectGetWidth(self.painterView.bounds), config.mainAreaHeight+config.mainToTimelineGap+config.timelineAreaHeight+config.timelineToVolumeGap+config.volumeAreaHeight);
+        CGRect mainArea = CGRectMake(0, 0, CGRectGetWidth(self.painterView.bounds), self.mainAreaHeight+config.mainToTimelineGap+config.timelineAreaHeight+config.timelineToVolumeGap+config.volumeAreaHeight);
 
         // vertical line start x
         CGFloat offsetX = idx * (config.kLineWidth + config.kLineGap) + (config.kLineWidth-config.kLineGap)/2.f - self.scrollView.contentOffset.x;
