@@ -14,6 +14,7 @@
 @protocol YYKlineViewDelegate <NSObject>
 
 - (void)yyklineviewUpdateText:(YYKlineModel *)model;
+- (void)yyklineviewEndLongPressChart:(YYKlineModel *)model;
 
 @end
 

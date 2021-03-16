@@ -320,6 +320,10 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
         // 恢复scrollView的滑动
         self.scrollView.scrollEnabled = YES;
         [self updateLabelText:self.rootModel.models.lastObject];
+
+        if (self.delegate && [self.delegate respondsToSelector:@selector(yyklineviewEndLongPressChart:)]) {
+            [self.delegate yyklineviewEndLongPressChart:self.rootModel.models.lastObject];
+        }
     }
 }
 
