@@ -51,6 +51,9 @@
 
     for (int i = 0; i < datas.count; i ++) {
         YYKlineModel *t = datas[i];
+        if ([t.Close isKindOfClass:NSNull.class]) {
+            continue;
+        }
         double c = t.Close.doubleValue;
         if (i == 0) {
             [ema12 addObject: @(c)];

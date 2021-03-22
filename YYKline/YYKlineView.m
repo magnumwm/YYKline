@@ -23,16 +23,17 @@
 //#import "YYBOLLPainter.h"
 #import "YYTimelinePainter.h"
 #import "YYCrossLinePainter.h"
+#import "YYCurrentPricelinePainter.h"
 
 @interface YYKlineView() <UIScrollViewDelegate>
+{
+    UIPinchGestureRecognizer *pinchGesture;
+    CGFloat currentStockPrice;
+}
 @property (nonatomic, strong) UIScrollView *scrollView;
 @property (nonatomic, strong) UIView *painterView;
-@property (nonatomic, strong) UIView *topView; // 长按后在这个view上显示十字交叉线
-//@property (nonatomic, strong) UIView *rightView;
-//@property (nonatomic, strong) UILabel *topLabel;
-//@property (nonatomic, strong) UILabel *middleLabel;
-//@property (nonatomic, strong) UILabel *bottomLabel;
-//@property (nonatomic, strong) UIView *verticalView; // 长按后显示的View
+/// 长按后在这个view上显示十字交叉线
+@property (nonatomic, strong) UIView *topView;
 
 @property (nonatomic, assign) CGFloat oldExactOffset; // 旧的scrollview准确位移
 @property (nonatomic, assign) CGFloat pinchCenterX;
@@ -41,10 +42,8 @@
 @property (nonatomic, assign) CGFloat oldContentOffsetX; // 旧的contentoffset值
 @property (nonatomic, assign) CGFloat oldScale; // 旧的缩放值，捏合
 @property (nonatomic, weak) MASConstraint *painterViewXConstraint;
-@property (nonatomic, assign) CGFloat mainViewRatio; // 第一个View的高所占比例
-@property (nonatomic, assign) CGFloat volumeViewRatio; // 第二个View(成交量)的高所占比例
-// 主视图高度
-@property (nonatomic, assign) CGFloat mainAreaHeight;
+
+@property (nonatomic, strong) YYKlineStyleConfig *styleConfig;
 @end
 
 @implementation YYKlineView
@@ -55,15 +54,12 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
     });
 }
 
-- (instancetype)initWithMainAreaHeight:(CGFloat)mainAreaHeight {
+- (instancetype)initWithStyleConfig:(YYKlineStyleConfig *)config {
     self = [super initWithFrame:CGRectZero];
     if(self) {
-        self.mainAreaHeight = mainAreaHeight;
-        self.mainViewRatio = YYKlineStyleConfig.sharedConfig.kLineMainViewRadio;
-        self.volumeViewRatio = YYKlineStyleConfig.sharedConfig.kLineVolumeViewRadio;
-        //        self.indicator1Painter = YYMAPainter.class;
-        //        self.indicator2Painter = YYMACDPainter.class;
+        self.styleConfig = config;
         self.crossPainter = YYCrossLinePainter.class;
+        self.currentPricePainter = YYCurrentPricelinePainter.class;
         [self initUI];
     }
     return self;
@@ -73,26 +69,21 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
 - (instancetype)initWithFrame:(CGRect)frame {
     self = [super initWithFrame:frame];
     if(self) {
-        self.mainViewRatio = YYKlineStyleConfig.sharedConfig.kLineMainViewRadio;
-        self.volumeViewRatio = YYKlineStyleConfig.sharedConfig.kLineVolumeViewRadio;
-//        self.indicator1Painter = YYMAPainter.class;
-//        self.indicator2Painter = YYMACDPainter.class;
         self.crossPainter = YYCrossLinePainter.class;
+        self.currentPricePainter = YYCurrentPricelinePainter.class;
         [self initUI];
     }
     return self;
 }
 
 - (void)initUI {
-    self.backgroundColor = YYKlineStyleConfig.sharedConfig.backgroundColor;
+    self.backgroundColor = self.styleConfig.backgroundColor;
     // 主图
     [self initScrollView];
     [self initPainterView];
-//    [self initRightView];
-//    [self initLabel];
     
     //缩放
-    UIPinchGestureRecognizer *pinchGesture = [[UIPinchGestureRecognizer alloc]initWithTarget:self action:@selector(event_pinchMethod:)];
+    pinchGesture = [[UIPinchGestureRecognizer alloc]initWithTarget:self action:@selector(event_pinchMethod:)];
     [_scrollView addGestureRecognizer:pinchGesture];
     
     //长按
@@ -104,6 +95,7 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
     _scrollView = [UIScrollView new];
     _scrollView.showsVerticalScrollIndicator = NO;
     _scrollView.showsHorizontalScrollIndicator = NO;
+    _scrollView.bounces = NO;
     _scrollView.delegate = self;
 
     [self addSubview:_scrollView];
@@ -121,16 +113,6 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
     }];
 }
 
-//- (void)initRightView {
-//    self.rightView = [[UIView alloc] init];
-//    self.rightView.backgroundColor = YYKlineStyleConfig.sharedConfig.assistBackgroundColor;
-//    [self addSubview:self.rightView];
-//    [self.rightView mas_makeConstraints:^(MASConstraintMaker *make) {
-//        make.top.right.bottom.equalTo(self);
-//        make.width.equalTo(@YYKlineLinePriceViewWidth);
-//    }];
-//}
-
 - (void)initTopView {
     self.topView = [UIView new];
     self.topView.backgroundColor = [UIColor clearColor];
@@ -140,44 +122,11 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
     }];
 }
 
-//- (void)initLabel {
-//    UILabel *label1 = [UILabel new];
-//    label1.font = [UIFont systemFontOfSize:10];
-//    [self addSubview:label1];
-//    [label1 mas_makeConstraints:^(MASConstraintMaker *make) {
-//        make.right.equalTo(self);
-//        make.left.equalTo(self);
-//        make.top.equalTo(self).offset(5);
-//        make.height.equalTo(@10);
-//    }];
-//    self.topLabel = label1;
-//
-//    UILabel *label2 = [UILabel new];
-//    label2.font = [UIFont systemFontOfSize:10];
-//    [self addSubview:label2];
-//    [label2 mas_makeConstraints:^(MASConstraintMaker *make) {
-//        make.right.equalTo(self);
-//        make.left.equalTo(self);
-//        make.top.equalTo(self.mas_bottom).multipliedBy(self.mainViewRatio).offset(5);
-//        make.height.equalTo(@10);
-//    }];
-//    self.middleLabel = label2;
-//
-//    UILabel *label3 = [UILabel new];
-//    label3.font = [UIFont systemFontOfSize:10];
-//    [self addSubview:label3];
-//    [label3 mas_makeConstraints:^(MASConstraintMaker *make) {
-//        make.right.equalTo(self);
-//        make.left.equalTo(self);
-//        make.top.equalTo(self.mas_bottom).multipliedBy(self.mainViewRatio + self.volumeViewRatio).offset(5);
-//        make.height.equalTo(@10);
-//    }];
-//    self.bottomLabel = label3;
-//}
-
 #pragma mark 重绘
-- (void)reDraw {
-    YYKlineStyleConfig *config = YYKlineStyleConfig.sharedConfig;
+- (void)reDraw:(CGFloat)currentPrice {
+    currentStockPrice = currentPrice;
+
+    YYKlineStyleConfig *config = self.styleConfig;
     dispatch_main_async_safe(^{
         CGFloat kLineViewWidth = self.rootModel.models.count * config.kLineWidth + (self.rootModel.models.count + 1) * config.kLineGap + 10;
         [self updateScrollViewContentSize];
@@ -190,12 +139,12 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
 }
 
 - (void)calculateNeedDrawModels {
-    YYKlineStyleConfig *config = YYKlineStyleConfig.sharedConfig;
+    YYKlineStyleConfig *config = self.styleConfig;
     CGFloat lineGap = config.kLineGap;
     CGFloat lineWidth = config.kLineWidth;
     
     //数组个数
-    NSInteger needDrawKlineCount = ceil((CGRectGetWidth(self.scrollView.frame))/(lineGap+lineWidth)) + 1;
+    NSInteger needDrawKlineCount = ceil((CGRectGetWidth(self.scrollView.frame)-YYKlineLinePriceViewWidth)/(lineGap+lineWidth)) + 1;
     CGFloat scrollViewOffsetX = self.scrollView.contentOffset.x < 0 ? 0 : self.scrollView.contentOffset.x;
     NSUInteger leftArrCount = floor(scrollViewOffsetX / (lineGap + lineWidth));
     self.needDrawStartIndex = leftArrCount;
@@ -204,13 +153,15 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
     //赋值数组
     if(self.needDrawStartIndex < self.rootModel.models.count) {
         if(self.needDrawStartIndex + needDrawKlineCount < self.rootModel.models.count) {
+            self.rootModel.models.lastObject.isDrawTime = NO;
             arr = [self.rootModel.models subarrayWithRange:NSMakeRange(self.needDrawStartIndex, needDrawKlineCount)];
         } else {
+            self.rootModel.models.lastObject.isDrawTime = YES;
             arr = [self.rootModel.models subarrayWithRange:NSMakeRange(self.needDrawStartIndex, self.rootModel.models.count - self.needDrawStartIndex)];
         }
     }
     
-    [self drawWithModels: arr];
+    [self drawWithModels:arr];
 }
 
 - (void)drawWithModels:(NSArray <YYKlineModel *>*)models {
@@ -220,64 +171,95 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
     
     YYMinMaxModel *minMax = [YYMinMaxModel new];
     minMax.min = 9999999999999.f;
-    [minMax combine:[self.linePainter getMinMaxValue: models]];
-//    if (self.indicator1Painter) {
-//        [minMax combine:[self.indicator1Painter getMinMaxValue: models]];
-//    }
+    [minMax combine:[self.linePainter getMinMaxValue:models]];
 
     // 移除旧layer
     self.painterView.layer.sublayers = nil;
-//    self.rightView.layer.sublayers = nil;
+//    NSMutableArray *sublayers = @[].mutableCopy;
+//    for (CALayer *layer in self.painterView.layer.sublayers) {
+//        if (![layer isKindOfClass:YYCurrentPricelinePainter.class]) {
+//            [sublayers addObject:layer];
+//        }
+//    }
+//    [sublayers makeObjectsPerformSelector:@selector(removeFromSuperlayer)];
 
-    YYKlineStyleConfig *config = YYKlineStyleConfig.sharedConfig;
+    YYKlineStyleConfig *config = self.styleConfig;
+
+    /// 左侧价格Y轴
+    CGRect priceArea = CGRectMake(0, 0, YYKlineLinePriceViewWidth, config.mainAreaHeight);
 
     CGFloat offsetX = models.firstObject.index * (config.kLineWidth + config.kLineGap) - self.scrollView.contentOffset.x;
+    offsetX = MAX(0, offsetX) + priceArea.size.width;
 
-    CGRect mainArea = CGRectMake(offsetX, 0, CGRectGetWidth(self.painterView.bounds), self.mainAreaHeight);
 
+    /// K线图主视图
+    CGRect mainArea = CGRectMake(offsetX, 0, CGRectGetWidth(self.painterView.bounds)-priceArea.size.width, config.mainAreaHeight);
+
+    /// 时间横坐标
     CGRect timelineArea = CGRectMake(offsetX, CGRectGetMaxY(mainArea)+config.mainToTimelineGap, CGRectGetWidth(mainArea), config.timelineAreaHeight);
 
+    /// 成交量视图
     CGRect secondArea = CGRectMake(offsetX, CGRectGetMaxY(timelineArea)+config.timelineToVolumeGap, CGRectGetWidth(mainArea), config.volumeAreaHeight);
 
+    // 左侧价格轴
+    [YYVerticalTextPainter drawToLayer:self.painterView.layer
+                                  area:priceArea
+                           styleConfig:self.styleConfig
+                                minMax:minMax];
 
-//    CGRect thirdArea = CGRectMake(offsetX, CGRectGetMaxY(secondArea) + 20, CGRectGetWidth(mainArea), CGRectGetHeight(self.painterView.bounds) * (1 - self.mainViewRatio - self.volumeViewRatio) - 20);
-    
     // 时间轴
-    [YYTimePainter drawToLayer:self.painterView.layer area:timelineArea models:models minMax:minMax];
-//    // 右侧价格轴
-//    [YYVerticalTextPainter drawToLayer: self.rightView.layer area: CGRectMake(0, 20, YYKlineLinePriceViewWidth, CGRectGetHeight(mainArea)) minMax:minMax];
-//    // 右侧成交量轴
-//    [YYVerticalTextPainter drawToLayer: self.rightView.layer area: CGRectMake(0, CGRectGetMaxY(mainArea)+20, YYKlineLinePriceViewWidth, CGRectGetHeight(secondArea)) minMax:[YYVolPainter getMinMaxValue:models]];
-//    // 右侧副图
-//    [YYVerticalTextPainter drawToLayer: self.rightView.layer area: CGRectMake(0, thirdArea.origin.y, YYKlineLinePriceViewWidth, CGRectGetHeight(thirdArea)) minMax:[YYMACDPainter getMinMaxValue:models]];
+    [YYTimePainter drawToLayer:self.painterView.layer
+                          area:timelineArea
+                   styleConfig:self.styleConfig
+                        models:models
+                        minMax:minMax];
     
     // 主图
-    [self.linePainter drawToLayer: self.painterView.layer area: mainArea models: models minMax: minMax];
-    // 主图指标图
-//    if (self.indicator1Painter) {
-//        [self.indicator1Painter drawToLayer: self.painterView.layer area: mainArea models: models minMax: minMax];
-//    }
+    [self.linePainter drawToLayer:self.painterView.layer
+                             area:mainArea
+                      styleConfig:self.styleConfig
+                           models:models
+                           minMax:minMax];
     // 成交量图
-    [YYVolPainter drawToLayer: self.painterView.layer area: secondArea models:models minMax:[YYVolPainter getMinMaxValue:models]];
-    // 副图指标
-//    [self.indicator2Painter drawToLayer: self.painterView.layer area:thirdArea models:models minMax:[self.indicator2Painter getMinMaxValue:models]];
-    // 文字
-//    [self updateLabelText: models.lastObject];
+    [YYVolPainter drawToLayer:self.painterView.layer
+                         area:secondArea
+                  styleConfig:self.styleConfig
+                       models:models
+                       minMax:[YYVolPainter getMinMaxValue:models]];
+
+    /// 当前价格横线
+    if (currentStockPrice > minMax.min && currentStockPrice < minMax.max) {
+        // current < min or current > max 不显示
+        CGRect currentPriceLineArea = CGRectMake(YYKlineLinePriceViewWidth, 0, CGRectGetWidth(self.painterView.bounds)-YYKlineLinePriceViewWidth, config.mainAreaHeight);
+        [self.currentPricePainter drawToLayer:self.painterView.layer
+                                         area:currentPriceLineArea
+                                  styleConfig:self.styleConfig
+                                       models:models
+                                       minMax:minMax
+                                      current:currentStockPrice];
+    }
+}
+
+#pragma mark -  禁用滚动和缩放
+- (void)enableScrollAndZoom:(BOOL)enable {
+    self.scrollView.scrollEnabled = enable;
+    pinchGesture.enabled = enable;
 }
 
 #pragma mark 长按手势执行方法
 - (void)event_longPressMethod:(UILongPressGestureRecognizer *)longPress {
     static CGFloat oldPositionX = 0;
-    YYKlineStyleConfig *config = YYKlineStyleConfig.sharedConfig;
+    YYKlineStyleConfig *config = self.styleConfig;
     if(UIGestureRecognizerStateChanged == longPress.state || UIGestureRecognizerStateBegan == longPress.state) {
         CGPoint location = [longPress locationInView:self.scrollView];
-        if(ABS(oldPositionX - location.x) < (config.kLineWidth + config.kLineGap)/2) {
+        CGFloat locationX = location.x;
+        if(ABS(oldPositionX - locationX) < (config.kLineWidth + config.kLineGap)/2) {
             return;
         }
         // 暂停滑动
         self.scrollView.scrollEnabled = NO;
-        oldPositionX = location.x;
-        NSInteger idx = ABS(floor(location.x / (config.kLineWidth + config.kLineGap)));
+        oldPositionX = locationX;
+        NSInteger idx = ABS(floor(locationX / (config.kLineWidth + config.kLineGap)));
         idx = MIN(idx, self.rootModel.models.count - 1);
 
         YYKlineModel *model =  self.rootModel.models[idx];
@@ -290,10 +272,11 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
         }
         self.topView.layer.sublayers = nil;
 
-        CGRect mainArea = CGRectMake(0, 0, CGRectGetWidth(self.painterView.bounds), self.mainAreaHeight+config.mainToTimelineGap+config.timelineAreaHeight+config.timelineToVolumeGap+config.volumeAreaHeight);
+        CGRect mainArea = CGRectMake(0, 0, CGRectGetWidth(self.painterView.bounds), config.mainAreaHeight+config.mainToTimelineGap+config.timelineAreaHeight+config.timelineToVolumeGap+config.volumeAreaHeight);
 
         // vertical line start x
         CGFloat offsetX = idx * (config.kLineWidth + config.kLineGap) + (config.kLineWidth-config.kLineGap)/2.f - self.scrollView.contentOffset.x;
+        offsetX = MAX(0, offsetX) + YYKlineLinePriceViewWidth;
 //        CGFloat offsetY = 0;
         CGPoint crossLineCenterPoint = CGPointZero;
         if ([self.linePainter.class isSubclassOfClass:YYCandlePainter.class]) {
@@ -306,9 +289,10 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
         [self.crossPainter drawToLayer:self.topView.layer
                                  point:crossLineCenterPoint
                                   area:mainArea
-                              leftText:[[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@"%.0f", model.Volume.floatValue] attributes:attributes]
+                           styleConfig:self.styleConfig
+                              leftText:[[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@"%.2f", model.Open.floatValue] attributes:attributes]
                              rightText:[[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@"%@", model.changePercent] attributes:attributes]
-                              downText:[[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@"%@", model.V_Date] attributes:attributes]];
+                              downText:[[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@"%@", model.drawTime] attributes:attributes]];
     }
     
     if(longPress.state == UIGestureRecognizerStateEnded ||
@@ -329,7 +313,7 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
 
 #pragma mark 缩放执行方法
 - (void)event_pinchMethod:(UIPinchGestureRecognizer *)pinch {
-    YYKlineStyleConfig *config = YYKlineStyleConfig.sharedConfig;
+    YYKlineStyleConfig *config = self.styleConfig;
 
     if (pinch.state == UIGestureRecognizerStateBegan) {
         self.scrollView.scrollEnabled = NO;
@@ -373,7 +357,7 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
         oldScale = pinch.scale;
         NSInteger idx = self.pinchIndex - floor(self.pinchCenterX / (config.kLineGap + config.kLineWidth));
         CGFloat offset = idx * (config.kLineGap + config.kLineWidth);
-        [self.rootModel calculateNeedDrawTimeModel];
+//        [self.rootModel calculateNeedDrawTimeModel];
         [self updateScrollViewContentSize];
         self.scrollView.contentOffset = CGPointMake(offset, 0);
         // scrollview的contentsize小于frame时，不会触发scroll代理，需要手动调用
@@ -387,17 +371,10 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
     if (self.delegate && [self.delegate respondsToSelector:@selector(yyklineviewUpdateText:)]) {
         [self.delegate yyklineviewUpdateText:m];
     }
-//    if (self.indicator1Painter) {
-//        self.topLabel.attributedText = [self.indicator1Painter getText: m];
-//    } else {
-//        self.topLabel.attributedText = m.V_Price;
-//    }
-//    self.middleLabel.attributedText = m.V_Volume;
-//    self.bottomLabel.attributedText = [self.indicator2Painter getText: m];
 }
 
 - (void)updateScrollViewContentSize {
-    YYKlineStyleConfig *config = YYKlineStyleConfig.sharedConfig;
+    YYKlineStyleConfig *config = self.styleConfig;
     CGFloat contentSizeW = self.rootModel.models.count * config.kLineWidth + (self.rootModel.models.count -1) * config.kLineGap;
     self.scrollView.contentSize = CGSizeMake(contentSizeW, self.scrollView.contentSize.height);
 }

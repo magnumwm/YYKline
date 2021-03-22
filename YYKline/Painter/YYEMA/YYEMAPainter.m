@@ -23,7 +23,11 @@
     return [YYMinMaxModel modelWithMin:minAssert max:maxAssert];
 }
 
-+ (void)drawToLayer:(CALayer *)layer area:(CGRect)area models:(NSArray <YYKlineModel *> *)models minMax: (YYMinMaxModel *)minMaxModel {
++ (void)drawToLayer:(CALayer *)layer
+               area:(CGRect)area
+        styleConfig:(YYKlineStyleConfig *)config
+             models:(NSArray <YYKlineModel *> *)models
+             minMax: (YYMinMaxModel *)minMaxModel {
     if(!models) {
         return;
     }
@@ -31,7 +35,6 @@
     CGFloat unitValue = maxH/minMaxModel.distance;
     
     YYEMAPainter *sublayer = [[YYEMAPainter alloc] init];
-    YYKlineStyleConfig *config = YYKlineStyleConfig.sharedConfig;
     sublayer.frame = area;
     UIBezierPath *path1 = [UIBezierPath bezierPath];
     UIBezierPath *path2 = [UIBezierPath bezierPath];

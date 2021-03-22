@@ -30,6 +30,7 @@
 #import "YYVerticalTextPainter.h"
 #import "YYVolPainter.h"
 #import "YYWRPainter.h"
+#import "YYCurrentPricelinePainter.h"
 #import "YYKlineView.h"
 
 #endif /* YYKline_h */

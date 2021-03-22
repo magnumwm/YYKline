@@ -9,7 +9,7 @@
 #import "YYKlineStyleConfig.h"
 
 @implementation YYKlineRootModel
-+ (instancetype) objectWithArray:(NSArray *)arr {
++ (instancetype)objectWithArray:(NSArray *)arr{
     NSAssert([arr isKindOfClass:[NSArray class]], @"arr不是一个数组，请检查返回数据类型并手动适配");
     YYKlineRootModel *groupModel = [YYKlineRootModel new];
     NSMutableArray *mArr = @[].mutableCopy;
@@ -18,34 +18,28 @@
         NSArray *item = arr[i];
         YYKlineModel *model = [YYKlineModel new];
         model.index = index;
-        model.Timestamp = item[5];
-        model.Open = item[0];
-        model.High = item[2];
-        model.Low = item[3];
-        model.Close = item[1];
-        model.Volume = item[4];
         model.PrevModel = mArr.lastObject;
+        model.Timestamp = item[5];
+        model.drawTime = model.V_Date;
+        // value为NSNull时设置成上一个model的值
+        model.Open = [item[0] isKindOfClass:NSNull.class] ? model.PrevModel.Close : item[0];
+        model.High = [item[2] isKindOfClass:NSNull.class] ? model.PrevModel.High : item[2];
+        model.Low = [item[3] isKindOfClass:NSNull.class] ? model.PrevModel.Low : item[3];
+        model.Close = [item[1] isKindOfClass:NSNull.class] ? model.PrevModel.Close : item[1];
+        model.Volume = [item[4] isKindOfClass:NSNull.class] ? model.PrevModel.Volume : item[4];
+
         [mArr addObject:model];
         index++;
     }
     groupModel.models = mArr;
-    [groupModel calculateIndicators:YYKlineIncicatorMACD];
-    [groupModel calculateIndicators:YYKlineIncicatorMA];
-    [groupModel calculateIndicators:YYKlineIncicatorKDJ];
-    [groupModel calculateIndicators:YYKlineIncicatorRSI];
-    [groupModel calculateIndicators:YYKlineIncicatorBOLL];
-    [groupModel calculateIndicators:YYKlineIncicatorWR];
-    [groupModel calculateIndicators:YYKlineIncicatorEMA];
-    [groupModel calculateNeedDrawTimeModel];
+//    [groupModel calculateIndicators:YYKlineIncicatorMACD];
+//    [groupModel calculateIndicators:YYKlineIncicatorMA];
+//    [groupModel calculateIndicators:YYKlineIncicatorKDJ];
+//    [groupModel calculateIndicators:YYKlineIncicatorRSI];
+//    [groupModel calculateIndicators:YYKlineIncicatorBOLL];
+//    [groupModel calculateIndicators:YYKlineIncicatorWR];
+//    [groupModel calculateIndicators:YYKlineIncicatorEMA];
     return groupModel;
-}
-
-- (void)calculateNeedDrawTimeModel {
-    YYKlineStyleConfig *config = YYKlineStyleConfig.sharedConfig;
-    NSInteger gap = 50 / config.kLineWidth + config.kLineGap;
-    for (int i = 1; i < self.models.count; i++) {
-        self.models[i].isDrawTime = i % gap == 0;
-    }
 }
 
 - (void)calculateIndicators:(YYKlineIncicator)key {

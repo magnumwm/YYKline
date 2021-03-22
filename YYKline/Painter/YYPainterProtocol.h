@@ -9,6 +9,7 @@
 #define YYPainter_h
 #import "YYMinMaxModel.h"
 #import "YYKlineModel.h"
+#import "YYKlineStyleConfig.h"
 
 @class YYMinMaxModel;
 
@@ -16,7 +17,11 @@
 
 @required
 // 绘制
-+ (void)drawToLayer:(CALayer *)layer area:(CGRect)area models:(NSArray <YYKlineModel *> *)models minMax: (YYMinMaxModel *)minMaxModel;
++ (void)drawToLayer:(CALayer *)layer
+               area:(CGRect)area
+        styleConfig:(YYKlineStyleConfig *)config
+             models:(NSArray <YYKlineModel *> *)models
+             minMax: (YYMinMaxModel *)minMaxModel;
 
 @optional
 // 获取边界值
@@ -28,7 +33,10 @@
 @end
 
 @protocol YYVerticalTextPainterProtocol <NSObject>
-+ (void)drawToLayer:(CALayer *)layer area:(CGRect)area minMax: (YYMinMaxModel *)minMaxModel;
++ (void)drawToLayer:(CALayer *)layer
+               area:(CGRect)area
+        styleConfig:(YYKlineStyleConfig *)config
+             minMax:(YYMinMaxModel *)minMaxModel;
 @end
 
 @protocol YYCrossLinePainterProtocol <NSObject>
@@ -36,6 +44,7 @@
 + (void)drawToLayer:(CALayer *)layer
               point:(CGPoint)point
                area:(CGRect)area
+        styleConfig:(YYKlineStyleConfig *)config
            leftText:(NSAttributedString *)leftText
           rightText:(NSAttributedString *)rightText
            downText:(NSAttributedString *)downText;
@@ -43,6 +52,17 @@
 @optional
 // 获取边界值
 + (YYMinMaxModel *)getMinMaxValue:(YYKlineModel *)data;
+@end
+
+@protocol YYCurrentPricePainterProtocol <NSObject>
+
+// 绘制
++ (void)drawToLayer:(CALayer *)layer
+               area:(CGRect)area
+        styleConfig:(YYKlineStyleConfig *)config
+             models:(NSArray <YYKlineModel *> *)models
+             minMax:(YYMinMaxModel *)minMaxModel
+            current:(CGFloat)price;
 @end
 
 #endif /* YYPainter_h */

@@ -23,7 +23,11 @@
     return [YYMinMaxModel modelWithMin:minAssert max:maxAssert];
 }
 
-+ (void)drawToLayer:(CALayer *)layer area:(CGRect)area models:(NSArray <YYKlineModel *> *)models minMax: (YYMinMaxModel *)minMaxModel {
++ (void)drawToLayer:(CALayer *)layer
+               area:(CGRect)area
+        styleConfig:(YYKlineStyleConfig *)config
+             models:(NSArray <YYKlineModel *> *)models
+             minMax: (YYMinMaxModel *)minMaxModel {
     if(!models) {
         return;
     }
@@ -32,7 +36,6 @@
     
     __block CGPoint pointStart, pointEnd;
     YYTimelinePainter *sublayer = [[YYTimelinePainter alloc] init];
-    YYKlineStyleConfig *config = YYKlineStyleConfig.sharedConfig;
     sublayer.frame = area;
     UIBezierPath *path1 = [UIBezierPath bezierPath];
     [models enumerateObjectsUsingBlock:^(YYKlineModel * _Nonnull m, NSUInteger idx, BOOL * _Nonnull stop) {

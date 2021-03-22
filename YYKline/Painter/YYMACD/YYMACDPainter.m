@@ -20,7 +20,11 @@
     return [YYMinMaxModel modelWithMin:-maxAssert max:maxAssert];
 }
 
-+ (void)drawToLayer:(CALayer *)layer area:(CGRect)area models:(NSArray <YYKlineModel *> *)models minMax: (YYMinMaxModel *)minMaxModel {
++ (void)drawToLayer:(CALayer *)layer
+               area:(CGRect)area
+        styleConfig:(YYKlineStyleConfig *)config
+             models:(NSArray <YYKlineModel *> *)models
+             minMax: (YYMinMaxModel *)minMaxModel {
     if(!models) {
         return;
     }
@@ -28,7 +32,6 @@
     CGFloat unitValue = maxH/minMaxModel.distance;
     
     YYMACDPainter *sublayer = [[YYMACDPainter alloc] init];
-    YYKlineStyleConfig *config = YYKlineStyleConfig.sharedConfig;
     sublayer.frame = area;
     [layer addSublayer:sublayer];
     

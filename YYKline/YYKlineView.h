@@ -24,11 +24,15 @@
 
 @property(nonatomic, strong) YYKlineRootModel *rootModel; // 数据
 
-@property (nonatomic) Class <YYPainterProtocol> linePainter;
+@property (nonatomic) Class<YYPainterProtocol> linePainter;
 //@property (nonatomic) Class <YYPainterProtocol> indicator1Painter;
 //@property (nonatomic) Class <YYPainterProtocol> indicator2Painter;
-@property (nonatomic) Class <YYCrossLinePainterProtocol> crossPainter;
+@property (nonatomic) Class<YYCrossLinePainterProtocol> crossPainter;
+@property (nonatomic) Class<YYCurrentPricePainterProtocol> currentPricePainter;
 
-- (instancetype)initWithMainAreaHeight:(CGFloat)mainAreaHeight;
-- (void)reDraw; // 重绘
+- (instancetype)initWithStyleConfig:(YYKlineStyleConfig *)config;
+/// 重绘
+- (void)reDraw:(CGFloat)currentPrice;
+/// 分时/五日不能滚动，日K/周K等可以滚动和缩放
+- (void)enableScrollAndZoom:(BOOL)enable;
 @end

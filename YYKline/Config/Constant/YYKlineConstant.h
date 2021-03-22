@@ -13,7 +13,7 @@
 /**
  *  K线图Y的View的宽度
  */
-#define YYKlineLinePriceViewWidth 47
+#define YYKlineLinePriceViewWidth 30
 
 /**
  *  K线最大的宽度

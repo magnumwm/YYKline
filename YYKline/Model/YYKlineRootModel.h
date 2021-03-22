@@ -22,7 +22,7 @@ typedef NS_ENUM(NSInteger, YYKlineIncicator) {
 
 @interface YYKlineRootModel : NSObject
 
-+ (instancetype) objectWithArray:(NSArray *)arr;
++ (instancetype)objectWithArray:(NSArray *)arr;
 
 @property (nonatomic, copy) NSArray<YYKlineModel *> *models;
 

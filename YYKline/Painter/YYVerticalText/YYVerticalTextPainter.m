@@ -9,17 +9,19 @@
 #import "YYKlineStyleConfig.h"
 
 @implementation YYVerticalTextPainter
-+ (void)drawToLayer:(CALayer *)layer area:(CGRect)area minMax: (YYMinMaxModel *)minMaxModel {
++ (void)drawToLayer:(CALayer *)layer
+               area:(CGRect)area
+        styleConfig:(YYKlineStyleConfig *)config
+             minMax: (YYMinMaxModel *)minMaxModel {
     CGFloat maxH = CGRectGetHeight(area);
     if (maxH <= 0) {
         return;
     }
 
     YYVerticalTextPainter *sublayer = [[YYVerticalTextPainter alloc] init];
-//    YYKlineStyleConfig *config = YYKlineStyleConfig.sharedConfig;
     sublayer.frame = area;
     [layer addSublayer:sublayer];
-    
+
     // 数字40只是一个magic数字，没啥特殊意义
     NSInteger count = maxH/40;
     count++;
@@ -41,9 +43,10 @@
             text = [NSString stringWithFormat:@"%.3f", number];
         }
         layer.string = text;
-        layer.alignmentMode = kCAAlignmentCenter;
-        layer.fontSize = 11.f;
-        layer.foregroundColor = UIColor.grayColor.CGColor;
+        layer.alignmentMode = kCAAlignmentLeft;
+        layer.font = (__bridge CFTypeRef _Nullable)(config.timelineFontName);
+        layer.fontSize = config.timelineFont.pointSize;
+        layer.foregroundColor = config.timeLineColor.CGColor;
         layer.frame = CGRectMake(0, i*textGap, CGRectGetWidth(area), lineH);
         layer.contentsScale = UIScreen.mainScreen.scale;
         [sublayer addSublayer:layer];

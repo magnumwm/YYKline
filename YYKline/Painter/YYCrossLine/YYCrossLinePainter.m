@@ -23,6 +23,7 @@
 + (void)drawToLayer:(CALayer *)layer
               point:(CGPoint)point
                area:(CGRect)area
+        styleConfig:(YYKlineStyleConfig *)config
            leftText:(NSAttributedString *)leftText
           rightText:(NSAttributedString *)rightText
            downText:(NSAttributedString *)downText {
@@ -30,7 +31,6 @@
     CGFloat maxH = CGRectGetHeight(area);
 
     YYCrossLinePainter *sublayer = [[YYCrossLinePainter alloc] init];
-    YYKlineStyleConfig *config = YYKlineStyleConfig.sharedConfig;
     sublayer.frame = area;
 
     // 画 vertical line

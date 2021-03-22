@@ -14,6 +14,13 @@
     if(!data) {
         return [YYMinMaxModel new];
     }
+//    if (!data[0] ||
+//        [data[0].Low isKindOfClass:NSNull.class] ||
+//        [data[0].High isKindOfClass:NSNull.class] ||
+//        [data[0].Open isKindOfClass:NSNull.class] ||
+//        [data[0].Close isKindOfClass:NSNull.class]) {
+//        NSLog(@"data error: %@", data);
+//    }
     __block CGFloat minAssert = data[0].Low.floatValue;
     __block CGFloat maxAssert = data[0].High.floatValue;
     [data enumerateObjectsUsingBlock:^(YYKlineModel * _Nonnull m, NSUInteger idx, BOOL * _Nonnull stop) {
@@ -23,7 +30,11 @@
     return [YYMinMaxModel modelWithMin:minAssert max:maxAssert];
 }
 
-+ (void)drawToLayer:(CALayer *)layer area:(CGRect)area models:(NSArray <YYKlineModel *> *)models minMax: (YYMinMaxModel *)minMaxModel {
++ (void)drawToLayer:(CALayer *)layer
+               area:(CGRect)area
+        styleConfig:(YYKlineStyleConfig *)config
+             models:(NSArray <YYKlineModel *> *)models
+             minMax: (YYMinMaxModel *)minMaxModel {
     if(!models) {
         return;
     }
@@ -31,10 +42,17 @@
     CGFloat unitValue = maxH/minMaxModel.distance;
 
     YYCandlePainter *sublayer = [[YYCandlePainter alloc] init];
-    YYKlineStyleConfig *config = YYKlineStyleConfig.sharedConfig;
     sublayer.frame = area;
     sublayer.contentsScale = UIScreen.mainScreen.scale;
-    [models enumerateObjectsUsingBlock:^(YYKlineModel * _Nonnull m, NSUInteger idx, BOOL * _Nonnull stop) {        
+    [models enumerateObjectsUsingBlock:^(YYKlineModel * _Nonnull m, NSUInteger idx, BOOL * _Nonnull stop) {
+//        if (!m ||
+//            [m.Low isKindOfClass:NSNull.class] ||
+//            [m.High isKindOfClass:NSNull.class] ||
+//            [m.Open isKindOfClass:NSNull.class] ||
+//            [m.Close isKindOfClass:NSNull.class]) {
+//            NSLog(@"data error: %@", m);
+//        }
+
         CGFloat w = config.kLineWidth;
         CGFloat x = idx * (w + config.kLineGap);
         CGFloat centerX = x+w/2.f-config.kLineGap/2.f;

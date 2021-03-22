@@ -14,7 +14,7 @@
     if (!_V_Date) {
         NSDate *date = [NSDate dateWithTimeIntervalSince1970:_Timestamp.doubleValue];
         NSDateFormatter *formatter = [[NSDateFormatter alloc]init];
-        formatter.dateFormat = @"yyyy-MM-dd HH:mm";
+        formatter.dateFormat = @"MM-dd";
         NSString *dateStr = [formatter stringFromDate:date];
         _V_Date = dateStr;
     }
@@ -212,10 +212,7 @@
 }
 
 - (BOOL)isUp {
-    if (self.Close.floatValue == self.Open.floatValue) {
-        return YES;
-    }
-    return self.Close.floatValue > self.Open.floatValue;
+    return self.Close.floatValue >= self.Open.floatValue;
 }
 
 - (NSString *)changePercent {
