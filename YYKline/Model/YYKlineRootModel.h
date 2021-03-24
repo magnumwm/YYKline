@@ -24,6 +24,9 @@ typedef NS_ENUM(NSInteger, YYKlineIncicator) {
 
 + (instancetype)objectWithArray:(NSArray *)arr;
 
+/// 股市类型：HK, US, CN
+@property (nonatomic, copy) NSString *marketType;
+/// 包含分时数据或者K线数据 
 @property (nonatomic, copy) NSArray<YYKlineModel *> *models;
 
 - (void)calculateIndicators:(YYKlineIncicator)key;

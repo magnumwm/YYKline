@@ -9,7 +9,7 @@
 #import "YYPainterProtocol.h"
 NS_ASSUME_NONNULL_BEGIN
 
-@interface YYTimelinePainter : CALayer <YYPainterProtocol>
+@interface YYTimelinePainter : CALayer <YYTimelinePainterProtocol>
 
 @end
 

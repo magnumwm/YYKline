@@ -29,6 +29,7 @@
 {
     UIPinchGestureRecognizer *pinchGesture;
     CGFloat currentStockPrice;
+    Class currentPainter;
 }
 @property (nonatomic, strong) UIScrollView *scrollView;
 @property (nonatomic, strong) UIView *painterView;
@@ -43,7 +44,10 @@
 @property (nonatomic, assign) CGFloat oldScale; // 旧的缩放值，捏合
 @property (nonatomic, weak) MASConstraint *painterViewXConstraint;
 
-@property (nonatomic, strong) YYKlineStyleConfig *styleConfig;
+@property (nonatomic) Class<YYPainterProtocol> linePainter;
+@property (nonatomic) Class<YYTimelinePainterProtocol> timelinePainter;
+@property (nonatomic) Class<YYCrossLinePainterProtocol> crossPainter;
+@property (nonatomic) Class<YYCurrentPricePainterProtocol> currentPricePainter;
 @end
 
 @implementation YYKlineView
@@ -58,6 +62,8 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
     self = [super initWithFrame:CGRectZero];
     if(self) {
         self.styleConfig = config;
+        self.linePainter = YYCandlePainter.class;
+        self.timelinePainter = YYTimelinePainter.class;
         self.crossPainter = YYCrossLinePainter.class;
         self.currentPricePainter = YYCurrentPricelinePainter.class;
         [self initUI];
@@ -69,6 +75,8 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
 - (instancetype)initWithFrame:(CGRect)frame {
     self = [super initWithFrame:frame];
     if(self) {
+        self.linePainter = YYCandlePainter.class;
+        self.timelinePainter = YYTimelinePainter.class;
         self.crossPainter = YYCrossLinePainter.class;
         self.currentPricePainter = YYCurrentPricelinePainter.class;
         [self initUI];
@@ -122,8 +130,13 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
     }];
 }
 
+- (void)resetContentOffset {
+    self.oldContentOffsetX = 0;
+}
+
 #pragma mark 重绘
-- (void)reDraw:(CGFloat)currentPrice {
+- (void)reDrawCandle:(CGFloat)currentPrice {
+    currentPainter = self.linePainter;
     currentStockPrice = currentPrice;
 
     YYKlineStyleConfig *config = self.styleConfig;
@@ -131,10 +144,22 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
         CGFloat kLineViewWidth = self.rootModel.models.count * config.kLineWidth + (self.rootModel.models.count + 1) * config.kLineGap + 10;
         [self updateScrollViewContentSize];
         CGFloat offset = kLineViewWidth - self.scrollView.frame.size.width;
-        self.scrollView.contentOffset = CGPointMake(MAX(offset, 0), 0);
-        if (offset == self.oldContentOffsetX) {
-            [self calculateNeedDrawModels];
+        if (self.oldContentOffsetX == 0) {
+            // 初始展示最新日期的数据
+            self.scrollView.contentOffset = CGPointMake(MAX(offset, 0), 0);
         }
+//        if (offset == self.oldContentOffsetX) {
+            [self calculateNeedDrawModels];
+//        }
+    });
+}
+
+- (void)reDrawTimeline:(CGFloat)currentPrice {
+    currentPainter = self.timelinePainter;
+    currentStockPrice = currentPrice;
+
+    dispatch_main_async_safe(^{
+        [self drawWithModels:self.rootModel.models timeline:YES];
     });
 }
 
@@ -144,27 +169,49 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
     CGFloat lineWidth = config.kLineWidth;
     
     //数组个数
-    NSInteger needDrawKlineCount = ceil((CGRectGetWidth(self.scrollView.frame)-YYKlineLinePriceViewWidth)/(lineGap+lineWidth)) + 1;
+    NSInteger needDrawKlineCount = ceil((CGRectGetWidth(self.scrollView.frame))/(lineGap+lineWidth)) + 1;
     CGFloat scrollViewOffsetX = self.scrollView.contentOffset.x < 0 ? 0 : self.scrollView.contentOffset.x;
     NSUInteger leftArrCount = floor(scrollViewOffsetX / (lineGap + lineWidth));
     self.needDrawStartIndex = leftArrCount;
-    
+
     NSArray *arr;
     //赋值数组
     if(self.needDrawStartIndex < self.rootModel.models.count) {
         if(self.needDrawStartIndex + needDrawKlineCount < self.rootModel.models.count) {
-            self.rootModel.models.lastObject.isDrawTime = NO;
             arr = [self.rootModel.models subarrayWithRange:NSMakeRange(self.needDrawStartIndex, needDrawKlineCount)];
         } else {
-            self.rootModel.models.lastObject.isDrawTime = YES;
             arr = [self.rootModel.models subarrayWithRange:NSMakeRange(self.needDrawStartIndex, self.rootModel.models.count - self.needDrawStartIndex)];
         }
     }
-    
-    [self drawWithModels:arr];
+
+    [self drawWithModels:arr timeline:NO];
 }
 
-- (void)drawWithModels:(NSArray <YYKlineModel *>*)models {
+- (NSArray<NSString *> *)getDrawableTimestamps:(NSArray<YYKlineModel*> *)models timeline:(BOOL)isTimeline {
+    if (isTimeline) {
+        // 绘制分时时间轴坐标需要根据当前RootModel的MarketType决定
+        NSString *type = self.rootModel.marketType;
+        if ([type isEqualToString:@"HK"]) {
+            // 9:30, 12:00pm, 4:00pm
+            return @[@"9:30", @"12:00/1:00", @"4:00"];
+        } else if ([type isEqualToString:@"US"]) {
+            return @[@"9:30", @"12:00/1:00", @"4:00"];
+        } else {
+            // CN
+            // 9:30, 11:30am, 3:00pm
+            return @[@"9:30", @"11:30/1:00", @"3:00"];
+        }
+    } else {
+        // K线图的时间轴坐标根据第一个和最后一个时间戳四等分
+        return @[models.firstObject.drawTime, models.lastObject.drawTime];
+    }
+    return @[];
+}
+
+/// 绘制layer
+/// @param models 绘制的模型数据数组
+/// @param isTimeline 是否绘制分时
+- (void)drawWithModels:(NSArray <YYKlineModel *>*)models timeline:(BOOL)isTimeline{
     if (models.count <= 0) {
         return;
     }
@@ -175,13 +222,6 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
 
     // 移除旧layer
     self.painterView.layer.sublayers = nil;
-//    NSMutableArray *sublayers = @[].mutableCopy;
-//    for (CALayer *layer in self.painterView.layer.sublayers) {
-//        if (![layer isKindOfClass:YYCurrentPricelinePainter.class]) {
-//            [sublayers addObject:layer];
-//        }
-//    }
-//    [sublayers makeObjectsPerformSelector:@selector(removeFromSuperlayer)];
 
     YYKlineStyleConfig *config = self.styleConfig;
 
@@ -189,11 +229,11 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
     CGRect priceArea = CGRectMake(0, 0, YYKlineLinePriceViewWidth, config.mainAreaHeight);
 
     CGFloat offsetX = models.firstObject.index * (config.kLineWidth + config.kLineGap) - self.scrollView.contentOffset.x;
-    offsetX = MAX(0, offsetX) + priceArea.size.width;
+    offsetX = MAX(0, offsetX);
 
 
     /// K线图主视图
-    CGRect mainArea = CGRectMake(offsetX, 0, CGRectGetWidth(self.painterView.bounds)-priceArea.size.width, config.mainAreaHeight);
+    CGRect mainArea = CGRectMake(offsetX, 0, CGRectGetWidth(self.painterView.bounds), config.mainAreaHeight);
 
     /// 时间横坐标
     CGRect timelineArea = CGRectMake(offsetX, CGRectGetMaxY(mainArea)+config.mainToTimelineGap, CGRectGetWidth(mainArea), config.timelineAreaHeight);
@@ -211,15 +251,37 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
     [YYTimePainter drawToLayer:self.painterView.layer
                           area:timelineArea
                    styleConfig:self.styleConfig
-                        models:models
-                        minMax:minMax];
+                    timestamps:[self getDrawableTimestamps:models timeline:isTimeline]];
     
-    // 主图
-    [self.linePainter drawToLayer:self.painterView.layer
-                             area:mainArea
-                      styleConfig:self.styleConfig
-                           models:models
-                           minMax:minMax];
+    if (isTimeline) {
+        // 分时主图
+        [self.timelinePainter drawToLayer:self.painterView.layer
+                                     area:mainArea
+                              styleConfig:self.styleConfig
+                                    total:self.styleConfig.timelineTotalCount
+                                   models:models
+                                   minMax:minMax];
+
+        /// 当前基准横线，绘制的是昨收盘价
+        if (currentStockPrice > minMax.min && currentStockPrice < minMax.max) {
+            // current < min or current > max 不显示
+            CGRect currentPriceLineArea = CGRectMake(0, 0, CGRectGetWidth(self.painterView.bounds), config.mainAreaHeight);
+            [self.currentPricePainter drawToLayer:self.painterView.layer
+                                             area:currentPriceLineArea
+                                      styleConfig:self.styleConfig
+                                           models:models
+                                           minMax:minMax
+                                          current:currentStockPrice];
+        }
+    } else {
+        // candle主图
+        [self.linePainter drawToLayer:self.painterView.layer
+                                 area:mainArea
+                          styleConfig:self.styleConfig
+                               models:models
+                               minMax:minMax];
+    }
+
     // 成交量图
     [YYVolPainter drawToLayer:self.painterView.layer
                          area:secondArea
@@ -227,17 +289,6 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
                        models:models
                        minMax:[YYVolPainter getMinMaxValue:models]];
 
-    /// 当前价格横线
-    if (currentStockPrice > minMax.min && currentStockPrice < minMax.max) {
-        // current < min or current > max 不显示
-        CGRect currentPriceLineArea = CGRectMake(YYKlineLinePriceViewWidth, 0, CGRectGetWidth(self.painterView.bounds)-YYKlineLinePriceViewWidth, config.mainAreaHeight);
-        [self.currentPricePainter drawToLayer:self.painterView.layer
-                                         area:currentPriceLineArea
-                                  styleConfig:self.styleConfig
-                                       models:models
-                                       minMax:minMax
-                                      current:currentStockPrice];
-    }
 }
 
 #pragma mark -  禁用滚动和缩放
@@ -252,17 +303,28 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
     YYKlineStyleConfig *config = self.styleConfig;
     if(UIGestureRecognizerStateChanged == longPress.state || UIGestureRecognizerStateBegan == longPress.state) {
         CGPoint location = [longPress locationInView:self.scrollView];
-        CGFloat locationX = location.x;
-        if(ABS(oldPositionX - locationX) < (config.kLineWidth + config.kLineGap)/2) {
-            return;
-        }
+//        location = CGPointMake(location.x - YYKlineLinePriceViewWidth, location.y);
+        
+//        NSLog(@"location x:%f, scroll offset: %f", location.x, self.scrollView.contentOffset.x);
+//        if (location.x <= self.scrollView.contentOffset.x || location.x >= self.scrollView.contentSize.width) {
+//            return;
+//        }
         // 暂停滑动
         self.scrollView.scrollEnabled = NO;
-        oldPositionX = locationX;
-        NSInteger idx = ABS(floor(locationX / (config.kLineWidth + config.kLineGap)));
-        idx = MIN(idx, self.rootModel.models.count - 1);
 
-        YYKlineModel *model =  self.rootModel.models[idx];
+        CGRect mainArea = CGRectMake(0, 0, CGRectGetWidth(self.painterView.bounds), config.mainAreaHeight+config.mainToTimelineGap+config.timelineAreaHeight+config.timelineToVolumeGap+config.volumeAreaHeight);
+
+        YYKlineModel *model;
+        CGPoint crossLineCenterPoint;
+        if ([currentPainter isSubclassOfClass:YYCandlePainter.class]) {
+            model = [YYCandlePainter getKlineModel:location area:mainArea styleConfig:config models:self.rootModel.models];//self.rootModel.models[idx];
+            crossLineCenterPoint = model.candleCrossLineCenterPoint;
+        } else if([currentPainter isSubclassOfClass:YYTimelinePainter.class]) {
+            model = [YYTimelinePainter getKlineModel:location area:mainArea total:config.timelineTotalCount models:self.rootModel.models];
+            crossLineCenterPoint = model.timelineCrossLineCenterPoint;
+        } else {
+            return;
+        }
 
         [self updateLabelText:model];
 
@@ -272,19 +334,7 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
         }
         self.topView.layer.sublayers = nil;
 
-        CGRect mainArea = CGRectMake(0, 0, CGRectGetWidth(self.painterView.bounds), config.mainAreaHeight+config.mainToTimelineGap+config.timelineAreaHeight+config.timelineToVolumeGap+config.volumeAreaHeight);
 
-        // vertical line start x
-        CGFloat offsetX = idx * (config.kLineWidth + config.kLineGap) + (config.kLineWidth-config.kLineGap)/2.f - self.scrollView.contentOffset.x;
-        offsetX = MAX(0, offsetX) + YYKlineLinePriceViewWidth;
-//        CGFloat offsetY = 0;
-        CGPoint crossLineCenterPoint = CGPointZero;
-        if ([self.linePainter.class isSubclassOfClass:YYCandlePainter.class]) {
-            crossLineCenterPoint = model.candleCrossLineCenterPoint;
-        } else if([self.linePainter.class isSubclassOfClass:YYTimelinePainter.class]) {
-            crossLineCenterPoint = model.timelineCrossLineCenterPoint;
-        }
-        crossLineCenterPoint.x = offsetX;
         NSDictionary *attributes = @{NSForegroundColorAttributeName: config.crossLineTextColor, NSFontAttributeName: config.crosslineTextFont};
         [self.crossPainter drawToLayer:self.topView.layer
                                  point:crossLineCenterPoint

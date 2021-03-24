@@ -10,7 +10,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface YYTimePainter : CALayer <YYPainterProtocol>
+@interface YYTimePainter : CALayer <YYXAxisTimeTextPainterProtocol>
 @end
 
 NS_ASSUME_NONNULL_END

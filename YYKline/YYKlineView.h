@@ -22,17 +22,19 @@
 
 @property(nonatomic, weak) id<YYKlineViewDelegate> delegate;
 
-@property(nonatomic, strong) YYKlineRootModel *rootModel; // 数据
+/// 绘制源数据
+@property(nonatomic, strong) YYKlineRootModel *rootModel;
 
-@property (nonatomic) Class<YYPainterProtocol> linePainter;
-//@property (nonatomic) Class <YYPainterProtocol> indicator1Painter;
-//@property (nonatomic) Class <YYPainterProtocol> indicator2Painter;
-@property (nonatomic) Class<YYCrossLinePainterProtocol> crossPainter;
-@property (nonatomic) Class<YYCurrentPricePainterProtocol> currentPricePainter;
+/// 绘制参数
+@property (nonatomic, strong) YYKlineStyleConfig *styleConfig;
 
 - (instancetype)initWithStyleConfig:(YYKlineStyleConfig *)config;
-/// 重绘
-- (void)reDraw:(CGFloat)currentPrice;
+/// 重置scrollView偏移量，切换日K/周K/年K时需要重置
+- (void)resetContentOffset;
+/// 重绘K线蜡烛图
+- (void)reDrawCandle:(CGFloat)currentPrice;
+/// 重绘分时图
+- (void)reDrawTimeline:(CGFloat)currentPrice;
 /// 分时/五日不能滚动，日K/周K等可以滚动和缩放
 - (void)enableScrollAndZoom:(BOOL)enable;
 @end

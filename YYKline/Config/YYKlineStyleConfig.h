@@ -217,6 +217,9 @@ NS_ASSUME_NONNULL_BEGIN
  *  时间轴区域高度
  */
 @property (nonatomic, assign) CGFloat timelineAreaHeight;
+// MARK: 股票市场绘制参数
+/// 股票市场每天每时数据量总数 A股：241， 港股：331，美股：391
+@property (nonatomic, assign) NSInteger timelineTotalCount;
 @end
 
 NS_ASSUME_NONNULL_END

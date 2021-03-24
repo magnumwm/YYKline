@@ -45,14 +45,6 @@
     sublayer.frame = area;
     sublayer.contentsScale = UIScreen.mainScreen.scale;
     [models enumerateObjectsUsingBlock:^(YYKlineModel * _Nonnull m, NSUInteger idx, BOOL * _Nonnull stop) {
-//        if (!m ||
-//            [m.Low isKindOfClass:NSNull.class] ||
-//            [m.High isKindOfClass:NSNull.class] ||
-//            [m.Open isKindOfClass:NSNull.class] ||
-//            [m.Close isKindOfClass:NSNull.class]) {
-//            NSLog(@"data error: %@", m);
-//        }
-
         CGFloat w = config.kLineWidth;
         CGFloat x = idx * (w + config.kLineGap);
         CGFloat centerX = x+w/2.f-config.kLineGap/2.f;
@@ -65,10 +57,8 @@
         UIBezierPath *path = [UIBezierPath bezierPathWithRoundedRect:CGRectMake(x, y, w - config.kLineGap, h) cornerRadius:config.kCandleRadius];
 
         // YYKlineModel 赋值
-//        m.lowPoint = lowPoint;
-//        m.highPoint = highPoint;
         CGFloat candleCenterY = maxH - (m.Close.floatValue - minMaxModel.min) * unitValue;
-        m.candleCrossLineCenterPoint = CGPointMake(centerX, candleCenterY);
+        m.candleCrossLineCenterPoint = CGPointMake(centerX+CGRectGetMinX(area), candleCenterY);
         
         [path moveToPoint:lowPoint];
         [path addLineToPoint:CGPointMake(centerX, y+h)];
@@ -87,4 +77,14 @@
     [layer addSublayer:sublayer];
 }
 
+
++ (YYKlineModel *)getKlineModel:(CGPoint)touchPoint
+                           area:(CGRect)area
+                    styleConfig:(YYKlineStyleConfig *)config
+                         models:(NSArray<YYKlineModel *> *)models {
+    CGFloat locationX = touchPoint.x - CGRectGetMinX(area);
+    NSInteger idx = ABS(floor(locationX / (config.kLineWidth + config.kLineGap)));
+    idx = MIN(idx, models.count - 1);
+    return [models objectAtIndex:idx];
+}
 @end

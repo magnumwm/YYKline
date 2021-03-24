@@ -41,7 +41,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) YYWRModel *WR;
 
 @property (nonatomic, assign) BOOL isUp;
-@property (nonatomic, assign) BOOL isDrawTime;
 @property (nonatomic, copy) NSString *drawTime;
 
 @property (nonatomic, copy) NSString *V_Date;
