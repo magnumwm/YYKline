@@ -132,6 +132,7 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
 
 - (void)resetContentOffset {
     self.oldContentOffsetX = 0;
+    self.scrollView.contentOffset = CGPointZero;
 }
 
 #pragma mark 重绘
@@ -159,7 +160,8 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
     currentStockPrice = currentPrice;
 
     dispatch_main_async_safe(^{
-        [self drawWithModels:self.rootModel.models timeline:YES];
+        self.painterViewXConstraint.offset = 0;
+        [self drawWithModels:self.rootModel.models];
     });
 }
 
@@ -184,41 +186,23 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
         }
     }
 
-    [self drawWithModels:arr timeline:NO];
-}
-
-- (NSArray<NSString *> *)getDrawableTimestamps:(NSArray<YYKlineModel*> *)models timeline:(BOOL)isTimeline {
-    if (isTimeline) {
-        // 绘制分时时间轴坐标需要根据当前RootModel的MarketType决定
-        NSString *type = self.rootModel.marketType;
-        if ([type isEqualToString:@"HK"]) {
-            // 9:30, 12:00pm, 4:00pm
-            return @[@"9:30", @"12:00/1:00", @"4:00"];
-        } else if ([type isEqualToString:@"US"]) {
-            return @[@"9:30", @"12:00/1:00", @"4:00"];
-        } else {
-            // CN
-            // 9:30, 11:30am, 3:00pm
-            return @[@"9:30", @"11:30/1:00", @"3:00"];
-        }
-    } else {
-        // K线图的时间轴坐标根据第一个和最后一个时间戳四等分
-        return @[models.firstObject.drawTime, models.lastObject.drawTime];
-    }
-    return @[];
+    [self drawWithModels:arr];
 }
 
 /// 绘制layer
 /// @param models 绘制的模型数据数组
-/// @param isTimeline 是否绘制分时
-- (void)drawWithModels:(NSArray <YYKlineModel *>*)models timeline:(BOOL)isTimeline{
+- (void)drawWithModels:(NSArray <YYKlineModel *>*)models{
     if (models.count <= 0) {
         return;
     }
     
     YYMinMaxModel *minMax = [YYMinMaxModel new];
     minMax.min = 9999999999999.f;
-    [minMax combine:[self.linePainter getMinMaxValue:models]];
+    if (self.styleConfig.isDrawTimeline) {
+        [minMax combine:[self.timelinePainter getMinMaxValue:models]];
+    } else {
+        [minMax combine:[self.linePainter getMinMaxValue:models]];
+    }
 
     // 移除旧layer
     self.painterView.layer.sublayers = nil;
@@ -228,8 +212,11 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
     /// 左侧价格Y轴
     CGRect priceArea = CGRectMake(0, 0, YYKlineLinePriceViewWidth, config.mainAreaHeight);
 
-    CGFloat offsetX = models.firstObject.index * (config.kLineWidth + config.kLineGap) - self.scrollView.contentOffset.x;
-    offsetX = MAX(0, offsetX);
+    CGFloat offsetX = 0;
+    if (!self.styleConfig.isDrawTimeline) {
+        offsetX = models.firstObject.index * (config.kLineWidth + config.kLineGap) - self.scrollView.contentOffset.x;
+        offsetX = MAX(0, offsetX);
+    }
 
 
     /// K线图主视图
@@ -248,13 +235,23 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
                                 minMax:minMax];
 
     // 时间轴
-    [YYTimePainter drawToLayer:self.painterView.layer
-                          area:timelineArea
-                   styleConfig:self.styleConfig
-                    timestamps:[self getDrawableTimestamps:models timeline:isTimeline]];
+    if (self.styleConfig.timelineTimestamps.count > 0) {
+        // 分时时间轴
+        [YYTimePainter drawToLayer:self.painterView.layer
+                              area:timelineArea
+                       styleConfig:self.styleConfig
+                        timestamps:self.styleConfig.timelineTimestamps];
+    } else {
+        // 计算需要显示的时间戳区间
+        [YYTimePainter drawToLayer:self.painterView.layer
+                              area:timelineArea
+                       styleConfig:self.styleConfig
+                        timestamps:[self createVisibleTimestamps:models area:timelineArea]];
+    }
     
-    if (isTimeline) {
+    if (self.styleConfig.isDrawTimeline) {
         // 分时主图
+        NSLog(@"mainArea: %@", NSStringFromCGRect(mainArea));
         [self.timelinePainter drawToLayer:self.painterView.layer
                                      area:mainArea
                               styleConfig:self.styleConfig
@@ -291,6 +288,31 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
 
 }
 
+#pragma mark - 计算可见的横轴时间坐标
+- (NSArray<NSString*> *)createVisibleTimestamps:(NSArray <YYKlineModel *> *)models area:(CGRect)area {
+    /**
+     * 时间绘制规则 展示五个时间标签，标签值为起始时间点和三个四等分点；
+     */
+    NSInteger gap = (area.size.width/5) / (self.styleConfig.kLineWidth + self.styleConfig.kLineGap);
+    NSDateFormatter *formatter = self.styleConfig.timestampFormatter;
+
+    NSMutableArray *result = @[].mutableCopy;
+
+    NSUInteger count = models.count;
+    for (int i = 1; i < count - 1; i++) {
+        BOOL insert = i % gap == 0;
+        if (insert) {
+            YYKlineModel *model = [models objectAtIndex:i];
+            NSDate *date = [NSDate dateWithTimeIntervalSince1970:model.Timestamp.doubleValue];
+            NSString *timestamp = [formatter stringFromDate:date];
+            if (timestamp) {
+                [result addObject:timestamp];
+            }
+        }
+    }
+    return result;
+}
+
 #pragma mark -  禁用滚动和缩放
 - (void)enableScrollAndZoom:(BOOL)enable {
     self.scrollView.scrollEnabled = enable;
@@ -317,10 +339,12 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
         YYKlineModel *model;
         CGPoint crossLineCenterPoint;
         if ([currentPainter isSubclassOfClass:YYCandlePainter.class]) {
-            model = [YYCandlePainter getKlineModel:location area:mainArea styleConfig:config models:self.rootModel.models];//self.rootModel.models[idx];
+            model = [YYCandlePainter getKlineModel:location area:mainArea styleConfig:config models:self.rootModel.models];
+            if (!model) return;
             crossLineCenterPoint = model.candleCrossLineCenterPoint;
         } else if([currentPainter isSubclassOfClass:YYTimelinePainter.class]) {
             model = [YYTimelinePainter getKlineModel:location area:mainArea total:config.timelineTotalCount models:self.rootModel.models];
+            if (!model) return;
             crossLineCenterPoint = model.timelineCrossLineCenterPoint;
         } else {
             return;

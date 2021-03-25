@@ -14,13 +14,6 @@
     if(!data) {
         return [YYMinMaxModel new];
     }
-//    if (!data[0] ||
-//        [data[0].Low isKindOfClass:NSNull.class] ||
-//        [data[0].High isKindOfClass:NSNull.class] ||
-//        [data[0].Open isKindOfClass:NSNull.class] ||
-//        [data[0].Close isKindOfClass:NSNull.class]) {
-//        NSLog(@"data error: %@", data);
-//    }
     __block CGFloat minAssert = data[0].Low.floatValue;
     __block CGFloat maxAssert = data[0].High.floatValue;
     [data enumerateObjectsUsingBlock:^(YYKlineModel * _Nonnull m, NSUInteger idx, BOOL * _Nonnull stop) {
@@ -57,6 +50,7 @@
         UIBezierPath *path = [UIBezierPath bezierPathWithRoundedRect:CGRectMake(x, y, w - config.kLineGap, h) cornerRadius:config.kCandleRadius];
 
         // YYKlineModel 赋值
+        m.mainCenterPoint = lowPoint;
         CGFloat candleCenterY = maxH - (m.Close.floatValue - minMaxModel.min) * unitValue;
         m.candleCrossLineCenterPoint = CGPointMake(centerX+CGRectGetMinX(area), candleCenterY);
         

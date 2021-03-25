@@ -34,7 +34,7 @@
 
 - (NSAttributedString *)V_Price {
     if (!_V_Price) {
-        _V_Price = [[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@" %@  开：%.3f  高：%.3f 低：%.3f  收：%.3f ", self.V_Date, self.Open.floatValue, self.High.floatValue, self.Low.floatValue, self.Close.floatValue] attributes:@{
+        _V_Price = [[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@" %f  开：%.3f  高：%.3f 低：%.3f  收：%.3f ", _Timestamp.doubleValue, self.Open.floatValue, self.High.floatValue, self.Low.floatValue, self.Close.floatValue] attributes:@{
             NSForegroundColorAttributeName: [UIColor grayColor],
         }];
     }

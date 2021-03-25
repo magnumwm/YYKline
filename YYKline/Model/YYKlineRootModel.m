@@ -23,9 +23,9 @@
         model.drawTime = model.V_Date;
         // value为NSNull时设置成上一个model的值
         model.Open = [item[0] isKindOfClass:NSNull.class] ? model.PrevModel.Close : item[0];
-        model.High = [item[2] isKindOfClass:NSNull.class] ? model.PrevModel.High : item[2];
-        model.Low = [item[3] isKindOfClass:NSNull.class] ? model.PrevModel.Low : item[3];
-        model.Close = [item[1] isKindOfClass:NSNull.class] ? model.PrevModel.Close : item[1];
+        model.High = [item[1] isKindOfClass:NSNull.class] ? model.PrevModel.High : item[1];
+        model.Low = [item[2] isKindOfClass:NSNull.class] ? model.PrevModel.Low : item[2];
+        model.Close = [item[3] isKindOfClass:NSNull.class] ? model.PrevModel.Close : item[3];
         model.Volume = [item[4] isKindOfClass:NSNull.class] ? model.PrevModel.Volume : item[4];
 
         [mArr addObject:model];

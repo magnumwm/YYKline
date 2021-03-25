@@ -36,9 +36,9 @@
     sublayer.frame = area;
     [models enumerateObjectsUsingBlock:^(YYKlineModel * _Nonnull m, NSUInteger idx, BOOL * _Nonnull stop) {
         CGFloat w = config.kLineWidth;
-        CGFloat x = idx * (w + config.kLineGap);
+//        CGFloat x = idx * (w + config.kLineGap);
         CGFloat h = fabs(m.Volume.floatValue - minMaxModel.min) * unitValue;
-        UIBezierPath *path = [UIBezierPath bezierPathWithRoundedRect:CGRectMake(x, maxH - h, w - config.kLineGap, h) cornerRadius:config.kVolumeBarRadius];
+        UIBezierPath *path = [UIBezierPath bezierPathWithRoundedRect:CGRectMake(m.mainCenterPoint.x-w/2, maxH - h, w, h) cornerRadius:config.kVolumeBarRadius];
         CAShapeLayer *l = [CAShapeLayer layer];
         l.path = path.CGPath;
         l.lineWidth = config.kLineLineWidth;

@@ -57,6 +57,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 // MARK: Drawable
 /**
+ * 主图中的绘制中点
+ */
+@property (nonatomic, assign) CGPoint mainCenterPoint;
+/**
  * 分时图十字交叉线中点
  */
 @property (nonatomic, assign) CGPoint timelineCrossLineCenterPoint;

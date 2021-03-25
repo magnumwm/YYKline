@@ -36,6 +36,7 @@
     CGFloat maxW = CGRectGetWidth(area);
     CGFloat maxH = CGRectGetHeight(area);
     CGFloat gap = maxW/total;
+    NSLog(@"mainArea: total: %d count: %d", total, models.count);
 
     CGFloat unitValue = maxH/minMaxModel.distance;
 
@@ -53,9 +54,11 @@
         } else {
             [path1 addLineToPoint:point1];
         }
+        m.mainCenterPoint = point1;
         m.timelineCrossLineCenterPoint = CGPointMake(point1.x+CGRectGetMinX(area), point1.y);
         if (idx == models.count - 1) {
             pointEnd = point1;
+            NSLog(@"mainArea: pointEnd: %@", NSStringFromCGPoint(pointEnd));
         }
     }];
 
@@ -95,7 +98,11 @@
     CGFloat maxW = CGRectGetWidth(area);
     CGFloat gap = maxW/total;
     NSInteger idx = (touchPoint.x - CGRectGetMinX(area)) / gap;
-    return [models objectAtIndex:idx%models.count];
+    if (idx < models.count ) {
+        return [models objectAtIndex:idx];
+    } else {
+        return nil;
+    }
 }
 
 @end
