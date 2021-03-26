@@ -11,6 +11,8 @@
 #import "YYKlineGlobalVariable.h"
 
 @implementation YYKlineStyleConfig
+@synthesize kLineWidth = _kLineWidth;
+@synthesize kLineGap = _kLineGap;
 
 + (instancetype)sharedConfig {
     static dispatch_once_t onceToken;
@@ -60,6 +62,7 @@
     self.klinePropertyValueFont = [UIFont systemFontOfSize:13];
 
     // 布局
+    self.zoomLevel = 1.f;
     self.klineLineMinWidth = YYKlineLineMinWidth;
     self.klineLineMaxWidth = YYKlineLineMaxWidth;
     self.kLineLineWidth = YYKlineLineWidth;
@@ -81,6 +84,14 @@
     self.volumeAreaHeight = 20;
 }
 
+- (CGFloat)kLineWidth {
+    CGFloat width = _kLineWidth * self.zoomLevel;
+    width = MAX(self.klineLineMinWidth, width);
+    width = MIN(width, self.klineLineMaxWidth);
+    return width;
+}
+
+
 - (void)setKLineWidth:(CGFloat)kLineWidth {
     if (kLineWidth > self.klineLineMaxWidth) {
         kLineWidth = self.klineLineMaxWidth;
@@ -88,6 +99,22 @@
         kLineWidth = self.klineLineMinWidth;
     }
     _kLineWidth = kLineWidth;
+}
+
+- (CGFloat)kLineGap {
+    CGFloat width = _kLineGap * self.zoomLevel;
+    width = MAX(0, width);
+    width = MIN(width, 5);
+    return width;
+}
+
+- (void)setKLineGap:(CGFloat)kLineGap {
+    if (kLineGap > 5) {
+        kLineGap = 5;
+    }else if (kLineGap < 0){
+        kLineGap = 0;
+    }
+    _kLineGap = kLineGap;
 }
 
 @end

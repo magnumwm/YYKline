@@ -137,6 +137,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 // MARK: 布局
 /**
+ * K线图zoom level， 默认1
+ */
+@property (nonatomic, assign) CGFloat zoomLevel;
+/**
  *  K线图线宽，默认1
  */
 @property (nonatomic, assign) CGFloat kLineLineWidth;
@@ -153,7 +157,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (nonatomic, assign) CGFloat kTimelineLineWidth;
 /**
- *  K线图的宽度，默认20
+ *  K线图的宽度
  */
 @property (nonatomic, assign) CGFloat kLineWidth;
 /**

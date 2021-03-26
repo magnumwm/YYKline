@@ -23,12 +23,17 @@
 /**
  *  K线图最小的宽度
  */
-#define YYKlineLineMinWidth 2
+#define YYKlineLineMinWidth 0.01
+
+/**
+ *  K线图最小的宽度
+ */
+#define YYKlineLineMinGap 0
 
 /**
  *  K线图缩放界限
  */
-#define YYKlineScaleBound 0.02
+#define YYKlineScaleBound 0.01
 
 /**
  *  K线的缩放因子

@@ -41,7 +41,6 @@
 @property (nonatomic, assign) NSInteger pinchIndex;
 @property (nonatomic, assign) NSInteger needDrawStartIndex; // 需要绘制Index开始值
 @property (nonatomic, assign) CGFloat oldContentOffsetX; // 旧的contentoffset值
-@property (nonatomic, assign) CGFloat oldScale; // 旧的缩放值，捏合
 @property (nonatomic, weak) MASConstraint *painterViewXConstraint;
 
 @property (nonatomic) Class<YYPainterProtocol> linePainter;
@@ -411,26 +410,36 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
         if (oldKlineWidth <= config.klineLineMinWidth && difValue <= 0) {
             return;
         }
-        
+
+        CGFloat oldKlineGap = config.kLineGap;
+        CGFloat newKlineGap = oldKlineGap * (difValue > 0 ? (1 + YYKlineScaleFactor) : (1 - YYKlineScaleFactor));
+        newKlineGap = MIN(newKlineGap, 5);
+        if (oldKlineGap <= YYKlineLineMinGap && difValue <= 0) {
+            return;
+        }
+
+        config.kLineWidth = newKlineWidth;
+        config.kLineGap = newKlineGap;
+
         // 右侧已经没有更多数据时，从右侧开始缩放
-        if (((CGRectGetWidth(self.scrollView.bounds) - self.pinchCenterX) / (newKlineWidth + config.kLineGap)) > self.rootModel.models.count - self.pinchIndex) {
+        if (((CGRectGetWidth(self.scrollView.bounds) - self.pinchCenterX) / (config.kLineWidth + config.kLineGap)) > self.rootModel.models.count - self.pinchIndex) {
             self.pinchIndex = self.rootModel.models.count -1;
             self.pinchCenterX = CGRectGetWidth(self.scrollView.bounds);
         }
         
         // 左侧已经没有更多数据时，从左侧开始缩放
-        if (self.pinchIndex * (newKlineWidth + config.kLineGap) < self.pinchCenterX) {
+        if (self.pinchIndex * (config.kLineWidth + config.kLineGap) < self.pinchCenterX) {
             self.pinchIndex = 0;
             self.pinchCenterX = 0;
         }
         
         // 数量很少，少于一屏时，从左侧开始缩放
-        if ((CGRectGetWidth(self.scrollView.bounds) / (newKlineWidth + config.kLineGap)) > self.rootModel.models.count) {
+        if ((CGRectGetWidth(self.scrollView.bounds) / (config.kLineWidth + config.kLineGap)) > self.rootModel.models.count) {
             self.pinchIndex = 0;
             self.pinchCenterX = 0;
         }
 
-        config.kLineWidth = newKlineWidth;
+
         oldScale = pinch.scale;
         NSInteger idx = self.pinchIndex - floor(self.pinchCenterX / (config.kLineGap + config.kLineWidth));
         CGFloat offset = idx * (config.kLineGap + config.kLineWidth);
