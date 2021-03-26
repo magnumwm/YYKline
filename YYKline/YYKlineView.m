@@ -226,12 +226,6 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
 
     /// 成交量视图
     CGRect secondArea = CGRectMake(offsetX, CGRectGetMaxY(timelineArea)+config.timelineToVolumeGap, CGRectGetWidth(mainArea), config.volumeAreaHeight);
-
-    // 左侧价格轴
-    [YYVerticalTextPainter drawToLayer:self.painterView.layer
-                                  area:priceArea
-                           styleConfig:self.styleConfig
-                                minMax:minMax];
     
     if (self.styleConfig.isDrawTimeline) {
         // 分时主图
@@ -262,6 +256,12 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
                                models:models
                                minMax:minMax];
     }
+
+    // 左侧价格轴
+    [YYVerticalTextPainter drawToLayer:self.painterView.layer
+                                  area:priceArea
+                           styleConfig:self.styleConfig
+                                minMax:minMax];
 
     // 时间轴
     if (self.styleConfig.timelineTimestamps.count > 0) {
