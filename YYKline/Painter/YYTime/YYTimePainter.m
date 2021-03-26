@@ -19,7 +19,8 @@
 + (void)drawToLayer:(CALayer *)layer
                area:(CGRect)area
         styleConfig:(YYKlineStyleConfig *)config
-         timestamps:(NSArray<NSString *> *)timestamps {
+         timestamps:(NSArray *)timestamps
+             layout:(YYXAxisTimeTextLayout)layout {
     CGFloat maxH = CGRectGetHeight(area);
     if (maxH <= 0) {
         return;
@@ -30,21 +31,56 @@
     sublayer.frame = area;
     [layer addSublayer:sublayer];
 
-    // 等分
-    NSInteger gap = (area.size.width/(timestamps.count-1));
-    [timestamps enumerateObjectsUsingBlock:^(NSString * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-        CGRect textBounds = [obj boundingRectWithSize:CGSizeMake(100, maxH) options:NSStringDrawingUsesFontLeading attributes:@{NSFontAttributeName:config.timelineFont} context:nil];
+    // YYXAxisTimeTextLayoutEqualBetween
+    CGFloat gap = 0.0;
+    switch (layout) {
+        case YYXAxisTimeTextLayoutEqualBetween:
+            gap = (area.size.width/((timestamps.count-1)*1.0));
+            break;
+        case YYXAxisTimeTextLayoutEqualCenter:
+            gap = (area.size.width/(timestamps.count * 1.0));
+            break;
+        case YYXAxisTimeTextLayoutEqualStart:
+            gap = (area.size.width/(timestamps.count*1.0));
+            break;
+        default:
+            break;
+    }
+    [timestamps enumerateObjectsUsingBlock:^(NSObject * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        NSString *text;
+        if ([obj isKindOfClass:YYKlineModel.class]) {
+            NSDateFormatter *formatter = config.timestampFormatter;
+            YYKlineModel *model = (YYKlineModel *)obj;
+            NSDate *date = [NSDate dateWithTimeIntervalSince1970:model.Timestamp.doubleValue];
+            text = [formatter stringFromDate:date];
+        } else {
+            text = (NSString *)obj;
+        }
+        CGRect textBounds = [text boundingRectWithSize:CGSizeMake(100, maxH) options:NSStringDrawingUsesFontLeading attributes:@{NSFontAttributeName:config.timelineFont} context:nil];
 
-        CGFloat x = idx * gap;
         CGFloat y = (maxH - config.timelineFont.lineHeight)/2.f;
         CATextLayer *textLayer = [CATextLayer layer];
-        textLayer.string = obj;
+        textLayer.string = text;
         textLayer.alignmentMode = kCAAlignmentCenter;
         textLayer.font = (__bridge CFTypeRef _Nullable)(config.timelineFontName);
         textLayer.fontSize = config.timelineFont.pointSize;
         textLayer.foregroundColor = config.timeLineColor.CGColor;
 
-        CGFloat originX = x-textBounds.size.width/2;
+//        CGFloat originX = x-textBounds.size.width/2;
+        CGFloat originX = 0;
+        switch (layout) {
+            case YYXAxisTimeTextLayoutEqualBetween:
+                originX = idx * gap;
+                break;
+            case YYXAxisTimeTextLayoutEqualCenter:
+                originX = idx * gap + (gap - textBounds.size.width)/2.f;
+                break;
+            case YYXAxisTimeTextLayoutEqualStart:
+                originX = idx * gap;
+                break;
+            default:
+                break;
+        }
         originX = MAX(0, originX);
         originX = MIN(originX, area.size.width-textBounds.size.width);
         textLayer.frame = CGRectMake(originX, y, textBounds.size.width, textBounds.size.height);
@@ -52,56 +88,5 @@
         [sublayer addSublayer:textLayer];
     }];
 }
-
-//+ (void)drawToLayer:(CALayer *)layer
-//               area:(CGRect)area
-//        styleConfig:(YYKlineStyleConfig *)config
-//             models:(NSArray <YYKlineModel *> *)models
-//             minMax: (YYMinMaxModel *)minMaxModel {
-//    CGFloat maxH = CGRectGetHeight(area);
-//    if (maxH <= 0) {
-//        return;
-//    }
-//
-//    YYTimePainter *sublayer = [[YYTimePainter alloc] init];
-//    sublayer.backgroundColor = config.assistBackgroundColor.CGColor;
-//    sublayer.frame = area;
-//    [layer addSublayer:sublayer];
-//
-//    /**
-//     * 时间绘制规则 展示五个时间标签，标签值为起始时间点和三个四等分点；
-//     */
-//    NSInteger gap = (area.size.width/4) / (config.kLineWidth + config.kLineGap);
-//
-//    models.firstObject.isDrawTime = YES;
-//    models.lastObject.isDrawTime = YES;
-//    for (int i = 1; i < models.count - 1; i++) {
-//        models[i].isDrawTime = i % gap == 0;
-//    }
-//
-//    CGFloat w = config.kLineWidth;
-//    [models enumerateObjectsUsingBlock:^(YYKlineModel * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-//        if (!obj.isDrawTime) {
-//            return;
-//        }
-//        CGRect textBounds = [obj.drawTime boundingRectWithSize:CGSizeMake(100, maxH) options:NSStringDrawingUsesFontLeading attributes:@{NSFontAttributeName:config.timelineFont} context:nil];
-//
-//        CGFloat x = idx * (w + config.kLineGap);
-//        CGFloat y = (maxH - config.timelineFont.lineHeight)/2.f;
-//        CATextLayer *textLayer = [CATextLayer layer];
-//        textLayer.string = obj.drawTime;
-//        textLayer.alignmentMode = kCAAlignmentCenter;
-//        textLayer.font = (__bridge CFTypeRef _Nullable)(config.timelineFontName);
-//        textLayer.fontSize = config.timelineFont.pointSize;
-//        textLayer.foregroundColor = config.timeLineColor.CGColor;
-//
-//        CGFloat originX = x-textBounds.size.width/2;
-//        originX = MAX(0, originX);
-//        originX = MIN(originX, area.size.width-textBounds.size.width);
-//        textLayer.frame = CGRectMake(originX, y, textBounds.size.width, textBounds.size.height);
-//        textLayer.contentsScale = UIScreen.mainScreen.scale;
-//        [sublayer addSublayer:textLayer];
-//    }];
-//}
 
 @end

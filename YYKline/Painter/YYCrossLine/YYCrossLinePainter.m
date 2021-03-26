@@ -132,7 +132,9 @@
         // 计算文字frame
         CGRect rect = [downText boundingRectWithSize:CGSizeMake(config.kLineCrossTextMaxWidth, config.kLineCrossTextHeight) options:NSStringDrawingUsesFontLeading context:nil];
         CGFloat width = rect.size.width+config.kLineCrossTextInset.left+config.kLineCrossTextInset.right;
-        textLayer.frame = CGRectMake(point.x - width/2, CGRectGetMaxY(area)-config.kLineCrossTextHeight, width, config.kLineCrossTextHeight);
+        CGFloat x = MAX(0, point.x-width/2);
+        x = MIN(x, area.size.width-width);
+        textLayer.frame = CGRectMake(x, CGRectGetMaxY(area)-config.kLineCrossTextHeight, width, config.kLineCrossTextHeight);
 
         textLayer.contentsScale = UIScreen.mainScreen.scale;
         [sublayer addSublayer:textLayer];

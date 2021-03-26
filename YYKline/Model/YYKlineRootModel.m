@@ -9,6 +9,13 @@
 #import "YYKlineStyleConfig.h"
 
 @implementation YYKlineRootModel
+
+- (id)copyWithZone:(NSZone *)zone {
+    YYKlineRootModel *copy = [[[self class] allocWithZone:zone] init];
+    copy.models = _models;
+    return copy;
+}
+
 + (instancetype)objectWithArray:(NSArray *)arr{
     NSAssert([arr isKindOfClass:[NSArray class]], @"arr不是一个数组，请检查返回数据类型并手动适配");
     YYKlineRootModel *groupModel = [YYKlineRootModel new];
@@ -20,7 +27,6 @@
         model.index = index;
         model.PrevModel = mArr.lastObject;
         model.Timestamp = item[5];
-        model.drawTime = model.V_Date;
         // value为NSNull时设置成上一个model的值
         model.Open = [item[0] isKindOfClass:NSNull.class] ? model.PrevModel.Close : item[0];
         model.High = [item[1] isKindOfClass:NSNull.class] ? model.PrevModel.High : item[1];

@@ -240,13 +240,14 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
         [YYTimePainter drawToLayer:self.painterView.layer
                               area:timelineArea
                        styleConfig:self.styleConfig
-                        timestamps:self.styleConfig.timelineTimestamps];
+                        timestamps:self.styleConfig.timelineTimestamps layout:(self.styleConfig.timelineTimestamps.count < 4)?YYXAxisTimeTextLayoutEqualBetween:YYXAxisTimeTextLayoutEqualStart];
     } else {
         // 计算需要显示的时间戳区间
         [YYTimePainter drawToLayer:self.painterView.layer
                               area:timelineArea
                        styleConfig:self.styleConfig
-                        timestamps:[self createVisibleTimestamps:models area:timelineArea]];
+                        timestamps:[self createVisibleTimestamps:models area:timelineArea]
+                            layout:YYXAxisTimeTextLayoutEqualBetween];
     }
     
     if (self.styleConfig.isDrawTimeline) {
@@ -289,12 +290,12 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
 }
 
 #pragma mark - 计算可见的横轴时间坐标
-- (NSArray<NSString*> *)createVisibleTimestamps:(NSArray <YYKlineModel *> *)models area:(CGRect)area {
+- (NSArray<YYKlineModel*> *)createVisibleTimestamps:(NSArray <YYKlineModel *> *)models area:(CGRect)area {
     /**
      * 时间绘制规则 展示五个时间标签，标签值为起始时间点和三个四等分点；
      */
     NSInteger gap = (area.size.width/5) / (self.styleConfig.kLineWidth + self.styleConfig.kLineGap);
-    NSDateFormatter *formatter = self.styleConfig.timestampFormatter;
+//    NSDateFormatter *formatter = self.styleConfig.timestampFormatter;
 
     NSMutableArray *result = @[].mutableCopy;
 
@@ -303,11 +304,12 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
         BOOL insert = i % gap == 0;
         if (insert) {
             YYKlineModel *model = [models objectAtIndex:i];
-            NSDate *date = [NSDate dateWithTimeIntervalSince1970:model.Timestamp.doubleValue];
-            NSString *timestamp = [formatter stringFromDate:date];
-            if (timestamp) {
-                [result addObject:timestamp];
-            }
+            [result addObject:model];
+//            NSDate *date = [NSDate dateWithTimeIntervalSince1970:model.Timestamp.doubleValue];
+//            NSString *timestamp = [formatter stringFromDate:date];
+//            if (timestamp) {
+//                [result addObject:timestamp];
+//            }
         }
     }
     return result;
@@ -358,7 +360,7 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
         }
         self.topView.layer.sublayers = nil;
 
-
+        NSString *drawTime = [self.styleConfig.crosslineTimestampFormatter stringFromDate:[NSDate dateWithTimeIntervalSince1970:model.Timestamp.doubleValue]];
         NSDictionary *attributes = @{NSForegroundColorAttributeName: config.crossLineTextColor, NSFontAttributeName: config.crosslineTextFont};
         [self.crossPainter drawToLayer:self.topView.layer
                                  point:crossLineCenterPoint
@@ -366,7 +368,7 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
                            styleConfig:self.styleConfig
                               leftText:[[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@"%.2f", model.Open.floatValue] attributes:attributes]
                              rightText:[[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@"%@", model.changePercent] attributes:attributes]
-                              downText:[[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@"%@", model.drawTime] attributes:attributes]];
+                              downText:[[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@"%@", drawTime] attributes:attributes]];
     }
     
     if(longPress.state == UIGestureRecognizerStateEnded ||

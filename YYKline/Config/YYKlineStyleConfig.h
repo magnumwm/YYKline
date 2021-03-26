@@ -228,6 +228,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, copy) NSArray<NSString*> *timelineTimestamps;
 /// 横轴表时间轴DateFormatter
 @property (nonatomic, strong) NSDateFormatter *timestampFormatter;
+/// 十字交叉线上的DateFormatter
+@property (nonatomic, strong) NSDateFormatter *crosslineTimestampFormatter;
 @end
 
 NS_ASSUME_NONNULL_END

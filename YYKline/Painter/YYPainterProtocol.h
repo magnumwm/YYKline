@@ -11,6 +11,15 @@
 #import "YYKlineModel.h"
 #import "YYKlineStyleConfig.h"
 
+typedef NS_ENUM(NSUInteger, YYXAxisTimeTextLayout) {
+    /// 首尾两端对齐
+    YYXAxisTimeTextLayoutEqualBetween,
+    /// 等分居中
+    YYXAxisTimeTextLayoutEqualCenter,
+    /// 等分从头开始绘制
+    YYXAxisTimeTextLayoutEqualStart,
+};
+
 @class YYMinMaxModel;
 
 @protocol YYPainterProtocol <NSObject>
@@ -42,7 +51,8 @@
 + (void)drawToLayer:(CALayer *)layer
                area:(CGRect)area
         styleConfig:(YYKlineStyleConfig *)config
-         timestamps:(NSArray<NSString *> *)timestamps;
+         timestamps:(NSArray *)timestamps
+             layout:(YYXAxisTimeTextLayout)layout;
 @end
 
 /// 绘制Y轴价格，成交量

@@ -20,7 +20,7 @@ typedef NS_ENUM(NSInteger, YYKlineIncicator) {
     
 };
 
-@interface YYKlineRootModel : NSObject
+@interface YYKlineRootModel : NSObject<NSCopying>
 
 + (instancetype)objectWithArray:(NSArray *)arr;
 
