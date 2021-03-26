@@ -78,6 +78,11 @@
             case YYXAxisTimeTextLayoutEqualStart:
                 originX = idx * gap;
                 break;
+            case YYXAxisTimeTextLayoutEqualToMainPoint: {
+                YYKlineModel *model = (YYKlineModel *)obj;
+                originX = model.mainCenterPoint.x - textBounds.size.width/2.f;
+                break;
+            }
             default:
                 break;
         }

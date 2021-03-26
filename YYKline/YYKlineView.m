@@ -233,22 +233,6 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
                                   area:priceArea
                            styleConfig:self.styleConfig
                                 minMax:minMax];
-
-    // 时间轴
-    if (self.styleConfig.timelineTimestamps.count > 0) {
-        // 分时时间轴
-        [YYTimePainter drawToLayer:self.painterView.layer
-                              area:timelineArea
-                       styleConfig:self.styleConfig
-                        timestamps:self.styleConfig.timelineTimestamps layout:(self.styleConfig.timelineTimestamps.count < 4)?YYXAxisTimeTextLayoutEqualBetween:YYXAxisTimeTextLayoutEqualStart];
-    } else {
-        // 计算需要显示的时间戳区间
-        [YYTimePainter drawToLayer:self.painterView.layer
-                              area:timelineArea
-                       styleConfig:self.styleConfig
-                        timestamps:[self createVisibleTimestamps:models area:timelineArea]
-                            layout:YYXAxisTimeTextLayoutEqualBetween];
-    }
     
     if (self.styleConfig.isDrawTimeline) {
         // 分时主图
@@ -280,6 +264,22 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
                                minMax:minMax];
     }
 
+    // 时间轴
+    if (self.styleConfig.timelineTimestamps.count > 0) {
+        // 分时时间轴
+        [YYTimePainter drawToLayer:self.painterView.layer
+                              area:timelineArea
+                       styleConfig:self.styleConfig
+                        timestamps:self.styleConfig.timelineTimestamps layout:(self.styleConfig.timelineTimestamps.count < 4)?YYXAxisTimeTextLayoutEqualBetween:YYXAxisTimeTextLayoutEqualStart];
+    } else {
+        // 计算需要显示的时间戳区间
+        [YYTimePainter drawToLayer:self.painterView.layer
+                              area:timelineArea
+                       styleConfig:self.styleConfig
+                        timestamps:[self createVisibleTimestamps:models area:timelineArea]
+                            layout:YYXAxisTimeTextLayoutEqualToMainPoint];
+    }
+
     // 成交量图
     [YYVolPainter drawToLayer:self.painterView.layer
                          area:secondArea
@@ -289,13 +289,13 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
 
 }
 
-#pragma mark - 计算可见的横轴时间坐标
+#pragma mark - 计算可见区域的横轴时间坐标
+/// 计算可见区域的横轴时间坐标
 - (NSArray<YYKlineModel*> *)createVisibleTimestamps:(NSArray <YYKlineModel *> *)models area:(CGRect)area {
     /**
      * 时间绘制规则 展示五个时间标签，标签值为起始时间点和三个四等分点；
      */
-    NSInteger gap = (area.size.width/5) / (self.styleConfig.kLineWidth + self.styleConfig.kLineGap);
-//    NSDateFormatter *formatter = self.styleConfig.timestampFormatter;
+    NSInteger gap = (area.size.width/4) / (self.styleConfig.kLineWidth + self.styleConfig.kLineGap);
 
     NSMutableArray *result = @[].mutableCopy;
 
@@ -305,12 +305,13 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
         if (insert) {
             YYKlineModel *model = [models objectAtIndex:i];
             [result addObject:model];
-//            NSDate *date = [NSDate dateWithTimeIntervalSince1970:model.Timestamp.doubleValue];
-//            NSString *timestamp = [formatter stringFromDate:date];
-//            if (timestamp) {
-//                [result addObject:timestamp];
-//            }
         }
+    }
+    [result insertObject:models.firstObject atIndex:0];
+    if (result.count >= 5) {
+        [result replaceObjectAtIndex:result.count-1 withObject:models.lastObject];
+    } else {
+        [result addObject:models.lastObject];
     }
     return result;
 }

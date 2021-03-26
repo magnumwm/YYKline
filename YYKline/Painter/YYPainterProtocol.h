@@ -18,6 +18,8 @@ typedef NS_ENUM(NSUInteger, YYXAxisTimeTextLayout) {
     YYXAxisTimeTextLayoutEqualCenter,
     /// 等分从头开始绘制
     YYXAxisTimeTextLayoutEqualStart,
+    /// 坐标依赖于主图点坐标
+    YYXAxisTimeTextLayoutEqualToMainPoint,
 };
 
 @class YYMinMaxModel;
