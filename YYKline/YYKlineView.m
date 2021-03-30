@@ -208,9 +208,6 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
 
     YYKlineStyleConfig *config = self.styleConfig;
 
-    /// 左侧价格Y轴
-    CGRect priceArea = CGRectMake(0, 0, YYKlineLinePriceViewWidth, config.mainAreaHeight);
-
     CGFloat offsetX = 0;
     if (!self.styleConfig.isDrawTimeline) {
         offsetX = models.firstObject.index * (config.kLineWidth + config.kLineGap) - self.scrollView.contentOffset.x;
@@ -220,16 +217,9 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
 
     /// K线图主视图
     CGRect mainArea = CGRectMake(offsetX, 0, CGRectGetWidth(self.painterView.bounds), config.mainAreaHeight);
-
-    /// 时间横坐标
-    CGRect timelineArea = CGRectMake(offsetX, CGRectGetMaxY(mainArea)+config.mainToTimelineGap, CGRectGetWidth(mainArea), config.timelineAreaHeight);
-
-    /// 成交量视图
-    CGRect secondArea = CGRectMake(offsetX, CGRectGetMaxY(timelineArea)+config.timelineToVolumeGap, CGRectGetWidth(mainArea), config.volumeAreaHeight);
     
     if (self.styleConfig.isDrawTimeline) {
         // 分时主图
-        NSLog(@"mainArea: %@", NSStringFromCGRect(mainArea));
         [self.timelinePainter drawToLayer:self.painterView.layer
                                      area:mainArea
                               styleConfig:self.styleConfig
@@ -258,33 +248,45 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
     }
 
     // 左侧价格轴
-    [YYVerticalTextPainter drawToLayer:self.painterView.layer
-                                  area:priceArea
-                           styleConfig:self.styleConfig
-                                minMax:minMax];
+    if (self.styleConfig.drawYAxisPrice) {
+        CGRect priceArea = CGRectMake(0, 0, YYKlineLinePriceViewWidth, config.mainAreaHeight);
+        [YYVerticalTextPainter drawToLayer:self.painterView.layer
+                                      area:priceArea
+                               styleConfig:self.styleConfig
+                                    minMax:minMax];
+    }
 
     // 时间轴
-    if (self.styleConfig.timelineTimestamps.count > 0) {
-        // 分时时间轴
-        [YYTimePainter drawToLayer:self.painterView.layer
-                              area:timelineArea
-                       styleConfig:self.styleConfig
-                        timestamps:self.styleConfig.timelineTimestamps layout:(self.styleConfig.timelineTimestamps.count < 4)?YYXAxisTimeTextLayoutEqualBetween:YYXAxisTimeTextLayoutEqualStart];
-    } else {
-        // 计算需要显示的时间戳区间
-        [YYTimePainter drawToLayer:self.painterView.layer
-                              area:timelineArea
-                       styleConfig:self.styleConfig
-                        timestamps:[self createVisibleTimestamps:models area:timelineArea]
-                            layout:YYXAxisTimeTextLayoutEqualToMainPoint];
+    // 时间横坐标
+    CGRect timelineArea = CGRectMake(offsetX, CGRectGetMaxY(mainArea)+config.mainToTimelineGap, CGRectGetWidth(mainArea), config.timelineAreaHeight);
+
+    if (self.styleConfig.drawXAxisTimeline) {
+        if (self.styleConfig.timelineTimestamps.count > 0) {
+            // 分时时间轴
+            [YYTimePainter drawToLayer:self.painterView.layer
+                                  area:timelineArea
+                           styleConfig:self.styleConfig
+                            timestamps:self.styleConfig.timelineTimestamps layout:(self.styleConfig.timelineTimestamps.count < 4)?YYXAxisTimeTextLayoutEqualBetween:YYXAxisTimeTextLayoutEqualStart];
+        } else {
+            // 计算需要显示的时间戳区间
+            [YYTimePainter drawToLayer:self.painterView.layer
+                                  area:timelineArea
+                           styleConfig:self.styleConfig
+                            timestamps:[self createVisibleTimestamps:models area:timelineArea]
+                                layout:YYXAxisTimeTextLayoutEqualToMainPoint];
+        }
     }
 
     // 成交量图
-    [YYVolPainter drawToLayer:self.painterView.layer
-                         area:secondArea
-                  styleConfig:self.styleConfig
-                       models:models
-                       minMax:[YYVolPainter getMinMaxValue:models]];
+    if (self.styleConfig.drawVolChart) {
+        // 成交量视图
+        CGRect secondArea = CGRectMake(offsetX, CGRectGetMaxY(timelineArea)+config.timelineToVolumeGap, CGRectGetWidth(mainArea), config.volumeAreaHeight);
+        [YYVolPainter drawToLayer:self.painterView.layer
+                             area:secondArea
+                      styleConfig:self.styleConfig
+                           models:models
+                           minMax:[YYVolPainter getMinMaxValue:models]];
+    }
 
 }
 
@@ -327,12 +329,6 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
     YYKlineStyleConfig *config = self.styleConfig;
     if(UIGestureRecognizerStateChanged == longPress.state || UIGestureRecognizerStateBegan == longPress.state) {
         CGPoint location = [longPress locationInView:self.scrollView];
-//        location = CGPointMake(location.x - YYKlineLinePriceViewWidth, location.y);
-        
-//        NSLog(@"location x:%f, scroll offset: %f", location.x, self.scrollView.contentOffset.x);
-//        if (location.x <= self.scrollView.contentOffset.x || location.x >= self.scrollView.contentSize.width) {
-//            return;
-//        }
         // 暂停滑动
         self.scrollView.scrollEnabled = NO;
 

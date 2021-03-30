@@ -82,6 +82,11 @@
     self.timelineAreaHeight = 12;
     self.timelineToVolumeGap = 16;
     self.volumeAreaHeight = 20;
+
+    // 股票市场绘制参数
+    self.drawVolChart = YES;
+    self.drawXAxisTimeline = YES;
+    self.drawYAxisPrice = YES;
 }
 
 - (CGFloat)kLineWidth {
@@ -90,7 +95,6 @@
     width = MIN(width, self.klineLineMaxWidth);
     return width;
 }
-
 
 - (void)setKLineWidth:(CGFloat)kLineWidth {
     if (kLineWidth > self.klineLineMaxWidth) {
@@ -115,6 +119,34 @@
         kLineGap = 0;
     }
     _kLineGap = kLineGap;
+}
+
+- (CGFloat)mainToTimelineGap {
+    if (self.drawXAxisTimeline) {
+        return _mainToTimelineGap;
+    }
+    return 0;
+}
+
+- (CGFloat)timelineAreaHeight {
+    if (self.drawXAxisTimeline) {
+        return _timelineAreaHeight;
+    }
+    return 0;
+}
+
+- (CGFloat)timelineToVolumeGap {
+    if (self.drawVolChart) {
+        return _timelineToVolumeGap;
+    }
+    return 0;
+}
+
+- (CGFloat)volumeAreaHeight {
+    if (self.drawVolChart) {
+        return _volumeAreaHeight;
+    }
+    return 0;
 }
 
 @end

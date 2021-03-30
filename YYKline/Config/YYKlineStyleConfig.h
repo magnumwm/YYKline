@@ -224,6 +224,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 
 // MARK: 股票市场绘制参数
+/// 是否绘制横轴时间坐标， 默认YES
+@property (nonatomic, assign) BOOL drawXAxisTimeline;
+/// 是否绘制成交量图， 默认YES
+@property (nonatomic, assign) BOOL drawVolChart;
+/// 是否绘制Y轴价格区间, 默认YES
+@property (nonatomic, assign) BOOL drawYAxisPrice;
 /// 股票市场每天每时数据量总数 A股：241， 港股：331，美股：391
 @property (nonatomic, assign) NSInteger timelineTotalCount;
 /// 是否绘制分时
