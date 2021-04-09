@@ -81,7 +81,7 @@
     self.mainAreaHeight = 187;
     self.timelineAreaHeight = 12;
     self.timelineToVolumeGap = 16;
-    self.volumeAreaHeight = 20;
+    self.volumeAreaHeight = 32;
 
     // 股票市场绘制参数
     self.drawVolChart = YES;

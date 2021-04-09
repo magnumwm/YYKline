@@ -10,7 +10,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface YYVolPainter : CALayer <YYPainterProtocol>
+@interface YYVolPainter : CALayer <YYTimelinePainterProtocol>
 
 @end
 

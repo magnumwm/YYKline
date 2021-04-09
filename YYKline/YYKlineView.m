@@ -33,8 +33,14 @@
 }
 @property (nonatomic, strong) UIScrollView *scrollView;
 @property (nonatomic, strong) UIView *painterView;
+/// 主图View
+@property (nonatomic, strong) UIView *mainPainterView;
+/// 时间轴View
+@property (nonatomic, strong) UIView *timePainterView;
+/// 成交量View
+@property (nonatomic, strong) UIView *volumePainterView;
 /// 长按后在这个view上显示十字交叉线
-@property (nonatomic, strong) UIView *topView;
+@property (nonatomic, strong) UIView *crosslineTopView;
 
 @property (nonatomic, assign) CGFloat oldExactOffset; // 旧的scrollview准确位移
 @property (nonatomic, assign) CGFloat pinchCenterX;
@@ -83,6 +89,7 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
     return self;
 }
 
+#pragma mark -- 初始化subview
 - (void)initUI {
     self.backgroundColor = self.styleConfig.backgroundColor;
     // 主图
@@ -112,19 +119,90 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
 }
 
 - (void)initPainterView {
+    // 初始化PainterView
     self.painterView = [[UIView alloc] init];
     [self.scrollView addSubview:self.painterView];
+
+    // 初始化主视图
+    self.mainPainterView = [[UIView alloc] init];
+    [self.painterView addSubview:self.mainPainterView];
+
+
+    if (self.styleConfig.drawXAxisTimeline) {
+        [self addTimePainterView];
+    }
+
+    if (self.styleConfig.drawVolChart) {
+        [self addVolumePainterView];
+    }
+
+    [self createLayout];
+}
+#pragma mark -- 布局
+- (void)createLayout {
     [self.painterView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.width.height.equalTo(self.scrollView);
+        make.top.width.centerY.bottom.equalTo(self.scrollView);
         self.painterViewXConstraint = make.left.equalTo(self.scrollView);
+    }];
+
+    [self.mainPainterView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.top.right.equalTo(self.painterView);
+        make.height.equalTo(@(self.styleConfig.mainAreaHeight));
+    }];
+
+    UIView *bottomView = self.mainPainterView;
+
+    if (self.styleConfig.drawXAxisTimeline) {
+        [self layoutTimePainterView:bottomView];
+        bottomView = self.timePainterView;
+    }
+
+    if (self.styleConfig.drawVolChart) {
+        [self layoutVolumePainterView:bottomView];
+        bottomView = self.volumePainterView;
+    }
+
+    [bottomView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.bottom.equalTo(self.painterView);
+    }];
+
+    [self layoutIfNeeded];
+}
+
+#pragma mark -- 动态添加X轴时间线
+- (void)addTimePainterView {
+    self.timePainterView = [[UIView alloc] init];
+    [self.painterView addSubview:self.timePainterView];
+}
+
+- (void)layoutTimePainterView:(UIView *)preView {
+    [self.timePainterView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.right.equalTo(self.painterView);
+        make.top.equalTo(preView.mas_bottom).offset(self.styleConfig.mainToTimelineGap);
+        make.height.equalTo(@(self.styleConfig.timelineAreaHeight));
     }];
 }
 
+#pragma mark -- 动态添加成交量
+- (void)addVolumePainterView {
+    self.volumePainterView = [[UIView alloc] init];
+    [self.painterView addSubview:self.volumePainterView];
+}
+
+- (void)layoutVolumePainterView:(UIView *)preView {
+    [self.volumePainterView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.right.equalTo(self.painterView);
+        make.top.equalTo(preView.mas_bottom).offset(self.styleConfig.timelineToVolumeGap);
+        make.height.equalTo(@(self.styleConfig.volumeAreaHeight));
+    }];
+}
+
+#pragma mark -- 长按添加crossLine
 - (void)initTopView {
-    self.topView = [UIView new];
-    self.topView.backgroundColor = [UIColor clearColor];
-    [self.scrollView insertSubview:self.topView aboveSubview:self.painterView];
-    [self.topView mas_makeConstraints:^(MASConstraintMaker *make) {
+    self.crosslineTopView = [UIView new];
+    self.crosslineTopView.backgroundColor = [UIColor clearColor];
+    [self.scrollView insertSubview:self.crosslineTopView aboveSubview:self.painterView];
+    [self.crosslineTopView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.edges.equalTo(self.painterView);
     }];
 }
@@ -135,6 +213,23 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
 }
 
 #pragma mark 重绘
+- (void)removePreLayers {
+    if (self.mainPainterView.layer) {
+        NSArray *layers = self.mainPainterView.layer.sublayers;
+        [layers makeObjectsPerformSelector:@selector(removeFromSuperlayer)];
+    }
+
+    if (self.timePainterView.layer) {
+        NSArray *layers = self.timePainterView.layer.sublayers;
+        [layers makeObjectsPerformSelector:@selector(removeFromSuperlayer)];
+    }
+
+    if (self.volumePainterView.layer) {
+        NSArray *layers = self.volumePainterView.layer.sublayers;
+        [layers makeObjectsPerformSelector:@selector(removeFromSuperlayer)];
+    }
+}
+
 - (void)reDrawCandle:(CGFloat)currentPrice {
     currentPainter = self.linePainter;
     currentStockPrice = currentPrice;
@@ -204,7 +299,7 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
     }
 
     // 移除旧layer
-    self.painterView.layer.sublayers = nil;
+    [self removePreLayers];
 
     YYKlineStyleConfig *config = self.styleConfig;
 
@@ -216,12 +311,12 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
 
 
     /// K线图主视图
-    CGRect mainArea = CGRectMake(offsetX, 0, CGRectGetWidth(self.painterView.bounds), config.mainAreaHeight);
+//    CGRect mainArea = CGRectMake(offsetX, 0, CGRectGetWidth(self.painterView.bounds), config.mainAreaHeight);
     
     if (self.styleConfig.isDrawTimeline) {
         // 分时主图
-        [self.timelinePainter drawToLayer:self.painterView.layer
-                                     area:mainArea
+        [self.timelinePainter drawToLayer:self.mainPainterView.layer
+                                     area:self.mainPainterView.bounds
                               styleConfig:self.styleConfig
                                     total:self.styleConfig.timelineTotalCount
                                    models:models
@@ -230,8 +325,8 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
         /// 当前基准横线，绘制的是昨收盘价
         if (currentStockPrice > minMax.min && currentStockPrice < minMax.max) {
             // current < min or current > max 不显示
-            CGRect currentPriceLineArea = CGRectMake(0, 0, CGRectGetWidth(self.painterView.bounds), config.mainAreaHeight);
-            [self.currentPricePainter drawToLayer:self.painterView.layer
+            CGRect currentPriceLineArea = CGRectMake(0, 0, CGRectGetWidth(self.mainPainterView.bounds), config.mainAreaHeight);
+            [self.currentPricePainter drawToLayer:self.mainPainterView.layer
                                              area:currentPriceLineArea
                                       styleConfig:self.styleConfig
                                            models:models
@@ -240,8 +335,8 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
         }
     } else {
         // candle主图
-        [self.linePainter drawToLayer:self.painterView.layer
-                                 area:mainArea
+        [self.linePainter drawToLayer:self.mainPainterView.layer
+                                 area:self.mainPainterView.bounds
                           styleConfig:self.styleConfig
                                models:models
                                minMax:minMax];
@@ -250,7 +345,7 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
     // 左侧价格轴
     if (self.styleConfig.drawYAxisPrice) {
         CGRect priceArea = CGRectMake(0, 0, YYKlineLinePriceViewWidth, config.mainAreaHeight);
-        [YYVerticalTextPainter drawToLayer:self.painterView.layer
+        [YYVerticalTextPainter drawToLayer:self.mainPainterView.layer
                                       area:priceArea
                                styleConfig:self.styleConfig
                                     minMax:minMax];
@@ -258,21 +353,21 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
 
     // 时间轴
     // 时间横坐标
-    CGRect timelineArea = CGRectMake(offsetX, CGRectGetMaxY(mainArea)+config.mainToTimelineGap, CGRectGetWidth(mainArea), config.timelineAreaHeight);
+//    CGRect timelineArea = CGRectMake(offsetX, CGRectGetMaxY(mainArea)+config.mainToTimelineGap, CGRectGetWidth(mainArea), config.timelineAreaHeight);
 
     if (self.styleConfig.drawXAxisTimeline) {
         if (self.styleConfig.timelineTimestamps.count > 0) {
             // 分时时间轴
-            [YYTimePainter drawToLayer:self.painterView.layer
-                                  area:timelineArea
+            [YYTimePainter drawToLayer:self.timePainterView.layer
+                                  area:self.timePainterView.bounds
                            styleConfig:self.styleConfig
                             timestamps:self.styleConfig.timelineTimestamps layout:(self.styleConfig.timelineTimestamps.count < 4)?YYXAxisTimeTextLayoutEqualBetween:YYXAxisTimeTextLayoutEqualStart];
         } else {
             // 计算需要显示的时间戳区间
-            [YYTimePainter drawToLayer:self.painterView.layer
-                                  area:timelineArea
+            [YYTimePainter drawToLayer:self.timePainterView.layer
+                                  area:self.timePainterView.bounds
                            styleConfig:self.styleConfig
-                            timestamps:[self createVisibleTimestamps:models area:timelineArea]
+                            timestamps:[self createVisibleTimestamps:models area:self.timePainterView.bounds]
                                 layout:YYXAxisTimeTextLayoutEqualToMainPoint];
         }
     }
@@ -280,10 +375,13 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
     // 成交量图
     if (self.styleConfig.drawVolChart) {
         // 成交量视图
-        CGRect secondArea = CGRectMake(offsetX, CGRectGetMaxY(timelineArea)+config.timelineToVolumeGap, CGRectGetWidth(mainArea), config.volumeAreaHeight);
-        [YYVolPainter drawToLayer:self.painterView.layer
-                             area:secondArea
+//        CGFloat y = CGRectGetMaxY(timelineArea)+config.timelineToVolumeGap;
+//        CGRect secondArea = CGRectMake(offsetX, y, CGRectGetWidth(mainArea), CGRectGetHeight(mainArea)-y);
+        NSInteger total = self.styleConfig.isDrawTimeline ? self.styleConfig.timelineTotalCount : 0;
+        [YYVolPainter drawToLayer:self.volumePainterView.layer
+                             area:self.volumePainterView.bounds
                       styleConfig:self.styleConfig
+                            total:total
                            models:models
                            minMax:[YYVolPainter getMinMaxValue:models]];
     }
@@ -332,7 +430,7 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
         // 暂停滑动
         self.scrollView.scrollEnabled = NO;
 
-        CGRect mainArea = CGRectMake(0, 0, CGRectGetWidth(self.painterView.bounds), config.mainAreaHeight+config.mainToTimelineGap+config.timelineAreaHeight+config.timelineToVolumeGap+config.volumeAreaHeight);
+        CGRect mainArea = self.painterView.bounds;
 
         YYKlineModel *model;
         CGPoint crossLineCenterPoint;
@@ -354,11 +452,11 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
         if (longPress.state == UIGestureRecognizerStateBegan) {
             [self initTopView];
         }
-        self.topView.layer.sublayers = nil;
+        self.crosslineTopView.layer.sublayers = nil;
 
         NSString *drawTime = [self.styleConfig.crosslineTimestampFormatter stringFromDate:[NSDate dateWithTimeIntervalSince1970:model.Timestamp.doubleValue]];
         NSDictionary *attributes = @{NSForegroundColorAttributeName: config.crossLineTextColor, NSFontAttributeName: config.crosslineTextFont};
-        [self.crossPainter drawToLayer:self.topView.layer
+        [self.crossPainter drawToLayer:self.crosslineTopView.layer
                                  point:crossLineCenterPoint
                                   area:mainArea
                            styleConfig:self.styleConfig
@@ -370,8 +468,8 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
     if(longPress.state == UIGestureRecognizerStateEnded ||
        longPress.state == UIGestureRecognizerStateCancelled) {
         // 取消crossLine
-        self.topView.layer.sublayers = nil;
-        self.topView = nil;
+        self.crosslineTopView.layer.sublayers = nil;
+        self.crosslineTopView = nil;
         oldPositionX = 0;
         // 恢复scrollView的滑动
         self.scrollView.scrollEnabled = YES;

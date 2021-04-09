@@ -36,7 +36,6 @@
     CGFloat maxW = CGRectGetWidth(area);
     CGFloat maxH = CGRectGetHeight(area);
     CGFloat gap = maxW/total;
-    NSLog(@"mainArea: total: %d count: %d", total, models.count);
 
     CGFloat unitValue = maxH/minMaxModel.distance;
 
@@ -45,9 +44,8 @@
     sublayer.frame = area;
     UIBezierPath *path1 = [UIBezierPath bezierPath];
     [models enumerateObjectsUsingBlock:^(YYKlineModel * _Nonnull m, NSUInteger idx, BOOL * _Nonnull stop) {
-        CGFloat w = config.kLineWidth;
         CGFloat x = idx * gap;
-        CGPoint point1 = CGPointMake(x+w/2, maxH - (m.Close.floatValue - minMaxModel.min)*unitValue);
+        CGPoint point1 = CGPointMake(x, maxH - (m.Close.floatValue - minMaxModel.min)*unitValue);
         if (idx == 0) {
             [path1 moveToPoint:point1];
             pointStart = point1;
@@ -58,7 +56,6 @@
         m.timelineCrossLineCenterPoint = CGPointMake(point1.x+CGRectGetMinX(area), point1.y);
         if (idx == models.count - 1) {
             pointEnd = point1;
-            NSLog(@"mainArea: pointEnd: %@", NSStringFromCGPoint(pointEnd));
         }
     }];
 
