@@ -37,7 +37,7 @@
     YYVolPainter *sublayer = [[YYVolPainter alloc] init];
     sublayer.frame = area;
     [models enumerateObjectsUsingBlock:^(YYKlineModel * _Nonnull m, NSUInteger idx, BOOL * _Nonnull stop) {
-        CGFloat w = total==0?config.kLineWidth:maxW/total;;
+        CGFloat w = total==0?(config.kLineWidth-config.kLineGap):maxW/total;;
 //        CGFloat x = idx * (w + config.kLineGap);
         CGFloat h = fabs(m.Volume.floatValue - minMaxModel.min) * unitValue;
         UIBezierPath *path = [UIBezierPath bezierPathWithRoundedRect:CGRectMake(m.mainCenterPoint.x-w/2, maxH - h, w, h) cornerRadius:config.kVolumeBarRadius];

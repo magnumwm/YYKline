@@ -63,8 +63,8 @@
 
     // 布局
     self.zoomLevel = 1.f;
-    self.klineLineMinWidth = YYKlineLineMinWidth;
-    self.klineLineMaxWidth = YYKlineLineMaxWidth;
+//    self.klineLineMinWidth = YYKlineLineMinWidth;
+//    self.klineLineMaxWidth = YYKlineLineMaxWidth;
     self.kLineLineWidth = YYKlineLineWidth;
     self.kTimelineLineWidth = 2.4;
     self.kLineWidth = [YYKlineGlobalVariable kLineWidth];
@@ -89,34 +89,39 @@
     self.drawYAxisPrice = YES;
 }
 
-- (CGFloat)kLineWidth {
-    CGFloat width = _kLineWidth * self.zoomLevel;
-    width = MAX(self.klineLineMinWidth, width);
-    width = MIN(width, self.klineLineMaxWidth);
-    return width;
+//- (CGFloat)kLineWidth {
+//    CGFloat width = _kLineWidth * self.zoomLevel;
+//    width = MAX(self.klineLineMinWidth, width);
+//    width = MIN(width, self.klineLineMaxWidth);
+//    return width;
+//}
+- (void)setZoomLevel:(CGFloat)zoomLevel {
+    _zoomLevel = zoomLevel;
+    self.kLineWidth = _kLineWidth * self.zoomLevel;
+    self.kLineGap = _kLineGap * self.zoomLevel;
 }
 
 - (void)setKLineWidth:(CGFloat)kLineWidth {
-    if (kLineWidth > self.klineLineMaxWidth) {
-        kLineWidth = self.klineLineMaxWidth;
-    }else if (kLineWidth < self.klineLineMinWidth){
-        kLineWidth = self.klineLineMinWidth;
+    if (kLineWidth > YYKlineLineMaxWidth) {
+        kLineWidth = YYKlineLineMaxWidth;
+    }else if (kLineWidth < YYKlineLineMinWidth){
+        kLineWidth = YYKlineLineMinWidth;
     }
     _kLineWidth = kLineWidth;
 }
 
-- (CGFloat)kLineGap {
-    CGFloat width = _kLineGap * self.zoomLevel;
-    width = MAX(0, width);
-    width = MIN(width, 5);
-    return width;
-}
+//- (CGFloat)kLineGap {
+//    CGFloat width = _kLineGap * self.zoomLevel;
+//    width = MAX(0, width);
+//    width = MIN(width, 5);
+//    return width;
+//}
 
 - (void)setKLineGap:(CGFloat)kLineGap {
-    if (kLineGap > 5) {
-        kLineGap = 5;
-    }else if (kLineGap < 0){
-        kLineGap = 0;
+    if (kLineGap > YYKlineLineMaxGap) {
+        kLineGap = YYKlineLineMaxGap;
+    }else if (kLineGap < YYKlineLineMinGap){
+        kLineGap = YYKlineLineMinGap;
     }
     _kLineGap = kLineGap;
 }

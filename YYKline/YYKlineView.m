@@ -42,11 +42,12 @@
 /// 长按后在这个view上显示十字交叉线
 @property (nonatomic, strong) UIView *crosslineTopView;
 
-@property (nonatomic, assign) CGFloat oldExactOffset; // 旧的scrollview准确位移
 @property (nonatomic, assign) CGFloat pinchCenterX;
 @property (nonatomic, assign) NSInteger pinchIndex;
-@property (nonatomic, assign) NSInteger needDrawStartIndex; // 需要绘制Index开始值
-@property (nonatomic, assign) CGFloat oldContentOffsetX; // 旧的contentoffset值
+/// 需要绘制Index开始值
+@property (nonatomic, assign) NSInteger needDrawStartIndex;
+/// 旧的contentoffset值
+@property (nonatomic, assign) CGFloat oldContentOffsetX;
 @property (nonatomic, weak) MASConstraint *painterViewXConstraint;
 
 @property (nonatomic) Class<YYPainterProtocol> linePainter;
@@ -230,14 +231,15 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
     }
 }
 
+#pragma mark -- 重绘蜡烛图
 - (void)reDrawCandle:(CGFloat)currentPrice {
     currentPainter = self.linePainter;
     currentStockPrice = currentPrice;
 
     YYKlineStyleConfig *config = self.styleConfig;
     dispatch_main_async_safe(^{
+        [self updateCandleScrollViewContentSize];
         CGFloat kLineViewWidth = self.rootModel.models.count * config.kLineWidth + (self.rootModel.models.count + 1) * config.kLineGap + 10;
-        [self updateScrollViewContentSize];
         CGFloat offset = kLineViewWidth - self.scrollView.frame.size.width;
         if (self.oldContentOffsetX == 0) {
             // 初始展示最新日期的数据
@@ -249,16 +251,31 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
     });
 }
 
+#pragma mark -- 重绘分时图
 - (void)reDrawTimeline:(CGFloat)currentPrice {
     currentPainter = self.timelinePainter;
     currentStockPrice = currentPrice;
 
     dispatch_main_async_safe(^{
+        [self updateTimelineScrollViewContentSize];
         self.painterViewXConstraint.offset = 0;
+        [self.painterView layoutIfNeeded];
         [self drawWithModels:self.rootModel.models];
     });
 }
 
+#pragma mark - 更新scrollView ContentSize
+- (void)updateCandleScrollViewContentSize {
+    YYKlineStyleConfig *config = self.styleConfig;
+    CGFloat contentSizeW = self.rootModel.models.count * config.kLineWidth + (self.rootModel.models.count -1) * config.kLineGap;
+    self.scrollView.contentSize = CGSizeMake(contentSizeW, self.scrollView.contentSize.height);
+}
+
+- (void)updateTimelineScrollViewContentSize {
+    self.scrollView.contentSize = CGSizeMake(CGRectGetWidth(self.frame), CGRectGetHeight(self.frame));
+}
+
+#pragma mark -- 计算显示区域需要绘制的蜡烛
 - (void)calculateNeedDrawModels {
     YYKlineStyleConfig *config = self.styleConfig;
     CGFloat lineGap = config.kLineGap;
@@ -303,16 +320,15 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
 
     YYKlineStyleConfig *config = self.styleConfig;
 
-    CGFloat offsetX = 0;
-    if (!self.styleConfig.isDrawTimeline) {
-        offsetX = models.firstObject.index * (config.kLineWidth + config.kLineGap) - self.scrollView.contentOffset.x;
-        offsetX = MAX(0, offsetX);
-    }
-
+//    CGFloat offsetX = 0;
+//    if (!self.styleConfig.isDrawTimeline) {
+//        offsetX = models.firstObject.index * (config.kLineWidth + config.kLineGap) - self.scrollView.contentOffset.x;
+//        offsetX = MAX(0, offsetX);
+//    }
+//
+//    NSLog(@"kline candle offsetX: %f", offsetX);
 
     /// K线图主视图
-//    CGRect mainArea = CGRectMake(offsetX, 0, CGRectGetWidth(self.painterView.bounds), config.mainAreaHeight);
-    
     if (self.styleConfig.isDrawTimeline) {
         // 分时主图
         [self.timelinePainter drawToLayer:self.mainPainterView.layer
@@ -351,10 +367,7 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
                                     minMax:minMax];
     }
 
-    // 时间轴
     // 时间横坐标
-//    CGRect timelineArea = CGRectMake(offsetX, CGRectGetMaxY(mainArea)+config.mainToTimelineGap, CGRectGetWidth(mainArea), config.timelineAreaHeight);
-
     if (self.styleConfig.drawXAxisTimeline) {
         if (self.styleConfig.timelineTimestamps.count > 0) {
             // 分时时间轴
@@ -374,9 +387,6 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
 
     // 成交量图
     if (self.styleConfig.drawVolChart) {
-        // 成交量视图
-//        CGFloat y = CGRectGetMaxY(timelineArea)+config.timelineToVolumeGap;
-//        CGRect secondArea = CGRectMake(offsetX, y, CGRectGetWidth(mainArea), CGRectGetHeight(mainArea)-y);
         NSInteger total = self.styleConfig.isDrawTimeline ? self.styleConfig.timelineTotalCount : 0;
         [YYVolPainter drawToLayer:self.volumePainterView.layer
                              area:self.volumePainterView.bounds
@@ -501,19 +511,20 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
     if(ABS(difValue) > YYKlineScaleBound) {
         CGFloat oldKlineWidth = config.kLineWidth;
         CGFloat newKlineWidth = oldKlineWidth * (difValue > 0 ? (1 + YYKlineScaleFactor) : (1 - YYKlineScaleFactor));
-        if (oldKlineWidth <= config.klineLineMinWidth && difValue <= 0) {
+        if (oldKlineWidth <= YYKlineLineMinWidth && difValue <= 0) {
             return;
         }
 
         CGFloat oldKlineGap = config.kLineGap;
-        CGFloat newKlineGap = oldKlineGap * (difValue > 0 ? (1 + YYKlineScaleFactor) : (1 - YYKlineScaleFactor));
-        newKlineGap = MIN(newKlineGap, 5);
+        config.kLineGap = oldKlineGap * (difValue > 0 ? (1 + YYKlineScaleFactor) : (1 - YYKlineScaleFactor));
+        NSLog(@"config gap: %f", config.kLineGap);
+//        newKlineGap = MIN(newKlineGap, 5);
         if (oldKlineGap <= YYKlineLineMinGap && difValue <= 0) {
             return;
         }
 
         config.kLineWidth = newKlineWidth;
-        config.kLineGap = newKlineGap;
+//        config.kLineGap = newKlineGap;
 
         // 右侧已经没有更多数据时，从右侧开始缩放
         if (((CGRectGetWidth(self.scrollView.bounds) - self.pinchCenterX) / (config.kLineWidth + config.kLineGap)) > self.rootModel.models.count - self.pinchIndex) {
@@ -538,7 +549,7 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
         NSInteger idx = self.pinchIndex - floor(self.pinchCenterX / (config.kLineGap + config.kLineWidth));
         CGFloat offset = idx * (config.kLineGap + config.kLineWidth);
 //        [self.rootModel calculateNeedDrawTimeModel];
-        [self updateScrollViewContentSize];
+        [self updateCandleScrollViewContentSize];
         self.scrollView.contentOffset = CGPointMake(offset, 0);
         // scrollview的contentsize小于frame时，不会触发scroll代理，需要手动调用
         if (self.scrollView.contentSize.width < self.scrollView.bounds.size.width) {
@@ -547,16 +558,12 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
     }
 }
 
+
+#pragma mark - 显示指标
 - (void)updateLabelText:(YYKlineModel *)m {
     if (self.delegate && [self.delegate respondsToSelector:@selector(yyklineviewUpdateText:)]) {
         [self.delegate yyklineviewUpdateText:m];
     }
-}
-
-- (void)updateScrollViewContentSize {
-    YYKlineStyleConfig *config = self.styleConfig;
-    CGFloat contentSizeW = self.rootModel.models.count * config.kLineWidth + (self.rootModel.models.count -1) * config.kLineGap;
-    self.scrollView.contentSize = CGSizeMake(contentSizeW, self.scrollView.contentSize.height);
 }
 
 #pragma mark - UIScrollView代理
@@ -566,6 +573,7 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
     } else {
         self.painterViewXConstraint.offset = scrollView.contentOffset.x;
     }
+    [self.painterView layoutIfNeeded];
     self.oldContentOffsetX = self.scrollView.contentOffset.x;
     [self calculateNeedDrawModels];
 }

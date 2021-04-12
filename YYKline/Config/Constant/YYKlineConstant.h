@@ -26,9 +26,14 @@
 #define YYKlineLineMinWidth 0.01
 
 /**
- *  K线图最小的宽度
+ *  K线图最大的间隔
  */
-#define YYKlineLineMinGap 0
+#define YYKlineLineMaxGap 5
+
+/**
+ *  K线图最小的间隔
+ */
+#define YYKlineLineMinGap 0.01
 
 /**
  *  K线图缩放界限

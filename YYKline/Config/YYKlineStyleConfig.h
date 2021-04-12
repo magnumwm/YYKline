@@ -144,14 +144,14 @@ NS_ASSUME_NONNULL_BEGIN
  *  K线图线宽，默认1
  */
 @property (nonatomic, assign) CGFloat kLineLineWidth;
-/**
- *  K线图最小线宽，默认1
- */
-@property (nonatomic, assign) CGFloat klineLineMinWidth;
-/**
- *  K线图最大线宽，默认20
- */
-@property (nonatomic, assign) CGFloat klineLineMaxWidth;
+///**
+// *  K线图最小线宽，默认1
+// */
+//@property (nonatomic, assign) CGFloat klineLineMinWidth;
+///**
+// *  K线图最大线宽，默认20
+// */
+//@property (nonatomic, assign) CGFloat klineLineMaxWidth;
 /**
  *  分时线线宽，默认2.4
  */
