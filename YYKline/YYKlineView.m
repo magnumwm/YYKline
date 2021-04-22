@@ -320,14 +320,6 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
 
     YYKlineStyleConfig *config = self.styleConfig;
 
-//    CGFloat offsetX = 0;
-//    if (!self.styleConfig.isDrawTimeline) {
-//        offsetX = models.firstObject.index * (config.kLineWidth + config.kLineGap) - self.scrollView.contentOffset.x;
-//        offsetX = MAX(0, offsetX);
-//    }
-//
-//    NSLog(@"kline candle offsetX: %f", offsetX);
-
     /// K线图主视图
     if (self.styleConfig.isDrawTimeline) {
         // 分时主图
@@ -517,14 +509,12 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
 
         CGFloat oldKlineGap = config.kLineGap;
         config.kLineGap = oldKlineGap * (difValue > 0 ? (1 + YYKlineScaleFactor) : (1 - YYKlineScaleFactor));
-        NSLog(@"config gap: %f", config.kLineGap);
-//        newKlineGap = MIN(newKlineGap, 5);
+
         if (oldKlineGap <= YYKlineLineMinGap && difValue <= 0) {
             return;
         }
 
         config.kLineWidth = newKlineWidth;
-//        config.kLineGap = newKlineGap;
 
         // 右侧已经没有更多数据时，从右侧开始缩放
         if (((CGRectGetWidth(self.scrollView.bounds) - self.pinchCenterX) / (config.kLineWidth + config.kLineGap)) > self.rootModel.models.count - self.pinchIndex) {
@@ -548,7 +538,7 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
         oldScale = pinch.scale;
         NSInteger idx = self.pinchIndex - floor(self.pinchCenterX / (config.kLineGap + config.kLineWidth));
         CGFloat offset = idx * (config.kLineGap + config.kLineWidth);
-//        [self.rootModel calculateNeedDrawTimeModel];
+
         [self updateCandleScrollViewContentSize];
         self.scrollView.contentOffset = CGPointMake(offset, 0);
         // scrollview的contentsize小于frame时，不会触发scroll代理，需要手动调用

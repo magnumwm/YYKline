@@ -24,9 +24,9 @@
               point:(CGPoint)point
                area:(CGRect)area
         styleConfig:(YYKlineStyleConfig *)config
-           leftText:(NSAttributedString *)leftText
-          rightText:(NSAttributedString *)rightText
-           downText:(NSAttributedString *)downText {
+           leftText:(NSAttributedString * _Nullable)leftText
+          rightText:(NSAttributedString * _Nullable)rightText
+           downText:(NSAttributedString * _Nullable)downText {
     CGFloat maxW = CGRectGetWidth(area);
     CGFloat maxH = CGRectGetHeight(area);
 
@@ -92,7 +92,7 @@
     }
 
     // 画 horizontal left text
-    {
+    if (leftText){
         CATextLayer *textLayer = [CATextLayer layer];
         textLayer.string = leftText;
         textLayer.wrapped = YES;
@@ -109,7 +109,7 @@
     }
 
     // 画 horizontal right text
-    {
+    if (rightText){
         CATextLayer *textLayer = [CATextLayer layer];
         textLayer.string = rightText;
         textLayer.alignmentMode = kCAAlignmentCenter;
@@ -124,7 +124,7 @@
     }
 
     // 画 down text
-    {
+    if (downText){
         CATextLayer *textLayer = [CATextLayer layer];
         textLayer.string = downText;
         textLayer.alignmentMode = kCAAlignmentCenter;

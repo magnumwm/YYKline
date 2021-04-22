@@ -72,9 +72,9 @@ typedef NS_ENUM(NSUInteger, YYXAxisTimeTextLayout) {
               point:(CGPoint)point
                area:(CGRect)area
         styleConfig:(YYKlineStyleConfig *)config
-           leftText:(NSAttributedString *)leftText
-          rightText:(NSAttributedString *)rightText
-           downText:(NSAttributedString *)downText;
+           leftText:(NSAttributedString * _Nullable)leftText
+          rightText:(NSAttributedString * _Nullable)rightText
+           downText:(NSAttributedString * _Nullable)downText;
 
 @optional
 // 获取边界值
