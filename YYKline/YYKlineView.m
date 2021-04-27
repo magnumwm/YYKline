@@ -366,7 +366,7 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
             [YYTimePainter drawToLayer:self.timePainterView.layer
                                   area:self.timePainterView.bounds
                            styleConfig:self.styleConfig
-                            timestamps:self.styleConfig.timelineTimestamps layout:(self.styleConfig.timelineTimestamps.count < 4)?YYXAxisTimeTextLayoutEqualBetween:YYXAxisTimeTextLayoutEqualStart];
+                            timestamps:self.styleConfig.timelineTimestamps layout:(self.styleConfig.timelineTimestamps.count < 4)?YYXAxisTimeTextLayoutEqualBetween:YYXAxisTimeTextLayoutEqualCenter];
         } else {
             // 计算需要显示的时间戳区间
             [YYTimePainter drawToLayer:self.timePainterView.layer
