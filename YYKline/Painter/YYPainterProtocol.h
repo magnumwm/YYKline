@@ -111,6 +111,20 @@ typedef NS_ENUM(NSUInteger, YYXAxisTimeTextLayout) {
                            area:(CGRect)area
                           total:(NSInteger)total
                          models:(NSArray<YYKlineModel*> *)models;
+
+/// 绘制分时图折线图和对应的时间轴
+/// @param layer 折线图layer
+/// @param timeLayer 时间轴layer
+/// @param config YYKlineStyleConfig
+/// @param total 数据点数量
+/// @param models 数据点数组
+/// @param minMaxModel 高低值
++ (void)drawToLayer:(CALayer *)layer
+          timeLayer:(CALayer *)timeLayer
+        styleConfig:(YYKlineStyleConfig *)config
+              total:(NSInteger)total
+             models:(NSArray<YYKlineModel*> *)models
+             minMax:(YYMinMaxModel *)minMaxModel;
 @end
 
 

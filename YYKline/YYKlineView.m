@@ -284,7 +284,7 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
     //数组个数
     NSInteger needDrawKlineCount = ceil((CGRectGetWidth(self.scrollView.frame))/(lineGap+lineWidth)) + 1;
     CGFloat scrollViewOffsetX = self.scrollView.contentOffset.x < 0 ? 0 : self.scrollView.contentOffset.x;
-    NSUInteger leftArrCount = floor(scrollViewOffsetX / (lineGap + lineWidth));
+    NSUInteger leftArrCount = ceil(scrollViewOffsetX / (lineGap + lineWidth));
     self.needDrawStartIndex = leftArrCount;
 
     NSArray *arr;
@@ -324,8 +324,8 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
     if (self.styleConfig.isDrawTimeline) {
         // 分时主图
         [self.timelinePainter drawToLayer:self.mainPainterView.layer
-                                     area:self.mainPainterView.bounds
-                              styleConfig:self.styleConfig
+                                timeLayer:self.timePainterView.layer
+                              styleConfig:config
                                     total:self.styleConfig.timelineTotalCount
                                    models:models
                                    minMax:minMax];
@@ -360,21 +360,13 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
     }
 
     // 时间横坐标
-    if (self.styleConfig.drawXAxisTimeline) {
-        if (self.styleConfig.timelineTimestamps.count > 0) {
-            // 分时时间轴
-            [YYTimePainter drawToLayer:self.timePainterView.layer
-                                  area:self.timePainterView.bounds
-                           styleConfig:self.styleConfig
-                            timestamps:self.styleConfig.timelineTimestamps layout:(self.styleConfig.timelineTimestamps.count < 4)?YYXAxisTimeTextLayoutEqualBetween:YYXAxisTimeTextLayoutEqualCenter];
-        } else {
-            // 计算需要显示的时间戳区间
-            [YYTimePainter drawToLayer:self.timePainterView.layer
-                                  area:self.timePainterView.bounds
-                           styleConfig:self.styleConfig
-                            timestamps:[self createVisibleTimestamps:models area:self.timePainterView.bounds]
-                                layout:YYXAxisTimeTextLayoutEqualToMainPoint];
-        }
+    if (!self.styleConfig.drawXAxisTimeline) {
+        // 计算需要显示的时间戳区间
+        [YYTimePainter drawToLayer:self.timePainterView.layer
+                              area:self.timePainterView.bounds
+                       styleConfig:self.styleConfig
+                        timestamps:[self createVisibleTimestamps:models area:self.timePainterView.bounds]
+                            layout:YYXAxisTimeTextLayoutEqualToMainPoint];
     }
 
     // 成交量图

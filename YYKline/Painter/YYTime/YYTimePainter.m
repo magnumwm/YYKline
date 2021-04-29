@@ -94,4 +94,33 @@
     }];
 }
 
++ (void)drawToLayer:(CALayer *)layer
+        styleConfig:(YYKlineStyleConfig *)config
+              model:(YYKlineModel *)model {
+    CGFloat maxH = CGRectGetHeight(layer.bounds);
+    if (maxH <= 0) {
+        return;
+    }
+
+    NSDateFormatter *formatter = config.timestampFormatter;
+    NSDate *date = [NSDate dateWithTimeIntervalSince1970:model.Timestamp.doubleValue];
+
+    NSString *text = [formatter stringFromDate:date];
+    CGRect textBounds = [text boundingRectWithSize:CGSizeMake(100, maxH) options:NSStringDrawingUsesFontLeading attributes:@{NSFontAttributeName:config.timelineFont} context:nil];
+
+    CGFloat y = (maxH - config.timelineFont.lineHeight)/2.f;
+    CATextLayer *textLayer = [CATextLayer layer];
+    textLayer.string = text;
+    textLayer.alignmentMode = kCAAlignmentCenter;
+    textLayer.font = (__bridge CFTypeRef _Nullable)(config.timelineFontName);
+    textLayer.fontSize = config.timelineFont.pointSize;
+    textLayer.foregroundColor = config.timeLineColor.CGColor;
+
+    CGFloat originX = MAX(0, model.mainCenterPoint.x);
+    originX = MIN(originX, layer.bounds.size.width-textBounds.size.width);
+    textLayer.frame = CGRectMake(originX, y, textBounds.size.width, textBounds.size.height);
+    textLayer.contentsScale = UIScreen.mainScreen.scale;
+    [layer addSublayer:textLayer];
+}
+
 @end

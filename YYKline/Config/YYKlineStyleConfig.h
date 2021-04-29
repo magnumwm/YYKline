@@ -234,8 +234,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, assign) NSInteger timelineTotalCount;
 /// 是否绘制分时
 @property (nonatomic, assign) BOOL isDrawTimeline;
-/// 分时横坐标时间轴数组
-@property (nonatomic, copy) NSArray<NSString*> *timelineTimestamps;
 /// 横轴表时间轴DateFormatter
 @property (nonatomic, strong) NSDateFormatter *timestampFormatter;
 /// 十字交叉线上的DateFormatter
