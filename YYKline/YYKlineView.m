@@ -211,6 +211,7 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
 - (void)resetContentOffset {
     self.oldContentOffsetX = 0;
     self.scrollView.contentOffset = CGPointZero;
+    [self.scrollView layoutIfNeeded];
 }
 
 #pragma mark 重绘
@@ -360,7 +361,7 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
     }
 
     // 时间横坐标
-    if (!self.styleConfig.drawXAxisTimeline) {
+    if (self.styleConfig.drawXAxisTimeline && !self.styleConfig.isDrawTimeline) {
         // 计算需要显示的时间戳区间
         [YYTimePainter drawToLayer:self.timePainterView.layer
                               area:self.timePainterView.bounds
@@ -555,7 +556,7 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
     } else {
         self.painterViewXConstraint.offset = scrollView.contentOffset.x;
     }
-    [self.painterView layoutIfNeeded];
+    [self.scrollView layoutIfNeeded];
     self.oldContentOffsetX = self.scrollView.contentOffset.x;
     [self calculateNeedDrawModels];
 }

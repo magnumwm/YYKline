@@ -21,6 +21,15 @@ NS_ASSUME_NONNULL_BEGIN
               model:(YYKlineModel *)model;
 
 
+/// 绘制单个时间点
+/// @param layer 时间轴layer
+/// @param config YYKlineStyleConfig
+/// @param text 绘制的文字
++ (void)drawToLayer:(CALayer *)layer
+        styleConfig:(YYKlineStyleConfig *)config
+              model:(YYKlineModel *)model
+               text:(NSString *)text;
+
 @end
 
 NS_ASSUME_NONNULL_END

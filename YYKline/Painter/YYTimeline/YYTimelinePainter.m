@@ -140,6 +140,9 @@
                 // 绘制第一个时间点
                 if (isFiveDayTime) {
                     [YYTimePainter drawToLayer:timeSubLayer styleConfig:config model:m];
+                } else {
+                    // 今日分时绘制MMDD日期
+                    [YYTimePainter drawToLayer:timeSubLayer styleConfig:config model:m text:m.V_Date];
                 }
 
 
