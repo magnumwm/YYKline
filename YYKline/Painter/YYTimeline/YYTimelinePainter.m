@@ -173,7 +173,7 @@
                  * 当日分时时间点以HH:mm分隔 时间点开始时间点，午休时间段，闭市时间点,
                  * 以10am为起点 每隔一个小时绘制一次；需要找出午休时间开始和结束的时间点
                  */
-                NSArray *timeArray = @[@"10:00", @"11:00", @"12:00", @"14:00", @"15:00", @"16:00"];
+                NSArray *timeArray = @[@"10:00", @"11:00", @"12:00", @"13:00", @"14:00", @"15:00", @"16:00"];
                 for (NSString *keyTime in timeArray) {
                     if ([keyTime isEqualToString:currentTimeStr]) {
                         [YYTimePainter drawToLayer:timeSubLayer styleConfig:config model:m];
