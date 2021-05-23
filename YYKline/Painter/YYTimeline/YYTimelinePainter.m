@@ -18,8 +18,10 @@
     __block CGFloat minAssert = 999999999999.f;
     __block CGFloat maxAssert = 0.f;
     [data enumerateObjectsUsingBlock:^(YYKlineModel * _Nonnull m, NSUInteger idx, BOOL * _Nonnull stop) {
-        maxAssert = MAX(maxAssert, m.Close.floatValue);
-        minAssert = MIN(minAssert, m.Close.floatValue);
+        if (m.Close.floatValue > 0) {
+            maxAssert = MAX(maxAssert, m.Close.floatValue);
+            minAssert = MIN(minAssert, m.Close.floatValue);
+        }
     }];
     return [YYMinMaxModel modelWithMin:minAssert max:maxAssert];
 }
@@ -46,18 +48,20 @@
     sublayer.frame = area;
     UIBezierPath *path1 = [UIBezierPath bezierPath];
     [models enumerateObjectsUsingBlock:^(YYKlineModel * _Nonnull m, NSUInteger idx, BOOL * _Nonnull stop) {
-        CGFloat x = idx * gap;
-        CGPoint point1 = CGPointMake(x, maxH - (m.Close.floatValue - minMaxModel.min)*unitValue);
-        if (idx == 0) {
-            [path1 moveToPoint:point1];
-            pointStart = point1;
-        } else {
-            [path1 addLineToPoint:point1];
-        }
-        m.mainCenterPoint = point1;
-        m.timelineCrossLineCenterPoint = CGPointMake(point1.x+CGRectGetMinX(area), point1.y);
-        if (idx == models.count - 1) {
-            pointEnd = point1;
+        if (m.Close.floatValue > 0) {
+            CGFloat x = idx * gap;
+            CGPoint point1 = CGPointMake(x, maxH - (m.Close.floatValue - minMaxModel.min)*unitValue);
+            if (idx == 0) {
+                [path1 moveToPoint:point1];
+                pointStart = point1;
+            } else {
+                [path1 addLineToPoint:point1];
+            }
+            m.mainCenterPoint = point1;
+            m.timelineCrossLineCenterPoint = CGPointMake(point1.x+CGRectGetMinX(area), point1.y);
+            if (idx == models.count - 1) {
+                pointEnd = point1;
+            }
         }
     }];
 
@@ -124,6 +128,13 @@
     YYTimelinePainter *sublayer = [[YYTimelinePainter alloc] init];
     sublayer.frame = layer.bounds;
     UIBezierPath *path1 = [UIBezierPath bezierPath];
+    NSUInteger startIndex = 0;
+    for (YYKlineModel *model in models) {
+        if (model.Close.floatValue > 0) {
+            break;
+        }
+        startIndex++;
+    }
     [models enumerateObjectsUsingBlock:^(YYKlineModel * _Nonnull m, NSUInteger idx, BOOL * _Nonnull stop) {
         @autoreleasepool {
             CGFloat x = idx * gap;
@@ -144,17 +155,20 @@
                     // 今日分时绘制MMDD日期
                     [YYTimePainter drawToLayer:timeSubLayer styleConfig:config model:m text:m.V_Date];
                 }
-
-
-                [path1 moveToPoint:point1];
-                pointStart = point1;
-            } else {
-                [path1 addLineToPoint:point1];
-            }
-            if (idx == models.count - 1) {
-                pointEnd = point1;
             }
 
+            if (m.Close.floatValue > 0) {
+                if (idx == startIndex) {
+                    [path1 moveToPoint:point1];
+                    pointStart = point1;
+                } else {
+                    [path1 addLineToPoint:point1];
+                }
+                if (idx == models.count - 1) {
+                    pointEnd = point1;
+                }
+            }
+            
             NSDateFormatter *formatter = config.timestampFormatter;
             NSDate *date = [NSDate dateWithTimeIntervalSince1970:m.Timestamp.doubleValue];
             NSString *currentTimeStr = [formatter stringFromDate:date];

@@ -8,12 +8,36 @@
 #import "YYKlineRootModel.h"
 #import "YYKlineStyleConfig.h"
 
+const NSInteger kChinaStockTimeFramesMaxCount = 241;
+const NSInteger kHKStockTimeFramesMaxCount = 331;
+const NSInteger kUSStockTimeFramesMaxCount = 391;
+
 @implementation YYKlineRootModel
 
 - (id)copyWithZone:(NSZone *)zone {
     YYKlineRootModel *copy = [[[self class] allocWithZone:zone] init];
     copy.models = _models;
     return copy;
+}
+
+//! @brief 将服务器返回的数据填充到预先生成的stockTimeFrames中
+- (void)populateResponseArray:(NSArray *)arr {
+    for (NSInteger i = [arr count]-1; i>=0; i--) {
+        NSArray *item = arr[i];
+        NSNumber *timeStamp = item[5];
+        if ([timeStamp isKindOfClass:NSNumber.class]) {
+            NSNumber *indexObj = [self.stockTimeFramesIndexDict objectForKey:timeStamp];
+            if ([indexObj isKindOfClass:NSNumber.class]) {
+                YYKlineModel *model = [self.models objectAtIndex:[indexObj integerValue]];
+                model.Open = item[0];
+                model.High = item[1];
+                model.Low = item[2];
+                model.Close = item[3];
+                model.Volume = item[4];
+            }
+        }
+    }
+    NSLog(@"%ld", self.models.count);
 }
 
 + (instancetype)objectWithArray:(NSArray *)arr{
@@ -27,12 +51,12 @@
         model.index = index;
         model.PrevModel = mArr.lastObject;
         model.Timestamp = item[5];
-        // value为NSNull时设置成上一个model的值
-        model.Open = [item[0] isKindOfClass:NSNull.class] ? model.PrevModel.Close : item[0];
-        model.High = [item[1] isKindOfClass:NSNull.class] ? model.PrevModel.High : item[1];
-        model.Low = [item[2] isKindOfClass:NSNull.class] ? model.PrevModel.Low : item[2];
-        model.Close = [item[3] isKindOfClass:NSNull.class] ? model.PrevModel.Close : item[3];
-        model.Volume = [item[4] isKindOfClass:NSNull.class] ? model.PrevModel.Volume : item[4];
+        
+        model.Open = item[0];
+        model.High = item[1];
+        model.Low = item[2];
+        model.Close = item[3];
+        model.Volume = item[4];
 
         [mArr addObject:model];
         index++;
@@ -74,4 +98,106 @@
     }
 }
 
+/**
+ * A股分时数据 241个点
+ * A股市场的交易时间为每周一到周五上午时段9:30-11:30，下午时段13:00-15:00，
+ * 其中上午9:15-9:25为早盘集合竞价时间，14:57-15:00为收盘集合竞价时间。
+ */
++ (instancetype)chinaStockTimeFrames {
+    NSInteger openInterval = [self getTimeStamp:[NSTimeZone timeZoneWithName:@"Asia/Hong_Kong"]];
+    return [self generateStockTimeFrames:kChinaStockTimeFramesMaxCount openTime:openInterval compension:90];
+}
+/**
+ * 港股股分时数据 331个点
+ * 港股交易时间：分为开市前时段、早市、午市、收市四个时段，上午9:30至上午10:00开市前竞价时段；
+ * 上午9:30至中午12:00早市，下午13:00至下午16:00午市，下午16:00-16:10随机收市竞价。
+ */
++ (instancetype)hkStockTimeFrames {
+    NSInteger openInterval = [self getTimeStamp:[NSTimeZone timeZoneWithName:@"Asia/Hong_Kong"]];
+    return [self generateStockTimeFrames:kHKStockTimeFramesMaxCount openTime:openInterval compension:60];
+}
+/**
+ * 美股分时数据 391个点
+ * 周一到周五，分正常交易和盘前盘后两个交易时段。
+ * 美股开盘时间为美东时间：早上9点30分（北京时间22:30 夏令时为：21:30 ）
+ * 正常交易时间分为冬令时和夏令时：
+ * 夏令时(每年4月初到11月初采用夏令时)：北京时间晚9:30-次日凌晨4:00；
+ * 冬令时(每年11月初到4月初采用冬令时)：北京时间晚10:30-次日凌晨5:00。
+ * 经过多次修改后，美股的熔断机制分了7%、13%和20%这三档阈值。
+ */
++ (instancetype)usStockTimeFrames {
+    NSInteger openInterval = [self getTimeStamp:[NSTimeZone timeZoneWithName:@"US/Eastern"]];
+    return [self generateStockTimeFrames:kUSStockTimeFramesMaxCount openTime:openInterval compension:0];
+}
+
+//! @brief 预生成A股/港股/美股分时图数据点, 补偿点 A股从11:30往后补偿90个点，港股从12点往后补偿60个点，美股不补偿
++ (instancetype)generateStockTimeFrames:(NSInteger)count
+                               openTime:(NSTimeInterval)openTime
+                             compension:(NSInteger)compension{
+    YYKlineRootModel *groupModel = [YYKlineRootModel new];
+    NSMutableArray *mArr = @[].mutableCopy;
+    NSMutableDictionary *indexDict = [NSMutableDictionary new];
+    NSInteger index = 0;
+    for (NSInteger i = 0; i < count ; i++) {
+        YYKlineModel *model = [YYKlineModel new];
+        model.index = index;
+        model.PrevModel = mArr.lastObject;
+        model.Timestamp = @((openTime+60*i));
+        if (compension == 90 && i >= 121) {
+            // A股从第x个点开始补偿
+            model.Timestamp = @((openTime+60*(i+compension)));
+        } else if (compension == 60 && i >= 151) {
+            // 港股从第x个点开始补偿
+            model.Timestamp = @((openTime+60*(i+compension)));
+        } else {
+            model.Timestamp = @((openTime+60*i));
+        }
+        [indexDict setObject:@(index) forKey:model.Timestamp];
+
+        model.Open = @(0);
+        model.High = @(0);
+        model.Low = @(0);
+        model.Close = @(0);
+        model.Volume = @(0);
+
+        [mArr addObject:model];
+        index++;
+    }
+    groupModel.models = mArr;
+    groupModel.stockTimeFramesIndexDict = indexDict;
+    return groupModel;
+}
+
+// 获取指定时区9点半开盘时间
++ (NSInteger)getTimeStamp:(NSTimeZone *)zone {
+    static NSDateFormatter *dateFormatter;
+    if (dateFormatter == nil) {
+        dateFormatter = [NSDateFormatter new];
+        dateFormatter.timeZone = zone;
+    }
+    NSDate *zeroDate = [self getZeroToday:zone];
+#warning 测试 周日需获取到前两天的时间戳，因此要减去2*24*60*60
+    NSDate *nine30 = [zeroDate dateByAddingTimeInterval:(9*60*60+30*60 - 2*24*60*60)];
+    dateFormatter.dateFormat = @"yyyy-MM-dd HH:mm:ss";
+    NSInteger interval = [nine30 timeIntervalSince1970];
+    NSLog(@"%@, interval: %ld", [dateFormatter stringFromDate:nine30], interval);
+    return interval;
+}
+
+#warning 需要从服务器获取最近一个交易日零点时间
+// 获取指定时区的零点时间
++ (NSDate*)getZeroToday:(NSTimeZone *)zone{
+
+    NSCalendar *calendar = [NSCalendar currentCalendar];
+    calendar.timeZone = zone;
+
+    // 当前时间
+    NSDate *now = [NSDate date];
+
+    NSDateComponents *components = [calendar components:NSCalendarUnitYear|NSCalendarUnitMonth|NSCalendarUnitDay fromDate:now];
+
+    NSDate *startDate = [calendar dateFromComponents:components];
+
+    return startDate;
+}
 @end
