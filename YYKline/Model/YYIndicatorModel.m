@@ -51,10 +51,10 @@
 
     for (int i = 0; i < datas.count; i ++) {
         YYKlineModel *t = datas[i];
-        if ([t.Close isKindOfClass:NSNull.class]) {
-            continue;
-        }
-        double c = t.Close.doubleValue;
+//        if ([t.Close isKindOfClass:NSNull.class]) {
+//            continue;
+//        }
+        double c = t.Close;
         if (i == 0) {
             [ema12 addObject: @(c)];
             [ema26 addObject: @(c)];
@@ -105,13 +105,13 @@
 
     for (int i = 0; i < datas.count; i ++) {
         YYKlineModel *t = datas[i];
-        double c = [t.Close doubleValue];
+        double c = t.Close;
         [nineDaysdatas addObject:t];
         double max = 0;
         double min = INFINITY;
         for (YYKlineModel *mn in nineDaysdatas) {
-                max = MAX(mn.High.doubleValue, max);
-                min = MIN(mn.Low.doubleValue, min);
+                max = MAX(mn.High, max);
+                min = MIN(mn.Low, min);
         }
         if (max == min) {
             [rsvs addObject:@(0)];
@@ -165,7 +165,7 @@
     NSMutableDictionary *paramData = @{}.mutableCopy;
     for (int i = 0; i < datas.count; i ++) {
         YYKlineModel *t = datas[i];
-        double c = [t.Close doubleValue];
+        double c = t.Close;
         
         for (NSString *d in days) {
             NSString *ma = d;
@@ -222,13 +222,13 @@
     if ([params count] == 0) {
         return;
     }
-    double lastClosePx = datas[0].Close.floatValue;
+    double lastClosePx = datas[0].Close;
     NSArray *days = params;
     NSMutableDictionary *result = @{}.mutableCopy;
     
     for (int i = 0; i < datas.count; i ++) {
         YYKlineModel *t = datas[i];
-        double c = t.Close.floatValue;
+        double c = t.Close;
         
         double m = MAX(c - lastClosePx, 0);
         double a = fabs(c - lastClosePx);
@@ -289,7 +289,7 @@
     for (int i = 0; i < datas.count; i ++) {
         
         YYKlineModel *t = datas[i];
-        double c = t.Close.floatValue;
+        double c = t.Close;
         [nma addObject:@(c)];
         if (nma.count == maDays) {
             
@@ -345,7 +345,7 @@
     NSMutableDictionary *result = @{}.mutableCopy;
     for (int i = 0; i < datas.count; i ++) {
         YYKlineModel *t = datas[i];
-        double c = t.Close.floatValue;
+        double c = t.Close;
         for (NSString *d in days) {
             NSString *wr = [NSString stringWithFormat:@"wr%@", d];
             if ([result objectForKey:wr] == nil) {
@@ -361,8 +361,8 @@
             double max = 0;
             double min = INFINITY;
             for (YYKlineModel *mn in nwr) {
-                max = MAX(mn.High.floatValue, max);
-                min = MIN(mn.Low.floatValue, min);
+                max = MAX(mn.High, max);
+                min = MIN(mn.Low, min);
             }
             double nowWR = max > min ? 100.0 * (max - c) / (max - min) : 100;
             [wrs addObject:@(nowWR)];
@@ -400,7 +400,7 @@
     NSMutableDictionary *resultDict = [NSMutableDictionary dictionary];
     for (int i = 0; i < datas.count; i ++) {
         YYKlineModel *model = datas[i];
-        CGFloat close = model.Close.floatValue;
+        CGFloat close = model.Close;
         for (NSString *day in days) {
             NSString *key = [NSString stringWithFormat:@"ema%@", day];
             if ([resultDict objectForKey:key] == nil) {

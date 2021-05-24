@@ -15,8 +15,8 @@
     if(!data) {
         return [YYMinMaxModel new];
     }
-    CGFloat minAssert = data.Low.floatValue;
-    CGFloat maxAssert = data.High.floatValue;
+    CGFloat minAssert = data.Low;
+    CGFloat maxAssert = data.High;
     return [YYMinMaxModel modelWithMin:minAssert max:maxAssert];
 }
 

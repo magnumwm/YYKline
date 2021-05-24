@@ -46,18 +46,23 @@ typedef NS_ENUM(NSInteger, YYKlineIncicator) {
 @property (nonatomic, strong) NSDictionary *stockTimeFramesIndexDict;
 
 /**
+ * 根据交易日数组(TimeInterval)，预生成对应交易日的YYKlineRootModel
+ */
++ (instancetype)stockTimeFrames:(NSArray<NSNumber *> *)tradeDates marketType:(NSInteger)marketType;
+
+/**
  * A股分时数据 241个点
  * A股市场的交易时间为每周一到周五上午时段9:30-11:30，下午时段13:00-15:00，
  * 其中上午9:15-9:25为早盘集合竞价时间，14:57-15:00为收盘集合竞价时间。
  */
-+ (instancetype)chinaStockTimeFrames;
++ (instancetype)chinaStockTimeFrames:(NSTimeInterval)latestTime fromIndex:(NSInteger)startIndex;
 
 /**
  * 港股股分时数据 331个点
  * 港股交易时间：分为开市前时段、早市、午市、收市四个时段，上午9:30至上午10:00开市前竞价时段；
  * 上午9:30至中午12:00早市，下午13:00至下午16:00午市，下午16:00-16:10随机收市竞价。
  */
-+ (instancetype)hkStockTimeFrames;
++ (instancetype)hkStockTimeFrames:(NSTimeInterval)latestTime fromIndex:(NSInteger)startIndex;
 
 /**
  * 美股分时数据 391个点
@@ -68,10 +73,7 @@ typedef NS_ENUM(NSInteger, YYKlineIncicator) {
  * 冬令时(每年11月初到4月初采用冬令时)：北京时间晚10:30-次日凌晨5:00。
  * 经过多次修改后，美股的熔断机制分了7%、13%和20%这三档阈值。
  */
-+ (instancetype)usStockTimeFrames;
-
-//! @brief 获取指定时区9点半开盘时间戳
-+ (NSInteger)getTimeStamp:(NSTimeZone *)zone;
++ (instancetype)usStockTimeFrames:(NSTimeInterval)latestTime fromIndex:(NSInteger)startIndex;
 
 //! @brief 将服务器返回的数据填充到预先生成的stockTimeFrames中
 - (void)populateResponseArray:(NSArray *)arr;

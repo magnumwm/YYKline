@@ -310,7 +310,8 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
     
     YYMinMaxModel *minMax = [YYMinMaxModel new];
     minMax.min = 9999999999999.f;
-    if (self.styleConfig.isDrawTimeline) {
+    if (self.styleConfig.currentChartType == kYYKlineChartTypeTimeline ||
+        self.styleConfig.currentChartType == kYYKlineChartTypeTimelineFiveDay) {
         [minMax combine:[self.timelinePainter getMinMaxValue:models]];
     } else {
         [minMax combine:[self.linePainter getMinMaxValue:models]];
@@ -321,15 +322,20 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
 
     YYKlineStyleConfig *config = self.styleConfig;
 
+    BOOL isDrawTimeline = self.styleConfig.currentChartType == kYYKlineChartTypeTimeline ||
+    self.styleConfig.currentChartType == kYYKlineChartTypeTimelineFiveDay;
+    BOOL isDrawFiveDay = (self.styleConfig.currentChartType == kYYKlineChartTypeTimelineFiveDay);
     /// K线图主视图
-    if (self.styleConfig.isDrawTimeline) {
+    if (isDrawTimeline) {
         // 分时主图
+        NSInteger total = models.count;
         [self.timelinePainter drawToLayer:self.mainPainterView.layer
                                 timeLayer:self.timePainterView.layer
                               styleConfig:config
-                                    total:self.styleConfig.timelineTotalCount
+                                    total:total
                                    models:models
-                                   minMax:minMax];
+                                   minMax:minMax
+                              drawFiveDay:isDrawFiveDay];
 
         /// 当前基准横线，绘制的是昨收盘价
         if (currentStockPrice > minMax.min && currentStockPrice < minMax.max) {
@@ -361,7 +367,7 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
     }
 
     // 时间横坐标
-    if (self.styleConfig.drawXAxisTimeline && !self.styleConfig.isDrawTimeline) {
+    if (self.styleConfig.drawXAxisTimeline && !isDrawTimeline) {
         // 计算需要显示的时间戳区间
         [YYTimePainter drawToLayer:self.timePainterView.layer
                               area:self.timePainterView.bounds
@@ -372,7 +378,7 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
 
     // 成交量图
     if (self.styleConfig.drawVolChart) {
-        NSInteger total = self.styleConfig.isDrawTimeline ? self.styleConfig.timelineTotalCount : 0;
+        NSInteger total = isDrawTimeline ? models.count : 0;
         [YYVolPainter drawToLayer:self.volumePainterView.layer
                              area:self.volumePainterView.bounds
                       styleConfig:self.styleConfig
@@ -434,8 +440,8 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
             if (!model) return;
             crossLineCenterPoint = model.candleCrossLineCenterPoint;
         } else if([currentPainter isSubclassOfClass:YYTimelinePainter.class]) {
-            model = [YYTimelinePainter getKlineModel:location area:mainArea total:config.timelineTotalCount models:self.rootModel.models];
-            if (!model) return;
+            model = [YYTimelinePainter getKlineModel:location area:mainArea total:self.rootModel.models.count models:self.rootModel.models];
+            if (!model || model.Close <= 0) return;
             crossLineCenterPoint = model.timelineCrossLineCenterPoint;
         } else {
             return;
@@ -449,13 +455,13 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
         }
         self.crosslineTopView.layer.sublayers = nil;
 
-        NSString *drawTime = [self.styleConfig.crosslineTimestampFormatter stringFromDate:[NSDate dateWithTimeIntervalSince1970:model.Timestamp.doubleValue]];
+        NSString *drawTime = [self.styleConfig.crosslineTimestampFormatter stringFromDate:[NSDate dateWithTimeIntervalSince1970:model.Timestamp]];
         NSDictionary *attributes = @{NSForegroundColorAttributeName: config.crossLineTextColor, NSFontAttributeName: config.crosslineTextFont};
         [self.crossPainter drawToLayer:self.crosslineTopView.layer
                                  point:crossLineCenterPoint
                                   area:mainArea
                            styleConfig:self.styleConfig
-                              leftText:[[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@"%.2f", model.Open.floatValue] attributes:attributes]
+                              leftText:[[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@"%.2f", model.Open] attributes:attributes]
                              rightText:[[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@"%@", model.changePercent] attributes:attributes]
                               downText:[[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@"%@", drawTime] attributes:attributes]];
     }

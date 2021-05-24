@@ -17,12 +17,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, weak) YYKlineModel *PrevModel;
 
-@property (nonatomic, strong) NSNumber *Timestamp;
-@property (nonatomic, strong) NSNumber *Open;
-@property (nonatomic, strong) NSNumber *Close;
-@property (nonatomic, strong) NSNumber *High;
-@property (nonatomic, strong) NSNumber *Low;
-@property (nonatomic, strong) NSNumber *Volume;
+@property (nonatomic, assign) double Timestamp;
+@property (nonatomic, assign) double Open;
+@property (nonatomic, assign) double Close;
+@property (nonatomic, assign) double High;
+@property (nonatomic, assign) double Low;
+@property (nonatomic, assign) double Volume;
 /**
  * 涨跌幅
  */

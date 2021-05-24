@@ -14,6 +14,18 @@ const NSInteger kUSStockTimeFramesMaxCount = 391;
 
 @implementation YYKlineRootModel
 
+#pragma mark -
+#pragma mark 解析CGFloat
++ (CGFloat)parseFloat:(id)object
+{
+    if ([object isKindOfClass:[NSNumber class]] == NO &&
+        [object isKindOfClass:[NSString class]] == NO) {
+        return 0.0;
+    }
+
+    return [object doubleValue];
+}
+
 - (id)copyWithZone:(NSZone *)zone {
     YYKlineRootModel *copy = [[[self class] allocWithZone:zone] init];
     copy.models = _models;
@@ -21,7 +33,7 @@ const NSInteger kUSStockTimeFramesMaxCount = 391;
 }
 
 //! @brief 将服务器返回的数据填充到预先生成的stockTimeFrames中
-- (void)populateResponseArray:(NSArray *)arr {
+- (void)populateResponseArray:(NSArray *)arr{
     for (NSInteger i = [arr count]-1; i>=0; i--) {
         NSArray *item = arr[i];
         NSNumber *timeStamp = item[5];
@@ -29,11 +41,23 @@ const NSInteger kUSStockTimeFramesMaxCount = 391;
             NSNumber *indexObj = [self.stockTimeFramesIndexDict objectForKey:timeStamp];
             if ([indexObj isKindOfClass:NSNumber.class]) {
                 YYKlineModel *model = [self.models objectAtIndex:[indexObj integerValue]];
-                model.Open = item[0];
-                model.High = item[1];
-                model.Low = item[2];
-                model.Close = item[3];
-                model.Volume = item[4];
+                model.Open = [YYKlineRootModel parseFloat:item[0]];
+                model.High = [YYKlineRootModel parseFloat:item[1]];
+                model.Low = [YYKlineRootModel parseFloat:item[2]];
+                model.Close = [YYKlineRootModel parseFloat:item[3]];
+                model.Volume = [YYKlineRootModel parseFloat:item[4]];
+//                NSLog(@"indexObj:%@, timeStamp:%@", indexObj, timeStamp);
+            }
+            else {
+                // 如果timeStamp > self.models.lastObjc.timestamp 填充到最后一个时间点
+                if (self.models.lastObject.Timestamp < timeStamp.doubleValue) {
+                    YYKlineModel *model = self.models.lastObject;
+                    model.Open = [YYKlineRootModel parseFloat:item[0]];
+                    model.High = [YYKlineRootModel parseFloat:item[1]];
+                    model.Low = [YYKlineRootModel parseFloat:item[2]];
+                    model.Close = [YYKlineRootModel parseFloat:item[3]];
+                    model.Volume = [YYKlineRootModel parseFloat:item[4]];
+                }
             }
         }
     }
@@ -50,13 +74,13 @@ const NSInteger kUSStockTimeFramesMaxCount = 391;
         YYKlineModel *model = [YYKlineModel new];
         model.index = index;
         model.PrevModel = mArr.lastObject;
-        model.Timestamp = item[5];
-        
-        model.Open = item[0];
-        model.High = item[1];
-        model.Low = item[2];
-        model.Close = item[3];
-        model.Volume = item[4];
+        model.Timestamp = [self parseFloat:item[5]];
+
+        model.Open = [item[0] isKindOfClass:NSNull.class] ? model.PrevModel.Close : [self parseFloat:item[0]];
+        model.High = [item[1] isKindOfClass:NSNull.class] ? model.Open : [self parseFloat:item[1]];
+        model.Close = [item[3] isKindOfClass:NSNull.class] ? model.Open : [self parseFloat:item[3]];
+        model.Low = [item[2] isKindOfClass:NSNull.class] ? model.Open : [self parseFloat:item[2]];
+        model.Volume = [self parseFloat:item[4]];
 
         [mArr addObject:model];
         index++;
@@ -98,23 +122,62 @@ const NSInteger kUSStockTimeFramesMaxCount = 391;
     }
 }
 
+
+/**
+ * 根据交易日数组，预生成对应交易日的YYKlineRootModel
+ */
++ (instancetype)stockTimeFrames:(NSArray<NSNumber *> *)tradeDates marketType:(NSInteger)marketType{
+    // marketType: 0:HK, 1:US, 2:CN
+    NSMutableArray *allModels = @[].mutableCopy;
+    NSMutableDictionary *allMaps = @{}.mutableCopy;
+    if (marketType == 1) {
+        for (NSInteger index = 0; index < tradeDates.count; index++) {
+            NSNumber *date = tradeDates[index];
+            NSTimeInterval timeInterval = [date doubleValue];
+            YYKlineRootModel *rootModel = [self usStockTimeFrames:timeInterval fromIndex:index*kUSStockTimeFramesMaxCount];
+            [allModels addObjectsFromArray:rootModel.models];
+            [allMaps addEntriesFromDictionary:rootModel.stockTimeFramesIndexDict];
+        }
+    } else if (marketType == 2) {
+        for (NSInteger index = 0; index < tradeDates.count; index++) {
+            NSNumber *date = tradeDates[index];
+            NSTimeInterval timeInterval = [date doubleValue];
+            YYKlineRootModel *rootModel = [self chinaStockTimeFrames:timeInterval fromIndex:index*kChinaStockTimeFramesMaxCount];
+            [allModels addObjectsFromArray:rootModel.models];
+            [allMaps addEntriesFromDictionary:rootModel.stockTimeFramesIndexDict];
+        }
+    } else {
+        for (NSInteger index = 0; index < tradeDates.count; index++) {
+            NSNumber *date = tradeDates[index];
+            NSTimeInterval timeInterval = [date doubleValue];
+            YYKlineRootModel *rootModel = [self hkStockTimeFrames:timeInterval fromIndex:index*kHKStockTimeFramesMaxCount];
+            [allModels addObjectsFromArray:rootModel.models];
+            [allMaps addEntriesFromDictionary:rootModel.stockTimeFramesIndexDict];
+        }
+    }
+    YYKlineRootModel *model = [YYKlineRootModel new];
+    model.models = allModels;
+    model.stockTimeFramesIndexDict = allMaps;
+    return model;
+}
+
 /**
  * A股分时数据 241个点
  * A股市场的交易时间为每周一到周五上午时段9:30-11:30，下午时段13:00-15:00，
  * 其中上午9:15-9:25为早盘集合竞价时间，14:57-15:00为收盘集合竞价时间。
  */
-+ (instancetype)chinaStockTimeFrames {
-    NSInteger openInterval = [self getTimeStamp:[NSTimeZone timeZoneWithName:@"Asia/Hong_Kong"]];
-    return [self generateStockTimeFrames:kChinaStockTimeFramesMaxCount openTime:openInterval compension:90];
++ (instancetype)chinaStockTimeFrames:(NSTimeInterval)latestTime fromIndex:(NSInteger)startIndex{
+    NSInteger openInterval = [self getTimeStampOfTheDay:latestTime zone:[NSTimeZone timeZoneWithName:@"Asia/Hong_Kong"]];
+    return [self generateStockTimeFrames:kChinaStockTimeFramesMaxCount openTime:openInterval compension:90 fromIndex:startIndex];
 }
 /**
  * 港股股分时数据 331个点
  * 港股交易时间：分为开市前时段、早市、午市、收市四个时段，上午9:30至上午10:00开市前竞价时段；
  * 上午9:30至中午12:00早市，下午13:00至下午16:00午市，下午16:00-16:10随机收市竞价。
  */
-+ (instancetype)hkStockTimeFrames {
-    NSInteger openInterval = [self getTimeStamp:[NSTimeZone timeZoneWithName:@"Asia/Hong_Kong"]];
-    return [self generateStockTimeFrames:kHKStockTimeFramesMaxCount openTime:openInterval compension:60];
++ (instancetype)hkStockTimeFrames:(NSTimeInterval)latestTime fromIndex:(NSInteger)startIndex{
+    NSInteger openInterval = [self getTimeStampOfTheDay:latestTime zone:[NSTimeZone timeZoneWithName:@"Asia/Hong_Kong"]];
+    return [self generateStockTimeFrames:kHKStockTimeFramesMaxCount openTime:openInterval compension:60 fromIndex:startIndex];
 }
 /**
  * 美股分时数据 391个点
@@ -125,40 +188,41 @@ const NSInteger kUSStockTimeFramesMaxCount = 391;
  * 冬令时(每年11月初到4月初采用冬令时)：北京时间晚10:30-次日凌晨5:00。
  * 经过多次修改后，美股的熔断机制分了7%、13%和20%这三档阈值。
  */
-+ (instancetype)usStockTimeFrames {
-    NSInteger openInterval = [self getTimeStamp:[NSTimeZone timeZoneWithName:@"US/Eastern"]];
-    return [self generateStockTimeFrames:kUSStockTimeFramesMaxCount openTime:openInterval compension:0];
++ (instancetype)usStockTimeFrames:(NSTimeInterval)latestTime fromIndex:(NSInteger)startIndex{
+    NSInteger openInterval = [self getTimeStampOfTheDay:latestTime zone:[NSTimeZone timeZoneWithName:@"US/Eastern"]];
+    return [self generateStockTimeFrames:kUSStockTimeFramesMaxCount openTime:openInterval compension:0 fromIndex:startIndex];
 }
 
 //! @brief 预生成A股/港股/美股分时图数据点, 补偿点 A股从11:30往后补偿90个点，港股从12点往后补偿60个点，美股不补偿
 + (instancetype)generateStockTimeFrames:(NSInteger)count
                                openTime:(NSTimeInterval)openTime
-                             compension:(NSInteger)compension{
+                             compension:(NSInteger)compension
+                              fromIndex:(NSInteger)startIndex{
     YYKlineRootModel *groupModel = [YYKlineRootModel new];
     NSMutableArray *mArr = @[].mutableCopy;
     NSMutableDictionary *indexDict = [NSMutableDictionary new];
-    NSInteger index = 0;
+    NSInteger index = startIndex;
     for (NSInteger i = 0; i < count ; i++) {
         YYKlineModel *model = [YYKlineModel new];
         model.index = index;
         model.PrevModel = mArr.lastObject;
-        model.Timestamp = @((openTime+60*i));
+        model.Timestamp = (openTime+60*i);
         if (compension == 90 && i >= 121) {
-            // A股从第x个点开始补偿
-            model.Timestamp = @((openTime+60*(i+compension)));
+            // A股从第121个点开始补偿
+            model.Timestamp = (openTime+60*(i+compension));
         } else if (compension == 60 && i >= 151) {
-            // 港股从第x个点开始补偿
-            model.Timestamp = @((openTime+60*(i+compension)));
+            // 港股从第151个点开始补偿
+            model.Timestamp = (openTime+60*(i+compension));
         } else {
-            model.Timestamp = @((openTime+60*i));
+            model.Timestamp = (openTime+60*i);
         }
-        [indexDict setObject:@(index) forKey:model.Timestamp];
+        [indexDict setObject:@(index) forKey:@(model.Timestamp)];
 
-        model.Open = @(0);
-        model.High = @(0);
-        model.Low = @(0);
-        model.Close = @(0);
-        model.Volume = @(0);
+        model.Open = 0;
+        model.High = 0;
+        model.Low = 0;
+        model.Close = 0;
+        model.Volume = 0;
 
         [mArr addObject:model];
         index++;
@@ -169,15 +233,14 @@ const NSInteger kUSStockTimeFramesMaxCount = 391;
 }
 
 // 获取指定时区9点半开盘时间
-+ (NSInteger)getTimeStamp:(NSTimeZone *)zone {
++ (NSInteger)getTimeStampOfTheDay:(NSTimeInterval)time zone:(NSTimeZone *)zone {
     static NSDateFormatter *dateFormatter;
     if (dateFormatter == nil) {
         dateFormatter = [NSDateFormatter new];
         dateFormatter.timeZone = zone;
     }
-    NSDate *zeroDate = [self getZeroToday:zone];
-#warning 测试 周日需获取到前两天的时间戳，因此要减去2*24*60*60
-    NSDate *nine30 = [zeroDate dateByAddingTimeInterval:(9*60*60+30*60 - 2*24*60*60)];
+    NSDate *zeroDate = [self getZeroOfTheDay:time zone:zone];
+    NSDate *nine30 = [zeroDate dateByAddingTimeInterval:(9*60*60+30*60)];
     dateFormatter.dateFormat = @"yyyy-MM-dd HH:mm:ss";
     NSInteger interval = [nine30 timeIntervalSince1970];
     NSLog(@"%@, interval: %ld", [dateFormatter stringFromDate:nine30], interval);
@@ -186,13 +249,13 @@ const NSInteger kUSStockTimeFramesMaxCount = 391;
 
 #warning 需要从服务器获取最近一个交易日零点时间
 // 获取指定时区的零点时间
-+ (NSDate*)getZeroToday:(NSTimeZone *)zone{
++ (NSDate*)getZeroOfTheDay:(NSTimeInterval)time zone:(NSTimeZone *)zone{
 
     NSCalendar *calendar = [NSCalendar currentCalendar];
     calendar.timeZone = zone;
 
     // 当前时间
-    NSDate *now = [NSDate date];
+    NSDate *now = [NSDate dateWithTimeIntervalSince1970:time];
 
     NSDateComponents *components = [calendar components:NSCalendarUnitYear|NSCalendarUnitMonth|NSCalendarUnitDay fromDate:now];
 

@@ -51,7 +51,7 @@
         if ([obj isKindOfClass:YYKlineModel.class]) {
             NSDateFormatter *formatter = config.timestampFormatter;
             YYKlineModel *model = (YYKlineModel *)obj;
-            NSDate *date = [NSDate dateWithTimeIntervalSince1970:model.Timestamp.doubleValue];
+            NSDate *date = [NSDate dateWithTimeIntervalSince1970:model.Timestamp];
             text = [formatter stringFromDate:date];
         } else {
             text = (NSString *)obj;
@@ -103,7 +103,7 @@
     }
 
     NSDateFormatter *formatter = config.timestampFormatter;
-    NSDate *date = [NSDate dateWithTimeIntervalSince1970:model.Timestamp.doubleValue];
+    NSDate *date = [NSDate dateWithTimeIntervalSince1970:model.Timestamp];
 
     NSString *text = [formatter stringFromDate:date];
     CGRect textBounds = [text boundingRectWithSize:CGSizeMake(100, maxH) options:NSStringDrawingUsesFontLeading attributes:@{NSFontAttributeName:config.timelineFont} context:nil];

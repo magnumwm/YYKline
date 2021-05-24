@@ -12,7 +12,7 @@
 
 - (NSString *)V_Date {
     if (!_V_Date) {
-        NSDate *date = [NSDate dateWithTimeIntervalSince1970:_Timestamp.doubleValue];
+        NSDate *date = [NSDate dateWithTimeIntervalSince1970:_Timestamp];
         NSDateFormatter *formatter = [[NSDateFormatter alloc]init];
         formatter.dateFormat = @"MM-dd";
         NSString *dateStr = [formatter stringFromDate:date];
@@ -23,7 +23,7 @@
 
 - (NSString *)V_HHMM {
     if (!_V_HHMM) {
-        NSDate *date = [NSDate dateWithTimeIntervalSince1970:_Timestamp.doubleValue];
+        NSDate *date = [NSDate dateWithTimeIntervalSince1970:_Timestamp];
         NSDateFormatter *formatter = [[NSDateFormatter alloc]init];
         formatter.dateFormat = @"HH:mm";
         NSString *dateStr = [formatter stringFromDate:date];
@@ -34,7 +34,7 @@
 
 - (NSAttributedString *)V_Price {
     if (!_V_Price) {
-        _V_Price = [[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@" %f  开：%.3f  高：%.3f 低：%.3f  收：%.3f ", _Timestamp.doubleValue, self.Open.floatValue, self.High.floatValue, self.Low.floatValue, self.Close.floatValue] attributes:@{
+        _V_Price = [[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@" %f  开：%.3f  高：%.3f 低：%.3f  收：%.3f ", _Timestamp, self.Open, self.High, self.Low, self.Close] attributes:@{
             NSForegroundColorAttributeName: [UIColor grayColor],
         }];
     }
@@ -44,7 +44,7 @@
 - (NSAttributedString *)V_MA {
     if (!_V_MA) {
         YYKlineStyleConfig *config = YYKlineStyleConfig.sharedConfig;
-        NSAttributedString *str1 = [[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@" %@  开：%.3f  高：%.3f 低：%.3f  收：%.3f ", self.V_Date, self.Open.floatValue, self.High.floatValue, self.Low.floatValue, self.Close.floatValue] attributes:@{
+        NSAttributedString *str1 = [[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@" %@  开：%.3f  高：%.3f 低：%.3f  收：%.3f ", self.V_Date, self.Open, self.High, self.Low, self.Close] attributes:@{
             NSForegroundColorAttributeName: [UIColor grayColor],
         }];
         NSAttributedString *str2 = [[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@" MA10：%.3f ",self.MA.MA1.floatValue] attributes:@{
@@ -68,7 +68,7 @@
 - (NSAttributedString *)V_EMA {
     if (!_V_EMA) {
         YYKlineStyleConfig *config = YYKlineStyleConfig.sharedConfig;
-        NSAttributedString *str1 = [[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@" %@  开：%.3f  高：%.3f 低：%.3f  收：%.3f ", self.V_Date, self.Open.floatValue, self.High.floatValue, self.Low.floatValue, self.Close.floatValue] attributes:@{
+        NSAttributedString *str1 = [[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@" %@  开：%.3f  高：%.3f 低：%.3f  收：%.3f ", self.V_Date, self.Open, self.High, self.Low, self.Close] attributes:@{
             NSForegroundColorAttributeName: [UIColor grayColor],
         }];
         NSAttributedString *str2 = [[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@" EMA7：%.3f ",self.EMA.EMA1.floatValue] attributes:@{
@@ -88,7 +88,7 @@
 - (NSAttributedString *)V_BOLL {
     if (!_V_BOLL) {
         YYKlineStyleConfig *config = YYKlineStyleConfig.sharedConfig;
-        NSAttributedString *str1 = [[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@" %@  开：%.3f  高：%.3f 低：%.3f  收：%.3f ", self.V_Date, self.Open.floatValue, self.High.floatValue, self.Low.floatValue, self.Close.floatValue] attributes:@{
+        NSAttributedString *str1 = [[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@" %@  开：%.3f  高：%.3f 低：%.3f  收：%.3f ", self.V_Date, self.Open, self.High, self.Low, self.Close] attributes:@{
             NSForegroundColorAttributeName: [UIColor grayColor],
         }];
         NSAttributedString *str2 = [[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@" UP：%.3f ",self.BOLL.UP.floatValue] attributes:@{
@@ -111,7 +111,7 @@
 
 - (NSAttributedString *)V_Volume {
     if (!_V_Volume) {
-        _V_Volume = [[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@" 成交量：%.0f", self.Volume.floatValue] attributes:@{
+        _V_Volume = [[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@" 成交量：%.0f", self.Volume] attributes:@{
             NSForegroundColorAttributeName: [UIColor grayColor],
         }];
     }
@@ -212,16 +212,17 @@
 }
 
 - (BOOL)isUp {
-    return self.Close.floatValue >= self.Open.floatValue;
+    return self.Close >= self.Open;
 }
 
 - (NSString *)changePercent {
-    CGFloat change = (self.Close.floatValue - self.PrevModel.Close.floatValue)/self.PrevModel.Close.floatValue*100;
+    if (self.PrevModel.Close <= 0) return @"";
+    CGFloat change = (self.Close - self.PrevModel.Close)/self.PrevModel.Close*100;
     return [NSString stringWithFormat:@"%.2f%%", change];
 }
 
 - (NSString *)changeAmount {
-    CGFloat change = (self.Close.floatValue - self.PrevModel.Close.floatValue);
+    CGFloat change = (self.Close - self.PrevModel.Close);
     return [NSString stringWithFormat:@"%.2f", change];
 }
 

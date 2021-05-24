@@ -10,6 +10,12 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+typedef enum : NSUInteger {
+    kYYKlineChartTypeTimeline = 1,
+    kYYKlineChartTypeTimelineFiveDay = 2,
+    kYYKlineChartTypeKline = 3,
+} YYKlineChartType;
+
 @interface YYKlineStyleConfig : NSObject
 + (instancetype)sharedConfig;
 
@@ -230,10 +236,10 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, assign) BOOL drawVolChart;
 /// 是否绘制Y轴价格区间, 默认YES
 @property (nonatomic, assign) BOOL drawYAxisPrice;
-/// 股票市场每天每时数据量总数 A股：241， 港股：331，美股：391
-@property (nonatomic, assign) NSInteger timelineTotalCount;
 /// 是否绘制分时
-@property (nonatomic, assign) BOOL isDrawTimeline;
+@property (nonatomic, assign) YYKlineChartType currentChartType;
+///// 五日分时数据点总量
+//@property (nonatomic, assign) NSInteger fiveDayChartMaxCount;
 /// 横轴表时间轴DateFormatter
 @property (nonatomic, strong) NSDateFormatter *timestampFormatter;
 /// 十字交叉线上的DateFormatter

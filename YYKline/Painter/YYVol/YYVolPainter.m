@@ -16,7 +16,7 @@
     __block CGFloat minAssert = 0.f;
     __block CGFloat maxAssert = 0.f;
     [data enumerateObjectsUsingBlock:^(YYKlineModel * _Nonnull m, NSUInteger idx, BOOL * _Nonnull stop) {
-        maxAssert = MAX(maxAssert, m.Volume.floatValue);
+        maxAssert = MAX(maxAssert, m.Volume);
     }];
     return [YYMinMaxModel modelWithMin:minAssert max:maxAssert];
 }
@@ -39,7 +39,7 @@
     [models enumerateObjectsUsingBlock:^(YYKlineModel * _Nonnull m, NSUInteger idx, BOOL * _Nonnull stop) {
         CGFloat w = total==0?(config.kLineWidth-config.kLineGap):maxW/total;;
 //        CGFloat x = idx * (w + config.kLineGap);
-        CGFloat h = fabs(m.Volume.floatValue - minMaxModel.min) * unitValue;
+        CGFloat h = fabs(m.Volume - minMaxModel.min) * unitValue;
         UIBezierPath *path = [UIBezierPath bezierPathWithRoundedRect:CGRectMake(m.mainCenterPoint.x-w/2, maxH - h, w, h) cornerRadius:config.kVolumeBarRadius];
         CAShapeLayer *l = [CAShapeLayer layer];
         l.path = path.CGPath;

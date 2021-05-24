@@ -119,12 +119,14 @@ typedef NS_ENUM(NSUInteger, YYXAxisTimeTextLayout) {
 /// @param total 数据点数量
 /// @param models 数据点数组
 /// @param minMaxModel 高低值
+/// @param isFiveDayTime 是否绘制五日分时图
 + (void)drawToLayer:(CALayer *)layer
           timeLayer:(CALayer *)timeLayer
         styleConfig:(YYKlineStyleConfig *)config
               total:(NSInteger)total
              models:(NSArray<YYKlineModel*> *)models
-             minMax:(YYMinMaxModel *)minMaxModel;
+             minMax:(YYMinMaxModel *)minMaxModel
+        drawFiveDay:(BOOL)isFiveDayTime;
 @end
 
 

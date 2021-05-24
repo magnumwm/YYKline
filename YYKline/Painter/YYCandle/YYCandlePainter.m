@@ -14,11 +14,11 @@
     if(!data) {
         return [YYMinMaxModel new];
     }
-    __block CGFloat minAssert = data[0].Low.floatValue;
-    __block CGFloat maxAssert = data[0].High.floatValue;
+    __block CGFloat minAssert = data[0].Low;
+    __block CGFloat maxAssert = data[0].High;
     [data enumerateObjectsUsingBlock:^(YYKlineModel * _Nonnull m, NSUInteger idx, BOOL * _Nonnull stop) {
-        maxAssert = MAX(maxAssert, m.High.floatValue);
-        minAssert = MIN(minAssert, m.Low.floatValue);
+        maxAssert = MAX(maxAssert, m.High);
+        minAssert = MIN(minAssert, m.Low);
     }];
     return [YYMinMaxModel modelWithMin:minAssert max:maxAssert];
 }
@@ -41,17 +41,17 @@
         CGFloat w = config.kLineWidth;
         CGFloat x = idx * (w + config.kLineGap);
         CGFloat centerX = x+w/2.f-config.kLineGap/2.f;
-        CGPoint highPoint = CGPointMake(centerX, maxH - (m.High.floatValue - minMaxModel.min)*unitValue);
-        CGPoint lowPoint = CGPointMake(centerX, maxH - (m.Low.floatValue - minMaxModel.min)*unitValue);
+        CGPoint highPoint = CGPointMake(centerX, maxH - (m.High - minMaxModel.min)*unitValue);
+        CGPoint lowPoint = CGPointMake(centerX, maxH - (m.Low - minMaxModel.min)*unitValue);
 
         // 开收
-        CGFloat h = fabsf(m.Open.floatValue - m.Close.floatValue) * unitValue;
-        CGFloat y =  maxH - (MAX(m.Open.floatValue, m.Close.floatValue) - minMaxModel.min) * unitValue;
+        CGFloat h = fabsf(m.Open - m.Close) * unitValue;
+        CGFloat y =  maxH - (MAX(m.Open, m.Close) - minMaxModel.min) * unitValue;
         UIBezierPath *path = [UIBezierPath bezierPathWithRoundedRect:CGRectMake(x, y, w - config.kLineGap, h) cornerRadius:config.kCandleRadius];
 
         // YYKlineModel 赋值
         m.mainCenterPoint = lowPoint;
-        CGFloat candleCenterY = maxH - (m.Close.floatValue - minMaxModel.min) * unitValue;
+        CGFloat candleCenterY = maxH - (m.Close - minMaxModel.min) * unitValue;
         m.candleCrossLineCenterPoint = CGPointMake(centerX+CGRectGetMinX(area), candleCenterY);
         
         [path moveToPoint:lowPoint];
