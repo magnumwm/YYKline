@@ -11,6 +11,7 @@
 const NSInteger kChinaStockTimeFramesMaxCount = 241;
 const NSInteger kHKStockTimeFramesMaxCount = 331;
 const NSInteger kUSStockTimeFramesMaxCount = 391;
+const NSInteger kStockPriceNullValue = -1;
 
 @implementation YYKlineRootModel
 
@@ -76,10 +77,10 @@ const NSInteger kUSStockTimeFramesMaxCount = 391;
         model.PrevModel = mArr.lastObject;
         model.Timestamp = [self parseFloat:item[5]];
 
-        model.Open = [item[0] isKindOfClass:NSNull.class] ? model.PrevModel.Close : [self parseFloat:item[0]];
-        model.High = [item[1] isKindOfClass:NSNull.class] ? model.Open : [self parseFloat:item[1]];
-        model.Close = [item[3] isKindOfClass:NSNull.class] ? model.Open : [self parseFloat:item[3]];
-        model.Low = [item[2] isKindOfClass:NSNull.class] ? model.Open : [self parseFloat:item[2]];
+        model.Open = [item[0] isKindOfClass:NSNull.class] ? kStockPriceNullValue : [self parseFloat:item[0]];
+        model.High = [item[1] isKindOfClass:NSNull.class] ? kStockPriceNullValue : [self parseFloat:item[1]];
+        model.Close = [item[3] isKindOfClass:NSNull.class] ? kStockPriceNullValue : [self parseFloat:item[3]];
+        model.Low = [item[2] isKindOfClass:NSNull.class] ? kStockPriceNullValue : [self parseFloat:item[2]];
         model.Volume = [self parseFloat:item[4]];
 
         [mArr addObject:model];
@@ -243,7 +244,7 @@ const NSInteger kUSStockTimeFramesMaxCount = 391;
     NSDate *nine30 = [zeroDate dateByAddingTimeInterval:(9*60*60+30*60)];
     dateFormatter.dateFormat = @"yyyy-MM-dd HH:mm:ss";
     NSInteger interval = [nine30 timeIntervalSince1970];
-    NSLog(@"%@, interval: %ld", [dateFormatter stringFromDate:nine30], interval);
+//    NSLog(@"%@, interval: %ld, zone:%@", [dateFormatter stringFromDate:nine30], interval, zone.name);
     return interval;
 }
 

@@ -7,6 +7,7 @@
 
 #import "YYCandlePainter.h"
 #import "YYKlineStyleConfig.h"
+#import "YYKlineRootModel.h"
 
 @implementation YYCandlePainter
 
@@ -38,35 +39,40 @@
     sublayer.frame = area;
     sublayer.contentsScale = UIScreen.mainScreen.scale;
     [models enumerateObjectsUsingBlock:^(YYKlineModel * _Nonnull m, NSUInteger idx, BOOL * _Nonnull stop) {
-        CGFloat w = config.kLineWidth;
-        CGFloat x = idx * (w + config.kLineGap);
-        CGFloat centerX = x+w/2.f-config.kLineGap/2.f;
-        CGPoint highPoint = CGPointMake(centerX, maxH - (m.High - minMaxModel.min)*unitValue);
-        CGPoint lowPoint = CGPointMake(centerX, maxH - (m.Low - minMaxModel.min)*unitValue);
+        if (m.Open > kStockPriceNullValue &&
+            m.Close > kStockPriceNullValue) {
+            CGFloat w = config.kLineWidth;
+            CGFloat x = idx * (w + config.kLineGap);
+            CGFloat centerX = x+w/2.f-config.kLineGap/2.f;
+            CGPoint highPoint = CGPointMake(centerX, maxH - (m.High - minMaxModel.min)*unitValue);
+            CGPoint lowPoint = CGPointMake(centerX, maxH - (m.Low - minMaxModel.min)*unitValue);
 
-        // 开收
-        CGFloat h = fabsf(m.Open - m.Close) * unitValue;
-        CGFloat y =  maxH - (MAX(m.Open, m.Close) - minMaxModel.min) * unitValue;
-        UIBezierPath *path = [UIBezierPath bezierPathWithRoundedRect:CGRectMake(x, y, w - config.kLineGap, h) cornerRadius:config.kCandleRadius];
+            // 开收
+            CGFloat h = fabs(m.Open - m.Close) * unitValue;
+            CGFloat y =  maxH - (MAX(m.Open, m.Close) - minMaxModel.min) * unitValue;
+            UIBezierPath *path = [UIBezierPath bezierPathWithRoundedRect:CGRectMake(x, y, w - config.kLineGap, h) cornerRadius:config.kCandleRadius];
 
-        // YYKlineModel 赋值
-        m.mainCenterPoint = lowPoint;
-        CGFloat candleCenterY = maxH - (m.Close - minMaxModel.min) * unitValue;
-        m.candleCrossLineCenterPoint = CGPointMake(centerX+CGRectGetMinX(area), candleCenterY);
-        
-        [path moveToPoint:lowPoint];
-        [path addLineToPoint:CGPointMake(centerX, y+h)];
-        [path moveToPoint:highPoint];
-        [path addLineToPoint:CGPointMake(centerX, y)];
-        
-        
-        CAShapeLayer *l = [CAShapeLayer layer];
-        l.contentsScale = UIScreen.mainScreen.scale;
-        l.path = path.CGPath;
-        l.lineWidth = config.kLineLineWidth;
-        l.strokeColor = m.isUp ? config.upColor.CGColor : config.downColor.CGColor;
-        l.fillColor =   m.isUp ? config.upColor.CGColor : config.downColor.CGColor;
-        [sublayer addSublayer:l];
+            // YYKlineModel 赋值
+            m.mainCenterPoint = lowPoint;
+            CGFloat candleCenterY = maxH - (m.Close - minMaxModel.min) * unitValue;
+            m.candleCrossLineCenterPoint = CGPointMake(centerX+CGRectGetMinX(area), candleCenterY);
+
+            [path moveToPoint:lowPoint];
+            [path addLineToPoint:CGPointMake(centerX, y+h)];
+            [path moveToPoint:highPoint];
+            [path addLineToPoint:CGPointMake(centerX, y)];
+
+
+            CAShapeLayer *l = [CAShapeLayer layer];
+            l.contentsScale = UIScreen.mainScreen.scale;
+            l.path = path.CGPath;
+            l.lineWidth = config.kLineLineWidth;
+            l.strokeColor = m.isUp ? config.upColor.CGColor : config.downColor.CGColor;
+            l.fillColor =   m.isUp ? config.upColor.CGColor : config.downColor.CGColor;
+            [sublayer addSublayer:l];
+        } else {
+            NSLog(@"YYCandlePainter:%@", [config.timestampFormatter stringFromDate:[NSDate dateWithTimeIntervalSince1970:m.Timestamp]]);
+        }
     }];
     [layer addSublayer:sublayer];
 }

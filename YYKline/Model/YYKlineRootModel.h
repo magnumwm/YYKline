@@ -24,6 +24,11 @@ extern const NSInteger kHKStockTimeFramesMaxCount;
  */
 extern const NSInteger kUSStockTimeFramesMaxCount;
 
+/*
+ * 股票价格空值，当成-1处理，需要过滤掉这些空值
+ */
+extern const NSInteger kStockPriceNullValue;
+
 typedef NS_ENUM(NSInteger, YYKlineIncicator) {
     YYKlineIncicatorMA = 100,        // MA线
     YYKlineIncicatorEMA,        // EMA线
