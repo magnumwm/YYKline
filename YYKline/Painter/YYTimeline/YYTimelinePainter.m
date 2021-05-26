@@ -8,6 +8,7 @@
 #import "YYTimelinePainter.h"
 #import "YYKlineStyleConfig.h"
 #import "YYTimePainter.h"
+#import "YYKlineRootModel.h"
 
 @implementation YYTimelinePainter
 
@@ -230,7 +231,28 @@
     CGFloat gap = maxW/total;
     NSInteger idx = (touchPoint.x - CGRectGetMinX(area)) / gap;
     if (idx < models.count) {
-        return [models objectAtIndex:idx];
+        YYKlineModel *model = [models objectAtIndex:idx];
+        if (model.Close == kStockPriceNullValue) {
+            // 数据为空的情况，先往后遍历搜索到有数据的点
+            NSInteger index = idx+1;
+            while (index < models.count) {
+                model = [models objectAtIndex:index];
+                if (model.Close > kStockPriceNullValue) {
+                    return model;
+                }
+                index++;
+            }
+            // 先往前遍历搜索到有数据的点
+            index = idx-1;
+            while (index >= 0) {
+                model = [models objectAtIndex:index];
+                if (model.Close > kStockPriceNullValue) {
+                    return model;
+                }
+                index--;
+            }
+        }
+        return model;
     } else {
         return nil;
     }

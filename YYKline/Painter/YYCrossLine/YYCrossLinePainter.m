@@ -101,7 +101,8 @@
 
         // 计算文字frame
         CGRect rect = [leftText boundingRectWithSize:CGSizeMake(config.kLineCrossTextMaxWidth, config.kLineCrossTextHeight) options:NSStringDrawingUsesFontLeading context:nil];
-        textLayer.frame = CGRectMake(0, point.y-config.kLineCrossTextHeight/2, rect.size.width+config.kLineCrossTextInset.left+config.kLineCrossTextInset.right, config.kLineCrossTextHeight);
+        CGFloat y = MAX(0, point.y-config.kLineCrossTextHeight/2);
+        textLayer.frame = CGRectMake(0, y, rect.size.width+config.kLineCrossTextInset.left+config.kLineCrossTextInset.right, config.kLineCrossTextHeight);
 
         textLayer.contentsScale = UIScreen.mainScreen.scale;
         [sublayer addSublayer:textLayer];
@@ -117,7 +118,8 @@
         // 计算文字frame
         CGRect rect = [rightText boundingRectWithSize:CGSizeMake(config.kLineCrossTextMaxWidth, config.kLineCrossTextHeight) options:NSStringDrawingUsesFontLeading context:nil];
         CGFloat width = rect.size.width+config.kLineCrossTextInset.left+config.kLineCrossTextInset.right;
-        textLayer.frame = CGRectMake(maxW-width, point.y-config.kLineCrossTextHeight/2, width, config.kLineCrossTextHeight);
+        CGFloat y = MAX(0, point.y-config.kLineCrossTextHeight/2);
+        textLayer.frame = CGRectMake(maxW-width, y, width, config.kLineCrossTextHeight);
 
         textLayer.contentsScale = UIScreen.mainScreen.scale;
         [sublayer addSublayer:textLayer];

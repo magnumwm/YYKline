@@ -219,11 +219,11 @@ const NSInteger kStockPriceNullValue = -1;
         }
         [indexDict setObject:@(index) forKey:@(model.Timestamp)];
 
-        model.Open = 0;
-        model.High = 0;
-        model.Low = 0;
-        model.Close = 0;
-        model.Volume = 0;
+        model.Open = kStockPriceNullValue;
+        model.High = kStockPriceNullValue;
+        model.Low = kStockPriceNullValue;
+        model.Close = kStockPriceNullValue;
+        model.Volume = kStockPriceNullValue;
 
         [mArr addObject:model];
         index++;

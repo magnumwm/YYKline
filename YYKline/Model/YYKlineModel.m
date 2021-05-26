@@ -216,7 +216,7 @@
 }
 
 - (NSString *)changePercent {
-    if (self.PrevModel.Close <= 0) return @"";
+    if (self.PrevModel.Close <= 0) return @"--";
     CGFloat change = (self.Close - self.PrevModel.Close)/self.PrevModel.Close*100;
     return [NSString stringWithFormat:@"%.2f%%", change];
 }
