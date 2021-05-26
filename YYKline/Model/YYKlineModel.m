@@ -222,6 +222,7 @@
 }
 
 - (NSString *)changeAmount {
+    if (self.PrevModel.Close <= 0) return @"--";
     CGFloat change = (self.Close - self.PrevModel.Close);
     return [NSString stringWithFormat:@"%.2f", change];
 }
