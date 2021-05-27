@@ -28,8 +28,8 @@
 @interface YYKlineView() <UIScrollViewDelegate>
 {
     UIPinchGestureRecognizer *pinchGesture;
-    CGFloat currentStockPrice;
     Class currentPainter;
+    BOOL enableScroll;
 }
 @property (nonatomic, strong) UIScrollView *scrollView;
 @property (nonatomic, strong) UIView *painterView;
@@ -88,6 +88,15 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
         [self initUI];
     }
     return self;
+}
+
+- (void)layoutSubviews {
+    [super layoutSubviews];
+    if (self.styleConfig.currentChartType == kYYKlineChartTypeKline) {
+        [self reDrawCandle:self.currentStockPrice];
+    } else {
+        [self reDrawTimeline:self.currentStockPrice];
+    }
 }
 
 #pragma mark -- 初始化subview
@@ -208,9 +217,11 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
     }];
 }
 
-- (void)resetContentOffset {
+- (void)resetContentOffset:(BOOL)reset {
     self.oldContentOffsetX = 0;
-    self.scrollView.contentOffset = CGPointZero;
+    if (reset) {
+        self.scrollView.contentOffset = CGPointZero;
+    }
     [self.scrollView layoutIfNeeded];
 }
 
@@ -235,17 +246,17 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
 #pragma mark -- 重绘蜡烛图
 - (void)reDrawCandle:(CGFloat)currentPrice {
     currentPainter = self.linePainter;
-    currentStockPrice = currentPrice;
+    self.currentStockPrice = currentPrice;
 
     YYKlineStyleConfig *config = self.styleConfig;
     dispatch_main_async_safe(^{
         [self updateCandleScrollViewContentSize];
         CGFloat kLineViewWidth = self.rootModel.models.count * config.kLineWidth + (self.rootModel.models.count + 1) * config.kLineGap + 10;
         CGFloat offset = kLineViewWidth - self.scrollView.frame.size.width;
-        if (self.oldContentOffsetX == 0) {
+//        if (self.oldContentOffsetX == 0) {
             // 初始展示最新日期的数据
             self.scrollView.contentOffset = CGPointMake(MAX(offset, 0), 0);
-        }
+//        }
 //        if (offset == self.oldContentOffsetX) {
             [self calculateNeedDrawModels];
 //        }
@@ -255,12 +266,10 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
 #pragma mark -- 重绘分时图
 - (void)reDrawTimeline:(CGFloat)currentPrice {
     currentPainter = self.timelinePainter;
-    currentStockPrice = currentPrice;
-
+    self.currentStockPrice = currentPrice;
     dispatch_main_async_safe(^{
         [self updateTimelineScrollViewContentSize];
         self.painterViewXConstraint.offset = 0;
-        [self.painterView layoutIfNeeded];
         [self drawWithModels:self.rootModel.models];
     });
 }
@@ -274,6 +283,7 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
 
 - (void)updateTimelineScrollViewContentSize {
     self.scrollView.contentSize = CGSizeMake(CGRectGetWidth(self.frame), CGRectGetHeight(self.frame));
+    [self resetContentOffset:YES];
 }
 
 #pragma mark -- 计算显示区域需要绘制的蜡烛
@@ -338,7 +348,7 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
                               drawFiveDay:isDrawFiveDay];
 
         /// 当前基准横线，绘制的是昨收盘价
-        if (currentStockPrice > minMax.min && currentStockPrice < minMax.max) {
+        if (self.currentStockPrice > minMax.min && self.currentStockPrice < minMax.max) {
             // current < min or current > max 不显示
             CGRect currentPriceLineArea = CGRectMake(0, 0, CGRectGetWidth(self.mainPainterView.bounds), config.mainAreaHeight);
             [self.currentPricePainter drawToLayer:self.mainPainterView.layer
@@ -346,7 +356,7 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
                                       styleConfig:self.styleConfig
                                            models:models
                                            minMax:minMax
-                                          current:currentStockPrice];
+                                          current:self.currentStockPrice];
         }
     } else {
         // candle主图
@@ -397,6 +407,8 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
      */
     NSInteger gap = (area.size.width/4) / (self.styleConfig.kLineWidth + self.styleConfig.kLineGap);
 
+    if (gap == 0) return @[];
+
     NSMutableArray *result = @[].mutableCopy;
 
     NSUInteger count = models.count;
@@ -418,7 +430,8 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
 
 #pragma mark -  禁用滚动和缩放
 - (void)enableScrollAndZoom:(BOOL)enable {
-    self.scrollView.scrollEnabled = enable;
+    enableScroll = enable;
+    self.scrollView.scrollEnabled = enableScroll;
     pinchGesture.enabled = enable;
 }
 
@@ -427,7 +440,7 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
     static CGFloat oldPositionX = 0;
     YYKlineStyleConfig *config = self.styleConfig;
     if(UIGestureRecognizerStateChanged == longPress.state || UIGestureRecognizerStateBegan == longPress.state) {
-        CGPoint location = [longPress locationInView:self.scrollView];
+        CGPoint location;
         // 暂停滑动
         self.scrollView.scrollEnabled = NO;
 
@@ -436,10 +449,12 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
         YYKlineModel *model;
         CGPoint crossLineCenterPoint;
         if ([currentPainter isSubclassOfClass:YYCandlePainter.class]) {
+            location = [longPress locationInView:self.scrollView];
             model = [YYCandlePainter getKlineModel:location area:mainArea styleConfig:config models:self.rootModel.models];
             if (!model) return;
             crossLineCenterPoint = model.candleCrossLineCenterPoint;
         } else if([currentPainter isSubclassOfClass:YYTimelinePainter.class]) {
+            location = [longPress locationInView:self.painterView];
             model = [YYTimelinePainter getKlineModel:location area:mainArea total:self.rootModel.models.count models:self.rootModel.models];
             if (!model || model.Close <= 0) return;
             crossLineCenterPoint = model.timelineCrossLineCenterPoint;
@@ -473,7 +488,7 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
         self.crosslineTopView = nil;
         oldPositionX = 0;
         // 恢复scrollView的滑动
-        self.scrollView.scrollEnabled = YES;
+        self.scrollView.scrollEnabled = enableScroll;
 
         if (self.delegate && [self.delegate respondsToSelector:@selector(yyklineviewEndLongPressChart:)]) {
             [self.delegate yyklineviewEndLongPressChart:nil];
@@ -556,14 +571,16 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
 
 #pragma mark - UIScrollView代理
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
-    if (self.scrollView.contentOffset.x < 0) {
-        self.painterViewXConstraint.offset = 0;
-    } else {
-        self.painterViewXConstraint.offset = scrollView.contentOffset.x;
+    if (self.scrollView.scrollEnabled == YES) {
+        if (self.scrollView.contentOffset.x < 0) {
+            self.painterViewXConstraint.offset = 0;
+        } else {
+            self.painterViewXConstraint.offset = scrollView.contentOffset.x;
+        }
+        [self.scrollView layoutIfNeeded];
+        self.oldContentOffsetX = self.scrollView.contentOffset.x;
+        [self calculateNeedDrawModels];
     }
-    [self.scrollView layoutIfNeeded];
-    self.oldContentOffsetX = self.scrollView.contentOffset.x;
-    [self calculateNeedDrawModels];
 }
 
 @end

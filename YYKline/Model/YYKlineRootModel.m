@@ -47,7 +47,6 @@ const NSInteger kStockPriceNullValue = -1;
                 model.Low = [YYKlineRootModel parseFloat:item[2]];
                 model.Close = [YYKlineRootModel parseFloat:item[3]];
                 model.Volume = [YYKlineRootModel parseFloat:item[4]];
-//                NSLog(@"indexObj:%@, timeStamp:%@", indexObj, timeStamp);
             }
             else {
                 // 如果timeStamp > self.models.lastObjc.timestamp 填充到最后一个时间点
@@ -62,7 +61,6 @@ const NSInteger kStockPriceNullValue = -1;
             }
         }
     }
-    NSLog(@"%ld", self.models.count);
 }
 
 + (instancetype)objectWithArray:(NSArray *)arr{
@@ -244,7 +242,6 @@ const NSInteger kStockPriceNullValue = -1;
     NSDate *nine30 = [zeroDate dateByAddingTimeInterval:(9*60*60+30*60)];
     dateFormatter.dateFormat = @"yyyy-MM-dd HH:mm:ss";
     NSInteger interval = [nine30 timeIntervalSince1970];
-//    NSLog(@"%@, interval: %ld, zone:%@", [dateFormatter stringFromDate:nine30], interval, zone.name);
     return interval;
 }
 

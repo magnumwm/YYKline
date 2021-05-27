@@ -70,8 +70,6 @@
             l.strokeColor = m.isUp ? config.upColor.CGColor : config.downColor.CGColor;
             l.fillColor =   m.isUp ? config.upColor.CGColor : config.downColor.CGColor;
             [sublayer addSublayer:l];
-        } else {
-            NSLog(@"YYCandlePainter:%@", [config.timestampFormatter stringFromDate:[NSDate dateWithTimeIntervalSince1970:m.Timestamp]]);
         }
     }];
     [layer addSublayer:sublayer];

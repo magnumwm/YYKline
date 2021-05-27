@@ -28,73 +28,6 @@
 }
 
 + (void)drawToLayer:(CALayer *)layer
-               area:(CGRect)area
-        styleConfig:(YYKlineStyleConfig *)config
-              total:(NSInteger)total
-             models:(NSArray<YYKlineModel*> *)models
-             minMax:(YYMinMaxModel *)minMaxModel {
-    if(!models || models.count == 0) {
-        return;
-    }
-
-    CGFloat maxW = CGRectGetWidth(area);
-    CGFloat maxH = CGRectGetHeight(area);
-    CGFloat gap = maxW/total;
-
-    CGFloat unitValue = maxH/minMaxModel.distance;
-
-    __block CGPoint pointStart, pointEnd;
-    // 创建分时图Layer
-    YYTimelinePainter *sublayer = [[YYTimelinePainter alloc] init];
-    sublayer.frame = area;
-    UIBezierPath *path1 = [UIBezierPath bezierPath];
-    [models enumerateObjectsUsingBlock:^(YYKlineModel * _Nonnull m, NSUInteger idx, BOOL * _Nonnull stop) {
-        if (m.Close > 0) {
-            CGFloat x = idx * gap;
-            CGPoint point1 = CGPointMake(x, maxH - (m.Close - minMaxModel.min)*unitValue);
-            if (idx == 0) {
-                [path1 moveToPoint:point1];
-                pointStart = point1;
-            } else {
-                [path1 addLineToPoint:point1];
-            }
-            m.mainCenterPoint = point1;
-            m.timelineCrossLineCenterPoint = CGPointMake(point1.x+CGRectGetMinX(area), point1.y);
-            if (idx == models.count - 1) {
-                pointEnd = point1;
-            }
-        }
-    }];
-
-    // 画线
-    {
-        CAShapeLayer *l = [CAShapeLayer layer];
-        l.path = path1.CGPath;
-        l.lineWidth = config.kTimelineLineWidth;
-        l.strokeColor = config.timeLineLineColor.CGColor;
-        l.fillColor =   [UIColor clearColor].CGColor;
-        [sublayer addSublayer:l];
-    }
-    [layer addSublayer:sublayer];
-
-    // 渐变背景色
-    {
-        CAShapeLayer *maskLayer = [CAShapeLayer layer];
-        UIBezierPath *path2 = [path1 copy];
-        [path2 addLineToPoint:CGPointMake(pointEnd.x, maxH)];
-        [path2 addLineToPoint: CGPointMake(pointStart.x, maxH)];
-        [path2 closePath];
-        maskLayer.path = path2.CGPath;
-        CAGradientLayer *bgLayer = [CAGradientLayer layer];
-        bgLayer.frame = area;
-        bgLayer.colors = @[(id)config.timelineGradientStartColor.CGColor, (id)config.timelineGradientEndColor.CGColor];
-        //        bgLayer.locations = @[@0.3, @0.9];
-        bgLayer.mask = maskLayer;
-        [layer addSublayer:bgLayer];
-    }
-}
-
-+ (void)drawToLayer:(CALayer *)layer
           timeLayer:(CALayer *)timeLayer
         styleConfig:(YYKlineStyleConfig *)config
               total:(NSInteger)total
@@ -105,8 +38,9 @@
         return;
     }
 
-    CGFloat maxW = CGRectGetWidth(layer.bounds);
-    CGFloat maxH = CGRectGetHeight(layer.bounds);
+    CGFloat maxW = CGRectGetWidth(layer.frame);
+    CGFloat maxH = CGRectGetHeight(layer.frame);
+    CGFloat minX = CGRectGetMinX(layer.frame);
     CGFloat gap = maxW/total;
 
     CGFloat unitValue = maxH/minMaxModel.distance;
@@ -137,8 +71,7 @@
             CGFloat x = idx * gap;
             CGPoint point1 = CGPointMake(x, maxH - (m.Close - minMaxModel.min)*unitValue);
             m.mainCenterPoint = point1;
-            m.timelineCrossLineCenterPoint = CGPointMake(point1.x+CGRectGetMinX(layer.bounds), point1.y);
-
+            m.timelineCrossLineCenterPoint = CGPointMake(point1.x+minX, point1.y);
             if (idx == 0) {
                 // 第一个时间点的时间string
                 NSDateFormatter *formatter = config.timestampFormatter;

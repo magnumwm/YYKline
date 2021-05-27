@@ -28,9 +28,12 @@
 /// 绘制参数
 @property (nonatomic, strong) YYKlineStyleConfig *styleConfig;
 
+/// 当前preclose
+@property (nonatomic, assign) CGFloat currentStockPrice;
+
 - (instancetype)initWithStyleConfig:(YYKlineStyleConfig *)config;
 /// 重置scrollView偏移量，切换日K/周K/年K时需要重置
-- (void)resetContentOffset;
+- (void)resetContentOffset:(BOOL)reset;
 /// 重绘K线蜡烛图
 - (void)reDrawCandle:(CGFloat)currentPrice;
 /// 重绘分时图
