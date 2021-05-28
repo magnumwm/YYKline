@@ -399,6 +399,34 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
 
 }
 
+#pragma mark - 绘制十字交叉线
+- (void)drawCrossline:(YYKlineModel *)model
+                price:(NSString *)price
+          changeRatio:(NSString *)changeRatio {
+    if (!model || model.Close <= 0) return;
+    self.crosslineTopView.layer.sublayers = nil;
+
+    CGPoint crossLineCenterPoint;
+    if ([currentPainter isSubclassOfClass:YYCandlePainter.class]) {
+        crossLineCenterPoint = model.candleCrossLineCenterPoint;
+    } else if([currentPainter isSubclassOfClass:YYTimelinePainter.class]) {
+        if (!model || model.Close <= 0) return;
+        crossLineCenterPoint = model.timelineCrossLineCenterPoint;
+    } else {
+        return;
+    }
+
+    NSString *drawTime = [self.styleConfig.crosslineTimestampFormatter stringFromDate:[NSDate dateWithTimeIntervalSince1970:model.Timestamp]];
+    NSDictionary *attributes = @{NSForegroundColorAttributeName: self.styleConfig.crossLineTextColor, NSFontAttributeName: self.styleConfig.crosslineTextFont};
+    [self.crossPainter drawToLayer:self.crosslineTopView.layer
+                             point:crossLineCenterPoint
+                              area:self.painterView.bounds
+                       styleConfig:self.styleConfig
+                          leftText:[[NSAttributedString alloc] initWithString:price attributes:attributes]
+                         rightText:[[NSAttributedString alloc] initWithString:changeRatio attributes:attributes]
+                          downText:[[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@"%@", drawTime] attributes:attributes]];
+}
+
 #pragma mark - 计算可见区域的横轴时间坐标
 /// 计算可见区域的横轴时间坐标
 - (NSArray<YYKlineModel*> *)createVisibleTimestamps:(NSArray <YYKlineModel *> *)models area:(CGRect)area {
@@ -462,23 +490,11 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
             return;
         }
 
-        [self updateLabelText:model];
-
         // 绘制十字交叉线
         if (longPress.state == UIGestureRecognizerStateBegan) {
             [self initTopView];
         }
-        self.crosslineTopView.layer.sublayers = nil;
-
-        NSString *drawTime = [self.styleConfig.crosslineTimestampFormatter stringFromDate:[NSDate dateWithTimeIntervalSince1970:model.Timestamp]];
-        NSDictionary *attributes = @{NSForegroundColorAttributeName: config.crossLineTextColor, NSFontAttributeName: config.crosslineTextFont};
-        [self.crossPainter drawToLayer:self.crosslineTopView.layer
-                                 point:crossLineCenterPoint
-                                  area:mainArea
-                           styleConfig:self.styleConfig
-                              leftText:[[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@"%.2f", model.Open] attributes:attributes]
-                             rightText:[[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@"%@", model.changePercent] attributes:attributes]
-                              downText:[[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@"%@", drawTime] attributes:attributes]];
+        [self updateLabelText:model];
     }
     
     if(longPress.state == UIGestureRecognizerStateEnded ||

@@ -34,10 +34,10 @@
 - (instancetype)initWithStyleConfig:(YYKlineStyleConfig *)config;
 /// 重置scrollView偏移量，切换日K/周K/年K时需要重置
 - (void)resetContentOffset:(BOOL)reset;
-/// 重绘K线蜡烛图
-- (void)reDrawCandle:(CGFloat)currentPrice;
-/// 重绘分时图
-- (void)reDrawTimeline:(CGFloat)currentPrice;
+/// 绘制十字交叉线
+- (void)drawCrossline:(YYKlineModel *)model
+                price:(NSString *)price
+          changeRatio:(NSString *)changeRatio;
 /// 分时/五日不能滚动，日K/周K等可以滚动和缩放
 - (void)enableScrollAndZoom:(BOOL)enable;
 @end
