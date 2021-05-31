@@ -37,16 +37,18 @@
     YYVolPainter *sublayer = [[YYVolPainter alloc] init];
     sublayer.frame = area;
     [models enumerateObjectsUsingBlock:^(YYKlineModel * _Nonnull m, NSUInteger idx, BOOL * _Nonnull stop) {
-        CGFloat w = total==0?(config.kLineWidth-config.kLineGap):maxW/total;;
-//        CGFloat x = idx * (w + config.kLineGap);
-        CGFloat h = fabs(m.Volume - minMaxModel.min) * unitValue;
-        UIBezierPath *path = [UIBezierPath bezierPathWithRoundedRect:CGRectMake(m.mainCenterPoint.x-w/2, maxH - h, w, h) cornerRadius:config.kVolumeBarRadius];
-        CAShapeLayer *l = [CAShapeLayer layer];
-        l.path = path.CGPath;
-        //        l.lineWidth = config.kLineWidth;
-        l.strokeColor = m.isUp ? config.volumeUpColor.CGColor : config.volumeDownColor.CGColor;
-        l.fillColor = m.isUp ? config.volumeUpColor.CGColor : config.volumeDownColor.CGColor;
-        [sublayer addSublayer:l];
+        if (m.Volume > 0) {
+            CGFloat w = total==0?(config.kLineWidth-config.kLineGap):maxW/total;
+            //        CGFloat x = idx * (w + config.kLineGap);
+            CGFloat h = fabs(m.Volume - minMaxModel.min) * unitValue;
+            UIBezierPath *path = [UIBezierPath bezierPathWithRoundedRect:CGRectMake(m.mainCenterPoint.x-w/2, maxH - h, w, h) cornerRadius:config.kVolumeBarRadius];
+            CAShapeLayer *l = [CAShapeLayer layer];
+            l.path = path.CGPath;
+            //        l.lineWidth = config.kLineWidth;
+            l.strokeColor = m.isUp ? config.volumeUpColor.CGColor : config.volumeDownColor.CGColor;
+            l.fillColor = m.isUp ? config.volumeUpColor.CGColor : config.volumeDownColor.CGColor;
+            [sublayer addSublayer:l];
+        }
     }];
     [layer addSublayer:sublayer];
 }
