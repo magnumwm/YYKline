@@ -23,7 +23,7 @@
 /**
  *  K线图最小的宽度
  */
-#define YYKlineLineMinWidth 0.01
+#define YYKlineLineMinWidth 0.1
 
 /**
  *  K线图最大的间隔
@@ -38,7 +38,7 @@
 /**
  *  K线图缩放界限
  */
-#define YYKlineScaleBound 0.01
+#define YYKlineScaleBound 0.1
 
 /**
  *  K线的缩放因子

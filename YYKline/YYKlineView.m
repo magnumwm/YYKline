@@ -253,10 +253,10 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
         [self updateCandleScrollViewContentSize];
         CGFloat kLineViewWidth = self.rootModel.models.count * config.kLineWidth + (self.rootModel.models.count + 1) * config.kLineGap + 10;
         CGFloat offset = kLineViewWidth - self.scrollView.frame.size.width;
-//        if (self.oldContentOffsetX == 0) {
+        if (self.oldContentOffsetX == 0) {
             // 初始展示最新日期的数据
             self.scrollView.contentOffset = CGPointMake(MAX(offset, 0), 0);
-//        }
+        }
 //        if (offset == self.oldContentOffsetX) {
             [self calculateNeedDrawModels];
 //        }
@@ -574,6 +574,8 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
         if (self.scrollView.contentSize.width < self.scrollView.bounds.size.width) {
             [self scrollViewDidScroll:self.scrollView];
         }
+    } else {
+//        NSLog(@"difValue:%f, pinch.scale:%f, oldScale:%f", difValue, pinch.scale, oldScale);
     }
 }
 
@@ -587,16 +589,14 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
 
 #pragma mark - UIScrollView代理
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
-    if (self.scrollView.scrollEnabled == YES) {
-        if (self.scrollView.contentOffset.x < 0) {
-            self.painterViewXConstraint.offset = 0;
-        } else {
-            self.painterViewXConstraint.offset = scrollView.contentOffset.x;
-        }
-        [self.scrollView layoutIfNeeded];
-        self.oldContentOffsetX = self.scrollView.contentOffset.x;
-        [self calculateNeedDrawModels];
+    if (self.scrollView.contentOffset.x < 0) {
+        self.painterViewXConstraint.offset = 0;
+    } else {
+        self.painterViewXConstraint.offset = scrollView.contentOffset.x;
     }
+    [self.scrollView layoutIfNeeded];
+    self.oldContentOffsetX = self.scrollView.contentOffset.x;
+    [self calculateNeedDrawModels];
 }
 
 @end
