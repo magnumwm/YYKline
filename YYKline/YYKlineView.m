@@ -431,28 +431,22 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
 /// 计算可见区域的横轴时间坐标
 - (NSArray<YYKlineModel*> *)createVisibleTimestamps:(NSArray <YYKlineModel *> *)models area:(CGRect)area {
     /**
-     * 时间绘制规则 展示五个时间标签，标签值为起始时间点和三个四等分点；
+     * 时间绘制规则 展示四个时间标签，标签值为起始结尾时间点和三个四等分点；
      */
-    NSInteger gap = (area.size.width/4) / (self.styleConfig.kLineWidth + self.styleConfig.kLineGap);
-
-    if (gap == 0) return @[];
-
-    NSMutableArray *result = @[].mutableCopy;
+    if (models.count <= 2) return @[];
 
     NSUInteger count = models.count;
-    for (int i = 1; i < count - 1; i++) {
-        BOOL insert = i % gap == 0;
-        if (insert) {
-            YYKlineModel *model = [models objectAtIndex:i];
-            [result addObject:model];
-        }
+    NSInteger gap = (NSInteger)(count / 3);
+
+    if (gap == 0) return @[models.firstObject, models.lastObject];
+
+    NSMutableArray *result = @[models.firstObject].mutableCopy;
+
+    for (int i = 1; i <= 2 && i*gap < count; i++) {
+        YYKlineModel *model = [models objectAtIndex:i*gap];
+        [result addObject:model];
     }
-    [result insertObject:models.firstObject atIndex:0];
-    if (result.count >= 5) {
-        [result replaceObjectAtIndex:result.count-1 withObject:models.lastObject];
-    } else {
-        [result addObject:models.lastObject];
-    }
+    [result addObject:models.lastObject];
     return result;
 }
 

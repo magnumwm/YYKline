@@ -75,13 +75,22 @@ const NSInteger kStockPriceNullValue = -1;
         model.PrevModel = mArr.lastObject;
         model.Timestamp = [self parseFloat:item[5]];
 
+        BOOL isValidData = YES;
+        if ([item[0] isKindOfClass:NSNull.class] ||
+            [item[1] isKindOfClass:NSNull.class] ||
+            [item[2] isKindOfClass:NSNull.class] ||
+            [item[3] isKindOfClass:NSNull.class]) {
+            isValidData = NO;
+        }
         model.Open = [item[0] isKindOfClass:NSNull.class] ? kStockPriceNullValue : [self parseFloat:item[0]];
         model.High = [item[1] isKindOfClass:NSNull.class] ? kStockPriceNullValue : [self parseFloat:item[1]];
         model.Close = [item[3] isKindOfClass:NSNull.class] ? kStockPriceNullValue : [self parseFloat:item[3]];
         model.Low = [item[2] isKindOfClass:NSNull.class] ? kStockPriceNullValue : [self parseFloat:item[2]];
         model.Volume = [self parseFloat:item[4]];
 
-        [mArr addObject:model];
+        if (isValidData) {
+            [mArr addObject:model];
+        }
         index++;
     }
     groupModel.models = mArr;
