@@ -433,7 +433,9 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
     /**
      * 时间绘制规则 展示四个时间标签，标签值为起始结尾时间点和三个四等分点；
      */
-    if (models.count <= 2) return @[];
+    if (models.count == 0) return @[];
+
+    if (models.count <= 4) return @[models.firstObject];
 
     NSUInteger count = models.count;
     NSInteger gap = (NSInteger)(count / 3);
