@@ -20,6 +20,7 @@
     [data enumerateObjectsUsingBlock:^(YYKlineModel * _Nonnull m, NSUInteger idx, BOOL * _Nonnull stop) {
         maxAssert = MAX(maxAssert, m.High);
         minAssert = MIN(minAssert, m.Low);
+        minAssert = MIN(minAssert, m.Close);
     }];
     return [YYMinMaxModel modelWithMin:minAssert max:maxAssert];
 }
