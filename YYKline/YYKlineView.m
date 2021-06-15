@@ -438,17 +438,27 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
     if (models.count <= 4) return @[models.firstObject];
 
     NSUInteger count = models.count;
-    NSInteger gap = (NSInteger)(count / 3);
 
-    if (gap == 0) return @[models.firstObject, models.lastObject];
+    // 计算第一条K线和最后一条K线的距离，需要展示的单个日期的长度以0000-00-00计算
+    CGFloat distance = models.lastObject.mainCenterPoint.x - models.firstObject.mainCenterPoint.x;
+    CGFloat dateWidth = [@"0000-00-00" boundingRectWithSize:CGSizeMake(100, 16) options:NSStringDrawingUsesFontLeading attributes:@{NSFontAttributeName:self.styleConfig.timelineFont} context:nil].size.width + 8;
+    NSInteger numOfDates = (NSInteger)roundf(distance / dateWidth);
+    numOfDates = MAX(1, numOfDates);
+
+    if (numOfDates <= 1) return @[models.firstObject];
+    if (numOfDates <= 2) return @[models.firstObject, models.lastObject];
 
     NSMutableArray *result = @[models.firstObject].mutableCopy;
+    // 默认第一个和最后一个都需要展示, 限制中间最多显示3个时间
+    numOfDates = numOfDates - 2;
+    NSInteger gap = count / numOfDates;
 
-    for (int i = 1; i <= 2 && i*gap < count; i++) {
-        YYKlineModel *model = [models objectAtIndex:i*gap];
+    NSInteger lastIndex = 0;
+    for (int i = 1; i <= numOfDates && (lastIndex+gap) < count; i++) {
+        YYKlineModel *model = [models objectAtIndex:(lastIndex+gap)];
         [result addObject:model];
+        lastIndex = lastIndex + gap;
     }
-    [result addObject:models.lastObject];
     return result;
 }
 
