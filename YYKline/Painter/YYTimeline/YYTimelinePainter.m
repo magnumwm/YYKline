@@ -82,8 +82,10 @@
                 if (isFiveDayTime) {
                     [YYTimePainter drawToLayer:timeSubLayer styleConfig:config model:m];
                 } else {
-                    // 今日分时绘制MMDD日期
-                    [YYTimePainter drawToLayer:timeSubLayer styleConfig:config model:m text:m.V_Date];
+                    // 今日分时绘制MMDD日期，时间戳不是今天才需要绘制
+                    if (![formatter.calendar isDateInToday:date]) {
+                        [YYTimePainter drawToLayer:timeSubLayer styleConfig:config model:m text:m.V_Date];
+                    }
                 }
             }
 
