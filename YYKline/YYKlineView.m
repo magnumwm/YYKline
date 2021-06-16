@@ -435,8 +435,6 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
      */
     if (models.count == 0) return @[];
 
-    if (models.count <= 4) return @[models.firstObject];
-
     NSUInteger count = models.count;
 
     // 计算第一条K线和最后一条K线的距离，需要展示的单个日期的长度以0000-00-00计算
@@ -448,10 +446,12 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
     if (numOfDates <= 1) return @[models.firstObject];
     if (numOfDates <= 2) return @[models.firstObject, models.lastObject];
 
+    // 添加第一条K线
     NSMutableArray *result = @[models.firstObject].mutableCopy;
-    // 默认第一个和最后一个都需要展示, 限制中间最多显示3个时间
-    numOfDates = numOfDates - 2;
-    NSInteger gap = count / numOfDates;
+    // 中间最多显示3条K线
+    numOfDates = MIN(numOfDates - 2, 3);
+
+    NSInteger gap = MAX(5, count) / (numOfDates+1);
 
     NSInteger lastIndex = 0;
     for (int i = 1; i <= numOfDates && (lastIndex+gap) < count; i++) {
@@ -459,6 +459,9 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
         [result addObject:model];
         lastIndex = lastIndex + gap;
     }
+
+    // 添加最后一条K线
+    [result addObject:models.lastObject];
     return result;
 }
 
