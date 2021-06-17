@@ -81,12 +81,13 @@
                 // 绘制第一个时间点
                 if (isFiveDayTime) {
                     [YYTimePainter drawToLayer:timeSubLayer styleConfig:config model:m];
-                } else {
-                    // 今日分时绘制MMDD日期，时间戳不是今天才需要绘制
-                    if (![formatter.calendar isDateInToday:date]) {
-                        [YYTimePainter drawToLayer:timeSubLayer styleConfig:config model:m text:m.V_Date];
-                    }
                 }
+//                else {
+//                    // 今日分时绘制MMDD日期，时间戳不是今天才需要绘制
+//                    if (![formatter.calendar isDateInToday:date]) {
+//                        [YYTimePainter drawToLayer:timeSubLayer styleConfig:config model:m text:m.V_Date];
+//                    }
+//                }
             }
 
             if (idx == startIndex) {
@@ -123,9 +124,9 @@
                 NSArray *timeArray;
                 NSString *drawText;
                 if (models.count <= kChinaStockTimeFramesMaxCount) {
-                    timeArray = @[@"10:00", @"11:30", @"15:00"];
+                    timeArray = @[@"09:31", @"11:30", @"15:00"];
                 } else {
-                    timeArray = @[@"10:00", @"11:59", @"16:00"];
+                    timeArray = @[@"09:31", @"11:59", @"16:00"];
                 }
 
                 for (NSString *keyTime in timeArray) {
