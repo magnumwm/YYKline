@@ -102,6 +102,8 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
 #pragma mark -- 初始化subview
 - (void)initUI {
     self.backgroundColor = self.styleConfig.backgroundColor;
+    self.translatesAutoresizingMaskIntoConstraints = NO;
+
     // 主图
     [self initScrollView];
     [self initPainterView];
@@ -121,6 +123,7 @@ static void dispatch_main_async_safe(dispatch_block_t block) {
     _scrollView.showsHorizontalScrollIndicator = NO;
     _scrollView.bounces = NO;
     _scrollView.delegate = self;
+    _scrollView.translatesAutoresizingMaskIntoConstraints = NO;
 
     [self addSubview:_scrollView];
     [_scrollView mas_makeConstraints:^(MASConstraintMaker *make) {
