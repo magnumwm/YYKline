@@ -136,7 +136,7 @@
         CGFloat width = rect.size.width+config.kLineCrossTextInset.left+config.kLineCrossTextInset.right;
         CGFloat x = MAX(0, point.x-width/2);
         x = MIN(x, area.size.width-width);
-        textLayer.frame = CGRectMake(x, CGRectGetMaxY(area)-config.kLineCrossTextHeight, width, config.kLineCrossTextHeight);
+        textLayer.frame = CGRectMake(x, config.mainAreaHeight+config.mainToTimelineGap+(config.timelineAreaHeight-rect.size.height)/2, width, config.kLineCrossTextHeight);
 
         textLayer.contentsScale = UIScreen.mainScreen.scale;
         [sublayer addSublayer:textLayer];
